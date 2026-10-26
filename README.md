@@ -1,83 +1,102 @@
-# Step-by-Step Guide: How to Fork, Clone, and Submit Your Assessment
+# Freelancer Expense Statement Categorizer
 
-**Repository:** https://github.com/savvpro/savvpro-test-statement-categorizer
+## Overview
+A full-stack application that categorizes freelancer/business expense transactions from CSV statements using rule-based Python logic.
 
----
+## Features
+- CSV statement upload
+- Rule-based transaction categorization
+- Confidence score
+- Needs Review handling
+- Manual category correction
+- Category totals
+- React frontend
+- FastAPI backend
 
-## Step 1: Fork the Repository
+## Tech Stack
+Frontend:
+- React
+- Vite
 
-1. Go to the repository: https://github.com/savvpro/savvpro-test-statement-categorizer
-2. Click the **Fork** button in the top-right corner.
-3. This will create a copy of the repository in your GitHub account.
+Backend:
+- Python
+- FastAPI
+- Pandas
 
----
+Testing:
+- Pytest
 
-## Step 2: Clone Your Fork
+## Categories
+- Software
+- Cloud Services
+- Travel
+- Food
+- Office Supplies
+- Internet & Phone
+- Transfer / Not Expense
+- Refund
+- Needs Review
 
-1. Open your forked repository in your GitHub account.
-2. Click the green **Code** button and copy the URL.
-3. Run the following commands:
+## Running the Backend
 
-```bash
-git clone https://github.com/your-username/savvpro-test-statement-categorizer.git
-cd savvpro-test-statement-categorizer
-```
+cd backend
 
----
+venv\Scripts\activate
 
-## Step 3: Read the Task
+pip install -r requirements.txt
 
-Open and read **TASK.md** carefully before writing any code.
+uvicorn main:app --reload
 
-- TASK.md URL: https://github.com/savvpro/savvpro-test-statement-categorizer/blob/main/TASK.md
+Backend:
+http://127.0.0.1:8000
 
----
+API Docs:
+http://127.0.0.1:8000/docs
 
-## Step 4: Create a New Branch
+## Running the Frontend
 
-Branch pattern: `candidate-<your-github-username>`
+cd frontend
 
-```bash
-git checkout -b candidate-<your-github-username>
-```
+npm install
 
-**Example:**
-```bash
-git checkout -b candidate-johndoe
-```
+npm run dev
 
----
+Frontend:
+http://localhost:5173
 
-## Step 5: Complete the Task
+## Input CSV Format
 
-Build the full application on your branch.
+date,description,amount
+2026-10-01,ADOBE CREATIVE CLOUD,-5000
+2026-10-02,UBER TRIP,-850
 
----
+## Categorization Approach
 
-## Step 6: Push Your Branch
+The categorization engine uses deterministic Python rules.
 
-```bash
-git add .
-git commit -m "feat: complete statement-categorizer assessment"
-git push origin candidate-<your-github-username>
-```
+For example:
+- ADOBE → Software
+- AWS → Cloud Services
+- UBER → Travel
+- PTCL → Internet & Phone
 
----
+Transactions that do not match a known rule are assigned to:
 
-## Step 7: Create a Pull Request
+Needs Review
 
-1. Go to your **forked** repository on GitHub (`https://github.com/your-username/savvpro-test-statement-categorizer`).
-2. Click **Compare & pull request** (GitHub will show this banner after you push your branch).
-3. Ensure the following settings in the PR form:
-   - **Base repository:** `savvpro/savvpro-test-statement-categorizer` ← the original repo
-   - **Base branch:** `main`
-   - **Head repository:** `your-username/savvpro-test-statement-categorizer` ← your fork
-   - **Compare branch:** `candidate-<your-github-username>`
-4. Use the title: `feat: complete statement-categorizer assessment`
-5. Submit the pull request.
+No LLM is used to make categorization decisions.
 
-> 💡 **Tip:** If you don't see the banner, go to the original repo (`savvpro/savvpro-test-statement-categorizer`), click the **Pull requests** tab, then click **New pull request** → **compare across forks**.
+## Tests
 
----
+Run:
 
-> ⚠️ **Important:** No submissions will be accepted after the deadline.
+cd backend
+
+python -m pytest
+
+## Limitations
+
+- Currently supports CSV input
+- Uses keyword-based categorization
+- Unknown merchants require manual review
+- Rules can be extended for additional merchants/categories
