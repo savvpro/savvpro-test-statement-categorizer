@@ -1,83 +1,162 @@
-# Step-by-Step Guide: How to Fork, Clone, and Submit Your Assessment
+# Statement Categorizer
 
-**Repository:** https://github.com/savvpro/savvpro-test-statement-categorizer
+Upload a business credit card statement (CSV) and get every transaction sorted into a tax category, with a total per category. If the app is not sure about a row, it says so and asks you instead of guessing.
 
----
+**Use case:** a freelancer or small business owner who needs their business card statement sorted at tax time.
 
-## Step 1: Fork the Repository
+The part that decides categories is plain Python rules in `backend/app/`. No AI model is used at runtime and there are no API keys. See [DESIGN.md](DESIGN.md) for how it decides and [AI_USAGE.md](AI_USAGE.md) for how AI tools were used to build it.
 
-1. Go to the repository: https://github.com/savvpro/savvpro-test-statement-categorizer
-2. Click the **Fork** button in the top-right corner.
-3. This will create a copy of the repository in your GitHub account.
+## Screenshots
 
----
+![Upload and summary](docs/screenshots/01-summary.png)
 
-## Step 2: Clone Your Fork
+![Rows with categories and Needs Review](docs/screenshots/02-needs-review.png)
 
-1. Open your forked repository in your GitHub account.
-2. Click the green **Code** button and copy the URL.
-3. Run the following commands:
+## What you can do in the app
 
-```bash
-git clone https://github.com/your-username/savvpro-test-statement-categorizer.git
-cd savvpro-test-statement-categorizer
-```
+- Upload a `.csv` statement (up to 5 MB).
+- See every row with its category and whether it was categorized, excluded or needs review (filterable).
+- See totals per category, income, and how many rows are excluded or waiting for review.
+- Fix rows in **Needs Review**: accept the suggestion or pick a category. You can also **change any row**, including ones the app was confident about, mark a charge as **Personal** (left out of the totals), or **Undo** a change. Changes apply to the file you are looking at and are not stored.
+- Confirm that a flagged possible duplicate is a real charge.
+- Download the result as a CSV (all rows, with status, category, suggestion and the reason for each decision).
+- Choose how to read the file if it guesses wrong: sign convention (which amounts are expenses) and day-first dates.
 
----
+## Requirements
 
-## Step 3: Read the Task
+- Python 3.10 or newer
+- Node.js 22 or newer (CI and Docker use Node 24)
+- Optional: Docker, to run everything with one command
 
-Open and read **TASK.md** carefully before writing any code.
+## Run it
 
-- TASK.md URL: https://github.com/savvpro/savvpro-test-statement-categorizer/blob/main/TASK.md
-
----
-
-## Step 4: Create a New Branch
-
-Branch pattern: `candidate-<your-github-username>`
+### Option A: Docker
 
 ```bash
-git checkout -b candidate-<your-github-username>
+docker compose up --build
 ```
 
-**Example:**
+Open http://localhost:8080. The frontend container proxies `/api` to the backend container.
+
+### Option B: two terminals
+
+You need one terminal for the backend and one for the frontend.
+
+**Backend** (Windows PowerShell):
+
+```powershell
+cd backend
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+uvicorn app.main:app --reload
+```
+
+**Backend** (macOS / Linux):
+
 ```bash
-git checkout -b candidate-johndoe
+cd backend
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload
 ```
 
----
+The API runs at http://127.0.0.1:8000. Check http://127.0.0.1:8000/api/health, it should return `{"status":"ok"}`. Interactive API docs are at http://127.0.0.1:8000/docs.
 
-## Step 5: Complete the Task
-
-Build the full application on your branch.
-
----
-
-## Step 6: Push Your Branch
+**Frontend:**
 
 ```bash
-git add .
-git commit -m "feat: complete statement-categorizer assessment"
-git push origin candidate-<your-github-username>
+cd frontend
+npm install
+npm run dev
 ```
 
----
+Open http://localhost:5173. The dev server proxies `/api` to the backend on port 8000, so start the backend first.
 
-## Step 7: Create a Pull Request
+### Try it
 
-1. Go to your **forked** repository on GitHub (`https://github.com/your-username/savvpro-test-statement-categorizer`).
-2. Click **Compare & pull request** (GitHub will show this banner after you push your branch).
-3. Ensure the following settings in the PR form:
-   - **Base repository:** `savvpro/savvpro-test-statement-categorizer` ← the original repo
-   - **Base branch:** `main`
-   - **Head repository:** `your-username/savvpro-test-statement-categorizer` ← your fork
-   - **Compare branch:** `candidate-<your-github-username>`
-4. Use the title: `feat: complete statement-categorizer assessment`
-5. Submit the pull request.
+Upload `sample_data/freelancer_card.csv` (a fake statement). It has 17 rows: 8 are categorized, 2 are excluded (a transfer and a card payment), and 7 need review (a cafe, a coffee shop, a restaurant, Uber Eats, an Amazon purchase, an Amazon credit and a possible duplicate GitHub charge).
 
-> 💡 **Tip:** If you don't see the banner, go to the original repo (`savvpro/savvpro-test-statement-categorizer`), click the **Pull requests** tab, then click **New pull request** → **compare across forks**.
+`sample_data/tricky_cases.csv` has 12 rows made to trip the rules: a known word inside another business, money in that is not a refund, and a name stuck to a long number. 7 are categorized and 5 need review.
 
----
+## Run the tests
 
-> ⚠️ **Important:** No submissions will be accepted after the deadline.
+From the `backend/` folder with the virtual environment active:
+
+```bash
+pip install -r requirements-dev.txt
+python -m pytest
+```
+
+Frontend checks, from `frontend/`:
+
+```bash
+npm run lint
+npm run build
+```
+
+GitHub Actions (`.github/workflows/ci.yml`) runs the backend tests, the frontend lint and build, and a Docker build on every push to `main` and on pull requests.
+
+## Configuration
+
+One optional environment variable for the backend.
+
+| Variable | Default | What it does |
+|---|---|---|
+| `CORS_ORIGINS` | `http://localhost:5173,http://127.0.0.1:5173` | Comma-separated list of frontend origins allowed to call the API. |
+
+Nothing is stored. Uploaded statements are processed in memory and your fixes live only in the browser page, so there is no database and no data folder.
+
+## API
+
+| Method and path | What it does |
+|---|---|
+| `GET /api/health` | Health check. |
+| `GET /api/categories` | List of category names. |
+| `POST /api/statements` | Upload a statement (multipart field `file`). Optional form field `overrides`: JSON like `{"5": "Meals"}`, the categories the user chose for specific row numbers (row numbers are line numbers in the file). Optional query: `sign` (`auto`, `negative_is_expense`, `positive_is_expense`), `day_first` (true/false), `keep_rows` (repeatable row number to confirm as a real charge). Returns the categorized rows, a summary and any warnings. |
+
+Money values in responses are strings (for example `"-59.99"`) to avoid floating point errors. Negative means money out, positive means money in.
+
+## Supported CSV files
+
+- Header row with a date, a description and either one amount column or separate debit/credit columns (many common header names are recognised). A few lines of text above the header are fine.
+- Comma, semicolon, tab or pipe separated.
+- Amounts like `-59.99`, `($1,234.50)`, `12.50-`, `59.99 CR` / `59.99 DR` and `1.200,50`. An amount with stray letters is skipped with a warning, never guessed.
+- Several date formats, including `2026-09-01`, `09/01/2026` and `01.09.2026`.
+- Summary rows such as "Total" or "Closing balance" are skipped. Rows that cannot be read are skipped with a warning shown in the app.
+
+PDF and Excel files are not supported.
+
+## Project layout
+
+```
+backend/
+  app/
+    main.py          API routes
+    csv_parser.py    reads a CSV into transactions
+    parser.py        file type and size checks
+    normalizer.py    cleans messy merchant descriptions
+    rules.py         the category rules and their confidence
+    categorizer.py   the decision logic and totals
+    models.py        data models
+    schemas.py       API response model
+    config.py        environment settings
+  tests/                 pytest tests
+  Dockerfile
+  requirements.txt       what the app needs (pinned)
+  requirements-dev.txt   adds the test tools
+frontend/                React + Vite app
+  Dockerfile
+  nginx.conf             serves the build and proxies /api to the backend
+.github/workflows/       CI: tests, lint, build, Docker build
+docs/                    screenshots and AI token usage screenshots
+sample_data/             fake statements for trying the app
+docker-compose.yml
+```
+## Tech stack
+
+- **Backend:** Python 3.12, FastAPI, Uvicorn, rapidfuzz (text similarity only, not an AI model)
+- **Frontend:** React 19 with Vite
+- **Tests:** pytest (backend), ESLint (frontend)
+- **Packaging and CI:** Docker Compose, nginx, GitHub Actions
