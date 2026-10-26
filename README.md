@@ -1,83 +1,76 @@
-# Step-by-Step Guide: How to Fork, Clone, and Submit Your Assessment
+# Statement Categorizer
 
-**Repository:** https://github.com/savvpro/savvpro-test-statement-categorizer
+A web app that reads a bank statement (CSV) for a small PC hardware business, sorts every transaction into a tax category, and lets you review and fix the rows it is not sure about.
 
----
+This file covers setup and running only. See `DESIGN.md` for how the categorizer decides.
 
-## Step 1: Fork the Repository
+## Requirements
 
-1. Go to the repository: https://github.com/savvpro/savvpro-test-statement-categorizer
-2. Click the **Fork** button in the top-right corner.
-3. This will create a copy of the repository in your GitHub account.
+- Python 3.11 or newer
+- Node.js 18 or newer and npm
+- Docker and Docker Compose 
 
----
+## Run with Docker
 
-## Step 2: Clone Your Fork
+From the repository root:
 
-1. Open your forked repository in your GitHub account.
-2. Click the green **Code** button and copy the URL.
-3. Run the following commands:
-
-```bash
-git clone https://github.com/your-username/savvpro-test-statement-categorizer.git
-cd savvpro-test-statement-categorizer
+```
+cp .env.example .env
+docker compose up --build
 ```
 
----
+Then open:
 
-## Step 3: Read the Task
+- App: http://localhost:5173
+- API docs: http://localhost:8000/docs
 
-Open and read **TASK.md** carefully before writing any code.
+Stop with `Ctrl+C`, then `docker compose down`. The SQLite database is kept in a Docker volume, so your data survives restarts.
 
-- TASK.md URL: https://github.com/savvpro/savvpro-test-statement-categorizer/blob/main/TASK.md
 
----
+## Sample data
 
-## Step 4: Create a New Branch
+All data is fake. To generate three sample statements (one per CSV layout):
 
-Branch pattern: `candidate-<your-github-username>`
-
-```bash
-git checkout -b candidate-<your-github-username>
+```
+cd backend
+python scripts/generatefakestatement.py
 ```
 
-**Example:**
-```bash
-git checkout -b candidate-johndoe
+The files are written to `backend/sampledata/`. Upload any of them in the app to try it out.
+
+## Using the app
+
+1. Open the app and choose a CSV file from `backend/sampledata/`.
+2. Click upload. Each row appears with a category, a confidence score and a reason.
+3. Open the "Needs Review" tab, pick the right category for each row, and keep "Remember this for similar rows" ticked to save a rule.
+4. Check the totals per category at the top.
+
+## Running the tests and linter
+
+```
+cd backend
+pytest
+ruff check .
 ```
 
----
+## Project layout
 
-## Step 5: Complete the Task
-
-Build the full application on your branch.
-
----
-
-## Step 6: Push Your Branch
-
-```bash
-git add .
-git commit -m "feat: complete statement-categorizer assessment"
-git push origin candidate-<your-github-username>
 ```
+backend/    FastAPI app, parsers, categorizer, tests, scripts
+frontend/   React + Vite app
+compose.yml Docker Compose setup
+```
+ ## IMPORTANT
 
----
+ Because i made it so when duplicate files are added (uploading the same file twice), the application identifies the identical hashes and flags the whole file as duplicate, meaning it will force them to the not spending category so double counting can be prevented. This is something i feel like is imperative for an application like this, as it's easy to make huge mistakes due to double counting if someone isn't cautious. To do a complete clean restart, the local.db file needs to be deleted. This can be safely done using these commands in the terminal:
+ 
+ Remove-Item -Recurse -Force local.db
 
-## Step 7: Create a Pull Request
 
-1. Go to your **forked** repository on GitHub (`https://github.com/your-username/savvpro-test-statement-categorizer`).
-2. Click **Compare & pull request** (GitHub will show this banner after you push your branch).
-3. Ensure the following settings in the PR form:
-   - **Base repository:** `savvpro/savvpro-test-statement-categorizer` ← the original repo
-   - **Base branch:** `main`
-   - **Head repository:** `your-username/savvpro-test-statement-categorizer` ← your fork
-   - **Compare branch:** `candidate-<your-github-username>`
-4. Use the title: `feat: complete statement-categorizer assessment`
-5. Submit the pull request.
+ New-Item local.db -ItemType File
 
-> 💡 **Tip:** If you don't see the banner, go to the original repo (`savvpro/savvpro-test-statement-categorizer`), click the **Pull requests** tab, then click **New pull request** → **compare across forks**.
+ Then finally, start the application with docker
+ docker compose up --build
+ NOTE: I had to use my alternate github account as my primary one (Saimhaider26) got suspended, reason unknown but it's looking like it's because of me linking it to fiverr which in turn possibly flagged it as third party bot.
 
----
-
-> ⚠️ **Important:** No submissions will be accepted after the deadline.
+ 

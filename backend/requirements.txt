@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+sqlalchemy
+pydantic
+pytest
+rapidfuzz
+python-multipart
+ruff
+httpx

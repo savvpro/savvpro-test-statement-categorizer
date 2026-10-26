@@ -1,0 +1,67 @@
+from app.categorizer.categories import (
+    INVENTORY, SHIPPING, SOFTWARE, MARKETING, RENT, SALARIES, BANKFEES, SALESINCOME
+)
+
+NOISETOKENS = ["IBFT", "RAAST", "POS", "PVT", "LTD", "TO", "FROM", "REF"]
+
+NOTSPENDINGKEYWORDS = [
+    "OWN ACCOUNT", "SELF TRANSFER", "TRANSFER TO SAVINGS", 
+    "FUND TRANSFER SELF", "CREDIT CARD PAYMENT", "OWNER", "CAPITAL INTRODUCED"
+]
+
+AMBIGUOUSMERCHANTS = [
+    "AMAZON", "DARAZ", "OLX", "ATM WITHDRAWAL", "CASH WITHDRAWAL", 
+    "CHEQUE", "JAZZCASH", "EASYPAISA", "CASH DEPOSIT"
+]
+
+REFUNDKEYWORDS = ["REFUND", "RETURN", "REVERSAL", "RMA"]
+
+GENERICPHRASES = [
+    "CASH DEPOSIT", "COD SETTLEMENT", "COD REMITTANCE", "CUSTOMER PAYMENT"
+]
+
+CATEGORYRULES = {
+    INVENTORY: {
+        "aliases": ["TELEMART", "PRICEOYE", "CZONE", "SHOPHIVE", "HAFEEZ CENTER"], 
+        "keywords": ["TELEMART", "PRICEOYE", "CZONE", "SHOPHIVE", "HAFEEZ CENTER", "NEWEGG", "GPU", "RYZEN", "NVIDIA", "ASUS", "MSI", "GIGABYTE", "PLAYSTATION", "XBOX", "RAM", "SSD"]
+    },
+    SHIPPING: {
+        "aliases": ["TCS", "LEOPARDS", "TRAX", "POSTEX", "BLUEEX", "M&P"], 
+        "keywords": ["TCS", "LEOPARDS", "TRAX", "POSTEX", "BLUEEX", "M&P", "COURIER"]
+    },
+    SOFTWARE: {
+        "aliases": ["MICROSOFT", "ADOBE", "NOTION", "GODADDY", "NAMECHEAP", "HOSTINGER"], 
+        "keywords": ["MICROSOFT", "ADOBE", "NOTION", "GODADDY", "NAMECHEAP", "HOSTINGER"]
+    },
+    MARKETING: {
+        "aliases": ["FACEBK", "META ADS", "GOOGLE ADS"], 
+        "keywords": ["FACEBK", "META ADS", "GOOGLE ADS", "PRINTING"]
+    },
+    RENT: {
+        "aliases": ["K-ELECTRIC", "LESCO", "IESCO", "SNGPL", "PTCL", "NAYATEL", "STORMFIBER"], 
+        "keywords": ["K-ELECTRIC", "LESCO", "IESCO", "SNGPL", "PTCL", "NAYATEL", "STORMFIBER", "RENT"]
+    },
+    SALARIES: {
+        "aliases": [], 
+        "keywords": ["SALARY", "WAGES", "PAYROLL"]
+    },
+    BANKFEES: {
+        "aliases": ["SMS ALERT", "WHT", "ADVANCE TAX", "FED", "ANNUAL FEE", "ATM FEE"], 
+        "keywords": ["SMS ALERT", "WHT", "ADVANCE TAX", "FED", "ANNUAL FEE", "ATM FEE", "BANK CHARGES", "WITHHOLDING"]
+    },
+    SALESINCOME: {
+        "aliases": ["COD SETTLEMENT", "COD REMITTANCE"], 
+        "keywords": ["COD SETTLEMENT", "COD REMITTANCE", "CUSTOMER PAYMENT", "CASH DEPOSIT"]
+    }
+}
+
+AMOUNTRANGES = {
+    INVENTORY: (5000, 3000000),
+    SHIPPING: (100, 50000),
+    SOFTWARE: (500, 60000),
+    MARKETING: (500, 300000),
+    RENT: (1000, 400000),
+    SALARIES: (10000, 500000),
+    BANKFEES: (1, 150000),
+    SALESINCOME: (1000, 5000000)
+}
