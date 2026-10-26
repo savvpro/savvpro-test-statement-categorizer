@@ -1,0 +1,234 @@
+version: 1
+
+# Merchants that are inherently ambiguous and always go to Needs Review
+# unless the user has set an explicit override.
+ambiguous_merchants:
+  - "AMAZON"
+  - "AMZN"
+  - "PAYPAL"
+
+# Merchant categorization rules.
+# match_type: "exact" = normalized description must equal name exactly
+#             "keyword" = normalized description must contain name as substring
+merchants:
+  # --- Software ---
+  - name: "ADOBE CREATIVE CLOUD"
+    category: "Software"
+    match_type: exact
+    confidence: 0.95
+  - name: "ADOBE"
+    category: "Software"
+    match_type: keyword
+    confidence: 0.85
+  - name: "GITHUB INC"
+    category: "Software"
+    match_type: exact
+    confidence: 0.95
+  - name: "GITHUB"
+    category: "Software"
+    match_type: keyword
+    confidence: 0.85
+  - name: "FIGMA SUBSCRIPTION"
+    category: "Software"
+    match_type: exact
+    confidence: 0.95
+  - name: "FIGMA"
+    category: "Software"
+    match_type: keyword
+    confidence: 0.85
+  - name: "MICROSOFT 365"
+    category: "Software"
+    match_type: exact
+    confidence: 0.95
+  - name: "MICROSOFT"
+    category: "Software"
+    match_type: keyword
+    confidence: 0.85
+  - name: "DROPBOX"
+    category: "Software"
+    match_type: exact
+    confidence: 0.95
+  - name: "SLACK"
+    category: "Software"
+    match_type: exact
+    confidence: 0.95
+  - name: "ZOOM"
+    category: "Software"
+    match_type: exact
+    confidence: 0.95
+  - name: "HEROKU"
+    category: "Software"
+    match_type: exact
+    confidence: 0.95
+  - name: "AWS"
+    category: "Software"
+    match_type: keyword
+    confidence: 0.85
+  - name: "DIGITALOCEAN"
+    category: "Software"
+    match_type: exact
+    confidence: 0.95
+
+  # --- Travel ---
+  - name: "UBER"
+    category: "Travel"
+    match_type: keyword
+    confidence: 0.85
+  - name: "LYFT"
+    category: "Travel"
+    match_type: keyword
+    confidence: 0.85
+  - name: "DELTA AIRLINES"
+    category: "Travel"
+    match_type: exact
+    confidence: 0.95
+  - name: "DELTA"
+    category: "Travel"
+    match_type: keyword
+    confidence: 0.85
+  - name: "SOUTHWEST AIR"
+    category: "Travel"
+    match_type: exact
+    confidence: 0.95
+  - name: "SOUTHWEST"
+    category: "Travel"
+    match_type: keyword
+    confidence: 0.85
+  - name: "AMERICAN AIRLINES"
+    category: "Travel"
+    match_type: exact
+    confidence: 0.95
+  - name: "UNITED AIRLINES"
+    category: "Travel"
+    match_type: exact
+    confidence: 0.95
+  - name: "HILTON HOTELS"
+    category: "Travel"
+    match_type: exact
+    confidence: 0.95
+  - name: "HILTON"
+    category: "Travel"
+    match_type: keyword
+    confidence: 0.85
+  - name: "MARRIOTT"
+    category: "Travel"
+    match_type: exact
+    confidence: 0.95
+
+  # --- Meals ---
+  - name: "STARBUCKS"
+    category: "Meals"
+    match_type: exact
+    confidence: 0.95
+  - name: "CHIPOTLE"
+    category: "Meals"
+    match_type: exact
+    confidence: 0.95
+  - name: "MCDONALDS"
+    category: "Meals"
+    match_type: exact
+    confidence: 0.95
+  - name: "SUBWAY"
+    category: "Meals"
+    match_type: exact
+    confidence: 0.95
+  - name: "PANERA BREAD"
+    category: "Meals"
+    match_type: exact
+    confidence: 0.95
+  - name: "DUNKIN"
+    category: "Meals"
+    match_type: exact
+    confidence: 0.95
+
+  # --- Marketing ---
+  - name: "GOOGLE ADS"
+    category: "Marketing"
+    match_type: exact
+    confidence: 0.95
+  - name: "GOOGLE"
+    category: "Marketing"
+    match_type: keyword
+    confidence: 0.8
+  - name: "META ADS"
+    category: "Marketing"
+    match_type: exact
+    confidence: 0.95
+  - name: "FACEBOOK ADS"
+    category: "Marketing"
+    match_type: exact
+    confidence: 0.95
+  - name: "LINKEDIN ADS"
+    category: "Marketing"
+    match_type: exact
+    confidence: 0.95
+
+  # --- Utilities ---
+  - name: "COMCAST INTERNET"
+    category: "Utilities"
+    match_type: exact
+    confidence: 0.95
+  - name: "COMCAST"
+    category: "Utilities"
+    match_type: keyword
+    confidence: 0.85
+  - name: "AT&T WIRELESS"
+    category: "Utilities"
+    match_type: exact
+    confidence: 0.95
+  - name: "AT&T"
+    category: "Utilities"
+    match_type: keyword
+    confidence: 0.85
+  - name: "VERIZON"
+    category: "Utilities"
+    match_type: exact
+    confidence: 0.95
+  - name: "DUKE ENERGY"
+    category: "Utilities"
+    match_type: exact
+    confidence: 0.95
+
+  # --- Office Supplies ---
+  - name: "STAPLES"
+    category: "Office Supplies"
+    match_type: exact
+    confidence: 0.95
+  - name: "OFFICE DEPOT"
+    category: "Office Supplies"
+    match_type: exact
+    confidence: 0.95
+  - name: "HOME DEPOT"
+    category: "Office Supplies"
+    match_type: exact
+    confidence: 0.95
+
+  # --- Subscriptions ---
+  - name: "NETFLIX"
+    category: "Subscriptions"
+    match_type: exact
+    confidence: 0.95
+  - name: "SPOTIFY"
+    category: "Subscriptions"
+    match_type: exact
+    confidence: 0.95
+  - name: "HULU"
+    category: "Subscriptions"
+    match_type: exact
+    confidence: 0.95
+  - name: "DISNEY PLUS"
+    category: "Subscriptions"
+    match_type: exact
+    confidence: 0.95
+  - name: "APPLE ICLOUD"
+    category: "Subscriptions"
+    match_type: exact
+    confidence: 0.95
+  - name: "NEW YORK TIMES"
+    category: "Subscriptions"
+    match_type: exact
+    confidence: 0.95
+  - name: "WALL STREET JOURNAL"
+    category: "Subscriptions"
+    match_type: exact
+    confidence: 0.95

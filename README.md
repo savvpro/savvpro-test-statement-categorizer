@@ -1,83 +1,178 @@
-# Step-by-Step Guide: How to Fork, Clone, and Submit Your Assessment
+# Statement Categorizer
 
-**Repository:** https://github.com/savvpro/savvpro-test-statement-categorizer
+A freelance developer/designer uploads a business credit card statement (CSV).
+The app reads each transaction, categorizes it for tax time, shows the result,
+and lets the user fix rows that need review. Totals per category are shown at
+the end.
 
----
+## Repo structure
 
-## Step 1: Fork the Repository
-
-1. Go to the repository: https://github.com/savvpro/savvpro-test-statement-categorizer
-2. Click the **Fork** button in the top-right corner.
-3. This will create a copy of the repository in your GitHub account.
-
----
-
-## Step 2: Clone Your Fork
-
-1. Open your forked repository in your GitHub account.
-2. Click the green **Code** button and copy the URL.
-3. Run the following commands:
-
-```bash
-git clone https://github.com/your-username/savvpro-test-statement-categorizer.git
-cd savvpro-test-statement-categorizer
+```
+statement-categorizer/
+  backend/              FastAPI + Pydantic v2 + pytest + ruff
+    app/
+      main.py           FastAPI app + CORS
+      api/routes.py     POST /api/upload, PATCH /api/transactions/{id}
+                        GET /api/summary, GET /api/export
+      parsing/csv_parser.py   CSV parsing (Amount or Debit/Credit, header variants, duplicates)
+      brain/normalizer.py     Description normalization
+      brain/classifier.py     5-step deterministic categorization pipeline
+      brain/overrides.py      In-memory user override store
+      brain/constants.py      All thresholds/weights in one place
+      models.py               Pydantic v2 models
+      store.py                In-memory transaction store
+    tests/                34 parser + 43 brain + 5 overrides + 11 API tests
+    config/rules.yaml         52 merchants across 10 categories
+    requirements.txt
+    pyproject.toml            ruff + pytest config
+  frontend/             Vite + React + TypeScript + plain CSS
+    src/App.tsx           Upload area, table, summary panel, export
+    src/services/api.ts   Fetch wrapper for all 4 endpoints
+    src/types/index.ts    TypeScript interfaces
+    src/index.css         Plain CSS (no UI library)
+  sample_data/
+    generate.py           Stdlib-only CSV generator (fixed seed = 42)
+    amount_single.csv     Single Amount column, ISO dates
+    debit_credit.csv      Debit/Credit columns, $ signs, MM/DD/YYYY
+  README.md
+  DESIGN.md
+  AI_USAGE.md             template only
+  .gitignore
+  .env.example            (empty template — no secrets committed)
 ```
 
----
 
-## Step 3: Read the Task
+## HARD RULES (honored)
 
-Open and read **TASK.md** carefully before writing any code.
+1. **No LLM/AI for categorization.** The brain is deterministic Python code only
+   — rules, normalization, scoring. No OpenAI/Anthropic/Gemini/etc. is imported
+   or called. Verified by `test_brain_imports_no_ai_sdk`.
+2. **Uncertain → "Needs Review".** A wrong guess is worse than asking.
+3. **No secrets committed.** `.env.example` provided only; `.env` is gitignored.
+4. **FAKE data only.** Sample merchants/transactions are fictional.
+5. **Tests included.** 88 tests total across parser, brain, overrides, normalizer, and API.
 
-- TASK.md URL: https://github.com/savvpro/savvpro-test-statement-categorizer/blob/main/TASK.md
+## Backend setup
 
----
+### Prerequisites
+Python 3.11+
 
-## Step 4: Create a New Branch
-
-Branch pattern: `candidate-<your-github-username>`
-
+### Install
 ```bash
-git checkout -b candidate-<your-github-username>
+cd backend
+pip install -r requirements.txt
+pip install pytest httpx python-multipart   # dev dependencies
 ```
 
-**Example:**
+### Run
 ```bash
-git checkout -b candidate-johndoe
+cd backend
+uvicorn app.main:app --reload --port 8000
+```
+API docs: http://localhost:8000/docs
+
+### Run tests
+```bash
+cd backend
+pip install pytest httpx python-multipart
+pytest -v
 ```
 
----
-
-## Step 5: Complete the Task
-
-Build the full application on your branch.
-
----
-
-## Step 6: Push Your Branch
-
+### Lint
 ```bash
-git add .
-git commit -m "feat: complete statement-categorizer assessment"
-git push origin candidate-<your-github-username>
+cd backend
+pip install ruff
+ruff check .
 ```
 
----
+## Frontend setup
 
-## Step 7: Create a Pull Request
+### Prerequisites
+Node.js 18+
 
-1. Go to your **forked** repository on GitHub (`https://github.com/your-username/savvpro-test-statement-categorizer`).
-2. Click **Compare & pull request** (GitHub will show this banner after you push your branch).
-3. Ensure the following settings in the PR form:
-   - **Base repository:** `savvpro/savvpro-test-statement-categorizer` ← the original repo
-   - **Base branch:** `main`
-   - **Head repository:** `your-username/savvpro-test-statement-categorizer` ← your fork
-   - **Compare branch:** `candidate-<your-github-username>`
-4. Use the title: `feat: complete statement-categorizer assessment`
-5. Submit the pull request.
+### Install
+```bash
+cd frontend
+npm install
+```
 
-> 💡 **Tip:** If you don't see the banner, go to the original repo (`savvpro/savvpro-test-statement-categorizer`), click the **Pull requests** tab, then click **New pull request** → **compare across forks**.
+### Run (dev server with proxy to backend :8000)
+```bash
+cd frontend
+npm run dev   # http://localhost:5173
+```
 
----
+### Build
+```bash
+cd frontend
+npm run build
+```
 
-> ⚠️ **Important:** No submissions will be accepted after the deadline.
+## Generate sample data
+```bash
+python sample_data/generate.py
+```
+Produces `amount_single.csv` and `debit_credit.csv` with 70 rows each,
+including deliberate tricky rows: duplicate Adobe charge, `REFUND UBER *TRIP`,
+`TRANSFER TO SAVINGS 1234`, `PAYMENT THANK YOU`, `INVOICE DEPOSIT CLIENT ACME`,
+blank description, `FOREIGN CURRENCY FEE EUR`, `AMZN Mktp US*BOOKS`,
+`PAYPAL *EBAY SELLER`.
+
+## API endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/upload` | Multipart CSV upload → categorized transactions, summary, warnings |
+| PATCH | `/api/transactions/{id}` | Body `{category}` → update row, store override, return updated row + summary |
+| GET | `/api/summary` | Per-category totals (Transfer excluded from spending) |
+| GET | `/api/export` | CSV download of final categorized results |
+
+CORS enabled for Vite dev server (`http://localhost:5173`).
+
+## Sample data
+
+Two CSVs generated by `sample_data/generate.py` (stdlib only, fixed seed = 42):
+
+1. `amount_single.csv` — `Date, Description, Amount` with ISO dates (YYYY-MM-DD)
+2. `debit_credit.csv` — `Transaction Date, Details, Debit, Credit` with `$`
+   signs, commas, MM/DD/YYYY dates
+
+Both contain ~60 random rows plus tricky rows: duplicate Adobe charge,
+`REFUND UBER *TRIP`, `TRANSFER TO SAVINGS 1234`, `PAYMENT THANK YOU`,
+`INVOICE DEPOSIT CLIENT ACME`, blank description, `FOREIGN CURRENCY FEE EUR`,
+`AMZN Mktp US*BOOKS`, `PAYPAL *EBAY SELLER`.
+
+## Brain pipeline
+
+Each transaction is classified through this deterministic pipeline:
+
+1. **Normalize** — uppercase, strip noisy prefixes (`SQ *`, `PAYPAL *`,
+   `AMZN MKTP US*`, `POS`, `PURCHASE`), strip trailing reference numbers,
+   collapse whitespace.
+2. **User overrides** — if normalized merchant has a saved override, apply it
+   (confidence 1.0, reason "user correction").
+3. **Structural rules** — Transfer (TRANSFER TO/FROM, PAYMENT THANK YOU,
+   AUTOPAY), Refund (positive amount + REFUND/REVERSAL or known merchant),
+   Income (positive amount + INVOICE/PAYROLL/DEPOSIT/CLIENT).
+4. **Merchant rules** from `config/rules.yaml` — exact match (~0.95),
+   keyword/contains (~0.80).
+5. **Ambiguity** — confidence gap < 0.10 between top-2 matches, best confidence
+   < 0.70, no match, blank description, or ambiguous merchant
+   (AMAZON/AMZN/PAYPAL) → "Needs Review".
+
+All thresholds and weights are constants in
+`backend/app/brain/constants.py`.
+
+Categories: Software, Travel, Meals, Office Supplies, Marketing, Utilities,
+Subscriptions, Income, Refund, Transfer, Needs Review.
+
+## Design decisions
+
+- **In-memory state** (no database). Production choice: Postgres — noted in
+  `DESIGN.md`.
+- **Pydantic v2** for request/response validation.
+- **ruff** for linting.
+- **Plain CSS** frontend — no heavy UI library.
+- **Deterministic** — fixed random seed for sample data, no AI APIs anywhere
+  in the categorization brain.
+

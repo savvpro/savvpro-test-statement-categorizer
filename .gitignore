@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+env.py
+venv/
+.venv/
+*.egg-info/
+*.egg
+dist/
+build/
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Ruff
+.ruff_cache/
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+
+# Outputs
+*.csv
+!sample_data/*.csv
+
+# Test output (keep locally, do not push to GitHub)
+backend/tests/
+
+# Task assignment instructions (original repo file, not project code)
+TASK.md

@@ -1,0 +1,352 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: #f5f5f7;
+  color: #1d1d1f;
+  line-height: 1.5;
+}
+
+.app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.header {
+  margin-bottom: 32px;
+}
+
+.header h1 {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.header p {
+  color: #6e6e73;
+  font-size: 16px;
+}
+
+/* Upload Area */
+.upload-area {
+  border: 2px dashed #d1d1d6;
+  border-radius: 12px;
+  padding: 48px 24px;
+  text-align: center;
+  background: #fff;
+  margin-bottom: 32px;
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.upload-area:hover {
+  border-color: #007aff;
+  background-color: #fafafa;
+}
+
+.upload-area.drag-over {
+  border-color: #007aff;
+  background-color: #f0f8ff;
+}
+
+.upload-area p {
+  margin-top: 12px;
+  color: #6e6e73;
+  font-size: 16px;
+}
+
+.upload-area input[type="file"] {
+  display: none;
+}
+
+/* Table */
+.table-container {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 32px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  background-color: #f2f2f7;
+  font-weight: 600;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6e6e73;
+  padding: 16px;
+  text-align: left;
+  border-bottom: 1px solid #e5e5ea;
+}
+
+td {
+  padding: 16px;
+  border-bottom: 1px solid #e5e5ea;
+  font-size: 14px;
+}
+
+tr:hover {
+  background-color: #fafafa;
+}
+
+tr.needs-review {
+  background-color: #fffdf0;
+}
+
+tr.duplicate {
+  opacity: 0.7;
+}
+
+tr.needs-review.duplicate {
+  background-color: #fff1f1;
+}
+
+/* Category Badge */
+.category-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.badge-software { background-color: #e3f2fd; color: #1565c0; }
+.badge-travel { background-color: #e8f5e9; color: #2e7d32; }
+.badge-meals { background-color: #fff3e0; color: #ef6c00; }
+.badge-office-supplies { background-color: #f3e5f5; color: #7b1fa2; }
+.badge-marketing { background-color: #fce4ec; color: #c2185b; }
+.badge-utilities { background-color: #e0f7fa; color: #00838f; }
+.badge-subscriptions { background-color: #f1f8e9; color: #33691e; }
+.badge-income { background-color: #e8f5e9; color: #2e7d32; }
+.badge-refund { background-color: #fff3e0; color: #ef6c00; }
+.badge-transfer { background-color: #eeeeee; color: #616161; }
+.badge-needs-review { background-color: #ffebee; color: #c62828; }
+
+/* Amount */
+.amount.negative { color: #c62828; }
+.amount.positive { color: #2e7d32; }
+
+/* Confidence */
+.confidence-high { color: #2e7d32; }
+.confidence-medium { color: #f9a825; }
+.confidence-low { color: #c62828; }
+
+/* Reason */
+.reason {
+  font-size: 13px;
+  color: #6e6e73;
+  font-style: italic;
+}
+
+/* Select */
+select {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #d1d1d6;
+  background: #fff;
+  font-size: 13px;
+}
+
+select:focus {
+  outline: none;
+  border-color: #007aff;
+}
+
+/* Summary Panel */
+.summary-panel {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.summary-item .label {
+  font-size: 12px;
+  color: #6e6e73;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.summary-item .value {
+  font-size: 20px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.summary-item.total {
+  flex: 1;
+  border-top: 3px solid #007aff;
+  padding-top: 10px;
+}
+
+.summary-item.total .value {
+  color: #007aff;
+}
+
+.summary-item.refund {
+  border-top: 3px solid #ef6c00;
+}
+
+.summary-item.refund .value {
+  color: #ef6c00;
+}
+
+.summary-item.needs-review {
+  border-top: 3px solid #c62828;
+}
+
+.summary-item.needs-review .value {
+  color: #c62828;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-primary {
+  background-color: #007aff;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background-color: #0062cc;
+}
+
+.btn-primary:disabled {
+  background-color: #a0a0a0;
+  cursor: not-allowed;
+}
+
+.btn-outline {
+  background-color: #fff;
+  color: #007aff;
+  border: 1px solid #007aff;
+}
+
+.btn-outline:hover {
+  background-color: #f0f8ff;
+}
+
+.button-group {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+/* Alerts */
+.alert {
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.alert-error {
+  background-color: #fdecea;
+  color: #c62828;
+  border: 1px solid #ffcdd2;
+}
+
+.alert-info {
+  background-color: #e3f2fd;
+  color: #1565c0;
+  border: 1px solid #bbdefb;
+}
+
+.alert-success {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #c8e6c9;
+}
+
+/* Loading */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #6e6e73;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #e5e5ea;
+  border-top-color: #007aff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6e6e73;
+}
+
+.empty-state h3 {
+  font-size: 18px;
+  margin-bottom: 8px;
+  color: #1d1d1f;
+}
+
+.warnings-list {
+  background-color: #fffdf0;
+  border: 1px solid #ffeaa7;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.warnings-list h4 {
+  font-size: 14px;
+  color: #856404;
+  margin-bottom: 8px;
+}
+
+.warnings-list ul {
+  margin-left: 20px;
+  color: #856404;
+  font-size: 13px;
+}
+
+.warnings-list li {
+  margin-bottom: 4px;
+}
