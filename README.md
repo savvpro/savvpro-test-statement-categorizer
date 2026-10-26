@@ -1,83 +1,136 @@
-# Step-by-Step Guide: How to Fork, Clone, and Submit Your Assessment
+# Statement Categorizer
 
-**Repository:** https://github.com/savvpro/savvpro-test-statement-categorizer
+Sorts a **business credit-card statement for tax time** — built for a freelance
+designer. Upload a CSV statement, every transaction gets a category and a
+confidence score, and anything the code is unsure about goes to **Needs Review**
+instead of being guessed.
 
----
+> **The one big rule, honored:** the categorization "brain" is 100% deterministic
+> rule code (`backend/app/brain/`). No GPT/Claude/Gemini — no AI model anywhere in
+> the decision path. AI tools were used only to help *write* the code (see
+> [AI_USAGE.md](AI_USAGE.md)).
 
-## Step 1: Fork the Repository
+## How it works
 
-1. Go to the repository: https://github.com/savvpro/savvpro-test-statement-categorizer
-2. Click the **Fork** button in the top-right corner.
-3. This will create a copy of the repository in your GitHub account.
-
----
-
-## Step 2: Clone Your Fork
-
-1. Open your forked repository in your GitHub account.
-2. Click the green **Code** button and copy the URL.
-3. Run the following commands:
-
-```bash
-git clone https://github.com/your-username/savvpro-test-statement-categorizer.git
-cd savvpro-test-statement-categorizer
+```
+Upload statement → Read transactions → The brain → Category for each row → User reviews the result
+      (CSV parse)      (normalizer)    (rules +        (per row, with          (fix dropdowns,
+                                        confidence)     reasons shown)          totals update live)
 ```
 
----
+Special flows the brain handles (the messy parts):
 
-## Step 3: Read the Task
+- **Transfers** (`TRANSFER TO SAVINGS`, `CREDIT CARD PAYMENT`) — moving your own
+  money is not spending, excluded from totals
+- **Refunds** — money back is not income; where possible the refund is linked to
+  the original expense category (`REFUND - STARBUCKS` → offsets Meals & Coffee)
+- **Income vs. unknown credits** — a `STRIPE PAYOUT` is income, but an
+  unidentified credit is *asked about*, never silently called income
+- **Duplicates** — same date + amount + merchant is flagged, not merged
+- **Unreadable rows** — bad dates / missing amounts survive the upload and go to
+  Needs Review with a human-readable reason
 
-Open and read **TASK.md** carefully before writing any code.
+## Tech
 
-- TASK.md URL: https://github.com/savvpro/savvpro-test-statement-categorizer/blob/main/TASK.md
+| Layer     | Choice                                       |
+| --------- | -------------------------------------------- |
+| Backend   | Python 3.12 · FastAPI · Pydantic v2          |
+| Brain     | Own rule engine (`backend/app/brain/`)       |
+| Frontend  | React 18 + Vite (plain CSS, no UI framework) |
+| Tests     | pytest (52 tests: brain, parser, API)        |
+| Deploy    | Single process: FastAPI serves the built SPA |
 
----
+## Run it
 
-## Step 4: Create a New Branch
-
-Branch pattern: `candidate-<your-github-username>`
-
-```bash
-git checkout -b candidate-<your-github-username>
-```
-
-**Example:**
-```bash
-git checkout -b candidate-johndoe
-```
-
----
-
-## Step 5: Complete the Task
-
-Build the full application on your branch.
-
----
-
-## Step 6: Push Your Branch
+### 1. Backend
 
 ```bash
-git add .
-git commit -m "feat: complete statement-categorizer assessment"
-git push origin candidate-<your-github-username>
+cd backend
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8000
 ```
 
----
+### 2. Frontend (dev mode, second terminal)
 
-## Step 7: Create a Pull Request
+```bash
+cd frontend
+npm install
+npm run dev          # http://localhost:5173, proxies /api to :8000
+```
 
-1. Go to your **forked** repository on GitHub (`https://github.com/your-username/savvpro-test-statement-categorizer`).
-2. Click **Compare & pull request** (GitHub will show this banner after you push your branch).
-3. Ensure the following settings in the PR form:
-   - **Base repository:** `savvpro/savvpro-test-statement-categorizer` ← the original repo
-   - **Base branch:** `main`
-   - **Head repository:** `your-username/savvpro-test-statement-categorizer` ← your fork
-   - **Compare branch:** `candidate-<your-github-username>`
-4. Use the title: `feat: complete statement-categorizer assessment`
-5. Submit the pull request.
+### Production-ish mode (one process)
 
-> 💡 **Tip:** If you don't see the banner, go to the original repo (`savvpro/savvpro-test-statement-categorizer`), click the **Pull requests** tab, then click **New pull request** → **compare across forks**.
+```bash
+cd frontend && npm install && npm run build
+cd ../backend && uvicorn app.main:app --port 8000   # serves frontend/dist too
+# open http://localhost:8000
+```
 
----
+### Docker
 
-> ⚠️ **Important:** No submissions will be accepted after the deadline.
+```bash
+docker compose up --build     # builds frontend, serves everything on :8000
+```
+
+## Try it
+
+Sample statements (all fake data) live in
+`backend/app/data/samples/`:
+
+- `sample_statement_designer.csv` — the happy path + all special flows
+- `sample_statement_messy.csv` — duplicates, unreadable dates, missing amounts,
+  parentheses amounts, a summary row, mixed formatting
+
+## Tests
+
+```bash
+cd backend && python3 -m pytest tests -v
+```
+
+- `tests/test_engine.py` — the brain: rules, confidence bands, refund vs income,
+  transfers, duplicates, summary math
+- `tests/test_parser.py` — column variants (Debit/Credit, Type, signed amounts),
+  furniture rows, error handling
+- `tests/test_api.py` — end-to-end uploads, rejections, audit-readiness
+
+## API
+
+| Endpoint             | Method | Purpose                                  |
+| -------------------- | ------ | ---------------------------------------- |
+| `/api/categorize`    | POST   | multipart CSV upload → categorized JSON  |
+| `/api/health`        | GET    | liveness + active rules version          |
+| `/api/categories`    | GET    | current category list (from rules.json)  |
+| `/api/rules-info`    | GET    | rule-set metadata                        |
+
+## Configuration
+
+Categories, keywords and weights live in
+[`backend/app/data/rules.json`](backend/app/data/rules.json) — data, not code.
+Add a category or retune a weight without touching the engine. Thresholds and
+paths are in [`backend/app/config.py`](backend/app/config.py).
+
+## Repo map
+
+```
+backend/
+  app/
+    api.py            # HTTP layer (upload -> JSON)
+    config.py         # thresholds, paths, bucket names
+    models.py         # Pydantic schemas (audit fields on every row)
+    brain/
+      normalizer.py   # "SQ *JOES CAFE, 9921" -> "joes cafe"
+      rules.py        # loads + validates rules.json
+      engine.py       # THE BRAIN: decide + score one transaction
+      rules.json      # categories, keywords, weights (data, not code)
+    parser/
+      statement_parser.py  # lenient CSV reader (variants, bad rows)
+    data/samples/     # fake statements
+  tests/              # 52 pytest cases
+frontend/
+  src/
+    App.jsx           # state + live totals recompute
+    components/       # UploadZone, SummaryCards, ReviewQueue, TransactionTable
+    export.js         # client-side categorized-CSV download
+```
+

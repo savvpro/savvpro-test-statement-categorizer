@@ -1,0 +1,186 @@
+{
+  "version": "1.0.0",
+  "use_case": "Freelance designer / creative professional - business credit card, sorted for tax time",
+  "spending_categories": [
+    {
+      "name": "Software & Subscriptions",
+      "keywords": [
+        { "kw": "adobe", "w": 1.0 },
+        { "kw": "creative cloud", "w": 1.0 },
+        { "kw": "figma", "w": 1.0 },
+        { "kw": "github", "w": 0.9 },
+        { "kw": "gitlab", "w": 0.9 },
+        { "kw": "dropbox", "w": 0.9 },
+        { "kw": "google workspace", "w": 0.9 },
+        { "kw": "microsoft 365", "w": 0.9 },
+        { "kw": "notion", "w": 0.9 },
+        { "kw": "canva", "w": 0.9 },
+        { "kw": "slack", "w": 0.9 },
+        { "kw": "zoom.us", "w": 0.9 },
+        { "kw": "jetbrains", "w": 0.9 },
+        { "kw": "atlassian", "w": 0.9 },
+        { "kw": "framer", "w": 0.9 },
+        { "kw": "envato", "w": 0.9 },
+        { "kw": "shutterstock", "w": 0.9 },
+        { "kw": "netlify", "w": 0.9 },
+        { "kw": "vercel", "w": 0.9 },
+        { "kw": "namecheap", "w": 0.8 },
+        { "kw": "linear.app", "w": 0.9 },
+        { "kw": "sketch", "w": 0.6 },
+        { "kw": "zoom", "w": 0.6 }
+      ]
+    },
+    {
+      "name": "Travel",
+      "keywords": [
+        { "kw": "uber trip", "w": 0.85 },
+        { "kw": "uber", "w": 0.6 },
+        { "kw": "lyft", "w": 0.9 },
+        { "kw": "delta air", "w": 1.0 },
+        { "kw": "united air", "w": 1.0 },
+        { "kw": "jetblue", "w": 1.0 },
+        { "kw": "southwest air", "w": 1.0 },
+        { "kw": "amtrak", "w": 1.0 },
+        { "kw": "airbnb", "w": 0.9 },
+        { "kw": "marriott", "w": 0.9 },
+        { "kw": "hilton", "w": 0.9 },
+        { "kw": "hotel", "w": 0.6 },
+        { "kw": "expedia", "w": 0.9 },
+        { "kw": "booking.com", "w": 0.9 },
+        { "kw": "transit", "w": 0.7 },
+        { "kw": "metro", "w": 0.7 },
+        { "kw": "parking", "w": 0.7 },
+        { "kw": "toll", "w": 0.7 },
+        { "kw": "shell", "w": 0.5 },
+        { "kw": "chevron", "w": 0.6 },
+        { "kw": "exxon", "w": 0.6 }
+      ]
+    },
+    {
+      "name": "Meals & Coffee",
+      "keywords": [
+        { "kw": "starbucks", "w": 1.0 },
+        { "kw": "blue bottle", "w": 0.9 },
+        { "kw": "philz", "w": 0.9 },
+        { "kw": "uber eats", "w": 1.0 },
+        { "kw": "ubereats", "w": 1.0 },
+        { "kw": "doordash", "w": 0.9 },
+        { "kw": "grubhub", "w": 0.9 },
+        { "kw": "chipotle", "w": 0.9 },
+        { "kw": "sweetgreen", "w": 0.9 },
+        { "kw": "shake shack", "w": 0.9 },
+        { "kw": "pizzeria", "w": 0.8 },
+        { "kw": "bistro", "w": 0.7 },
+        { "kw": "restaurant", "w": 0.5 },
+        { "kw": "coffee", "w": 0.55 },
+        { "kw": "cafe", "w": 0.45 },
+        { "kw": "deli", "w": 0.45 },
+        { "kw": "bagel", "w": 0.6 }
+      ]
+    },
+    {
+      "name": "Office & Equipment",
+      "keywords": [
+        { "kw": "apple store", "w": 0.9 },
+        { "kw": "best buy", "w": 0.9 },
+        { "kw": "staples", "w": 0.9 },
+        { "kw": "office depot", "w": 0.9 },
+        { "kw": "officemax", "w": 0.9 },
+        { "kw": "ikea", "w": 0.8 },
+        { "kw": "home depot", "w": 0.8 },
+        { "kw": "monitor", "w": 0.7 },
+        { "kw": "printer", "w": 0.7 },
+        { "kw": "wacom", "w": 1.0 },
+        { "kw": "amazon", "w": 0.5 }
+      ]
+    },
+    {
+      "name": "Marketing & Advertising",
+      "keywords": [
+        { "kw": "google ads", "w": 1.0 },
+        { "kw": "adwords", "w": 1.0 },
+        { "kw": "meta platforms", "w": 0.9 },
+        { "kw": "facebook ads", "w": 1.0 },
+        { "kw": "instagram ads", "w": 1.0 },
+        { "kw": "linkedin ads", "w": 1.0 },
+        { "kw": "mailchimp", "w": 0.9 },
+        { "kw": "hubspot", "w": 0.9 },
+        { "kw": "eventbrite", "w": 0.8 },
+        { "kw": "godaddy", "w": 0.8 }
+      ]
+    },
+    {
+      "name": "Professional Services",
+      "keywords": [
+        { "kw": "upwork", "w": 0.9 },
+        { "kw": "fiverr", "w": 0.9 },
+        { "kw": "legal", "w": 0.8 },
+        { "kw": "attorney", "w": 0.9 },
+        { "kw": "cpa", "w": 0.7 },
+        { "kw": "accountant", "w": 0.9 },
+        { "kw": "quickbooks", "w": 0.9 },
+        { "kw": "turbotax", "w": 0.9 },
+        { "kw": "insurance", "w": 0.6 },
+        { "kw": "stripe", "w": 0.4 },
+        { "kw": "notary", "w": 0.8 }
+      ]
+    },
+    {
+      "name": "Personal & Non-Business",
+      "keywords": [
+        { "kw": "netflix", "w": 0.9 },
+        { "kw": "spotify", "w": 0.9 },
+        { "kw": "hulu", "w": 0.9 },
+        { "kw": "prime video", "w": 0.9 },
+        { "kw": "whole foods", "w": 0.9 },
+        { "kw": "trader joe", "w": 0.9 },
+        { "kw": "grocery", "w": 0.7 },
+        { "kw": "walgreens", "w": 0.8 },
+        { "kw": "cvs", "w": 0.7 },
+        { "kw": "equinox", "w": 0.9 },
+        { "kw": "gym", "w": 0.8 },
+        { "kw": "target", "w": 0.4 }
+      ]
+    }
+  ],
+  "special": {
+    "transfers": {
+      "keywords": [
+        { "kw": "transfer to", "w": 1.0 },
+        { "kw": "transfer from", "w": 1.0 },
+        { "kw": "ach transfer", "w": 1.0 },
+        { "kw": "wire transfer", "w": 1.0 },
+        { "kw": "xfer", "w": 0.9 },
+        { "kw": "credit card payment", "w": 1.0 },
+        { "kw": "cc payment", "w": 1.0 },
+        { "kw": "autopay", "w": 0.9 },
+        { "kw": "payment to chase", "w": 0.9 },
+        { "kw": "payment to amex", "w": 0.9 },
+        { "kw": "savings", "w": 0.8 },
+        { "kw": "checking", "w": 0.8 }
+      ]
+    },
+    "income": {
+      "keywords": [
+        { "kw": "stripe payout", "w": 1.0 },
+        { "kw": "invoice payment", "w": 0.95 },
+        { "kw": "payment from", "w": 0.9 },
+        { "kw": "deposit from", "w": 0.9 },
+        { "kw": "direct deposit", "w": 0.9 },
+        { "kw": "payout", "w": 0.7 },
+        { "kw": "payroll", "w": 0.8 },
+        { "kw": "client payment", "w": 0.95 },
+        { "kw": "consulting fee", "w": 0.7 },
+        { "kw": "wire incoming", "w": 0.9 }
+      ]
+    },
+    "refund": {
+      "keywords": [
+        { "kw": "refund", "w": 1.0 },
+        { "kw": "reversal", "w": 0.9 },
+        { "kw": "returned", "w": 0.7 },
+        { "kw": "adjustment", "w": 0.6 }
+      ]
+    }
+  }
+}
