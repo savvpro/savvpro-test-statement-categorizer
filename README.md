@@ -1,83 +1,56 @@
-# Step-by-Step Guide: How to Fork, Clone, and Submit Your Assessment
+# simplke
 
-**Repository:** https://github.com/savvpro/savvpro-test-statement-categorizer
+simplke sorts a freelance designer’s business statement before tax time.
 
----
+Upload a CSV. simplke reads each row, gives it a category, and sends unsure rows to **Needs review**. You can fix rows and export a new CSV.
 
-## Step 1: Fork the Repository
+All demo data is fake. No keys or real bank statements are included.
 
-1. Go to the repository: https://github.com/savvpro/savvpro-test-statement-categorizer
-2. Click the **Fork** button in the top-right corner.
-3. This will create a copy of the repository in your GitHub account.
-
----
-
-## Step 2: Clone Your Fork
-
-1. Open your forked repository in your GitHub account.
-2. Click the green **Code** button and copy the URL.
-3. Run the following commands:
+## Run the web app
 
 ```bash
-git clone https://github.com/your-username/savvpro-test-statement-categorizer.git
-cd savvpro-test-statement-categorizer
+pnpm install
+pnpm dev:static
 ```
 
----
+Open the local URL shown in the terminal. The demo statement loads first. To use another file, click **Import statement**.
 
-## Step 3: Read the Task
+CSV needs these columns:
 
-Open and read **TASK.md** carefully before writing any code.
+- date
+- description or merchant
+- amount
+- optional type: Debit or Credit
 
-- TASK.md URL: https://github.com/savvpro/savvpro-test-statement-categorizer/blob/main/TASK.md
-
----
-
-## Step 4: Create a New Branch
-
-Branch pattern: `candidate-<your-github-username>`
+These commands run the checks:
 
 ```bash
-git checkout -b candidate-<your-github-username>
+pnpm check
+pnpm test
+pnpm build:static
+python3 -m unittest discover -s backend -p 'test_*.py'
 ```
 
-**Example:**
-```bash
-git checkout -b candidate-johndoe
-```
+Amounts are shown as **PKR** in the app. The original CSV values are kept unchanged in the export. No exchange-rate conversion is guessed.
 
----
+## Run the Python API
 
-## Step 5: Complete the Task
-
-Build the full application on your branch.
-
----
-
-## Step 6: Push Your Branch
+The rule engine is in `backend/categorizer.py`. It uses Python’s standard library only.
 
 ```bash
-git add .
-git commit -m "feat: complete statement-categorizer assessment"
-git push origin candidate-<your-github-username>
+python3 -m backend.server
+curl -X POST http://127.0.0.1:8787/api/categorize \
+  -H 'Content-Type: text/csv' \
+  --data-binary @fixtures/demo_statement.csv
 ```
 
----
+## Main files
 
-## Step 7: Create a Pull Request
-
-1. Go to your **forked** repository on GitHub (`https://github.com/your-username/savvpro-test-statement-categorizer`).
-2. Click **Compare & pull request** (GitHub will show this banner after you push your branch).
-3. Ensure the following settings in the PR form:
-   - **Base repository:** `savvpro/savvpro-test-statement-categorizer` ← the original repo
-   - **Base branch:** `main`
-   - **Head repository:** `your-username/savvpro-test-statement-categorizer` ← your fork
-   - **Compare branch:** `candidate-<your-github-username>`
-4. Use the title: `feat: complete statement-categorizer assessment`
-5. Submit the pull request.
-
-> 💡 **Tip:** If you don't see the banner, go to the original repo (`savvpro/savvpro-test-statement-categorizer`), click the **Pull requests** tab, then click **New pull request** → **compare across forks**.
-
----
-
-> ⚠️ **Important:** No submissions will be accepted after the deadline.
+- `client/src/pages/Home.tsx` — upload, review, totals, and export.
+- `client/src/lib/csv.ts` — CSV reading and export.
+- `client/src/lib/categorizer.ts` — browser rules.
+- `backend/categorizer.py` — Python rules.
+- `backend/test_categorizer.py` — Python tests.
+- `fixtures/demo_statement.csv` — fake demo data.
+- `DESIGN.md` — use case and brain rules.
+- `AI_USAGE.md` — AI help and usage evidence.
