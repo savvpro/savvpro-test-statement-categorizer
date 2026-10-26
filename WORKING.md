@@ -294,77 +294,21 @@ npx tsc --noEmit     # type check
 | `frontend/src/services/api.ts` | API fetch wrapper |
 | `sample_data/generate.py` | Sample CSV generator |
 
-### Pydantic v2
+## 15. Project Summary
 
-All request/response validation uses Pydantic v2 models for type safety and
-automatic API documentation (Swagger UI at `/docs`).
+### Title
 
-### ruff
+**Statement Categorizer** — A deterministic, rule-based transaction categorization web application for freelancers and small business owners.
 
-Python linting with ruff (E, F, I, N, S, W rules, S101 ignored for test
-asserts).
+### Description
 
-### Plain CSS Frontend
+The Statement Categorizer helps freelance developers and designers organize their business credit card transactions for tax time. Users upload a CSV statement, and the app automatically categorizes each transaction using a 100% deterministic Python brain (no LLM or AI API). Transactions are sorted into categories like Software, Travel, Meals, Office Supplies, Marketing, Utilities, Subscriptions, Income, Refund, and Transfer. Uncertain transactions are flagged as "Needs Review" so users can correct them — a wrong guess is intentionally worse than asking. The app displays per-category totals, lets users fix categories through a React frontend, and exports the final result as CSV.
 
-No heavy UI library (no Bootstrap, Material UI, etc.). Custom CSS keeps the
-bundle small (~150 KB gzipped) and dependencies minimal.
-
-### Deterministic Brain
-
-No randomness, no ML, no LLM. Same input always produces same output. All
-thresholds and weights are constants in `constants.py` — no magic numbers
-scattered in the code.
-
-
-Downloads the final categorized result as a CSV file.
-
-## 7. CSV Parser Capabilities
-
-The parser handles real-world statement messiness:
-
-| Feature | Implementation |
-|---------|---------------|
-| Single `Amount` column | Auto-detected from headers |
-| Separate `Debit`/`Credit` columns | Auto-detected, debit=negative, credit=positive |
-| Date formats | `YYYY-MM-DD` and `MM/DD/YYYY` |
-| Amount formats | `$1,234.50`, `(45.00)`, `-45.00`, empty cells |
-| Header variants | Date/Posting Date/Transaction Date, Description/Details/Memo |
-| Duplicate rows | Flagged with `is_duplicate=true`, not silently dropped |
-| Blank descriptions | Warned, categorized as Needs Review |
-| Foreign currency lines | Warned |
-| Malformed rows | Skipped with warning, app does not crash |
-| Empty file / missing columns | Clear HTTP 400 error messages |
-
-Sign convention: **spending is negative, money in is positive.**
-
-52 merchants are defined across 10 categories. Two match types:
-
-| Match Type | Confidence | Description |
-|------------|-----------|-------------|
-| Exact | 0.95 | Normalized description equals merchant name exactly |
-| Keyword/contains | 0.80 | Merchant name appears as substring in normalized description |
-
-### Step 5: Ambiguity → "Needs Review"
-
-If none of the above steps produce a confident result, the transaction goes to
-"Needs Review" with confidence 0.0. This happens when:
-
-- Best confidence < 0.70
-- Top-2 confidence gap < 0.10 (two categories too close to call)
-- No merchant rule matches
-- Description is blank
-- Description contains an inherently ambiguous merchant: `AMAZON`, `AMZN`,
-  `PAYPAL` (unless a user override exists)
-
-**Why?** A wrong guess is worse than asking. If the brain is not sure, it must
-say "Needs Review."
-
-│
-└── sample_data/                # Sample CSV files for testing
-    ├── generate.py             # Stdlib-only CSV generator (fixed seed=42)
-    ├── amount_single.csv       # Single Amount column, ISO dates (70 rows)
-    └── debit_credit.csv        # Debit/Credit columns, $ signs, MM/DD/YYYY (70 rows)
-```
-
-**Core rule:** The categorization "brain" is 100% deterministic Python code — no
-LLM or AI API is used for category decisions.
+**Key features:**
+- Handles messy real-world CSV formats (Amount or Debit/Credit columns, multiple date formats, various amount formats)
+- 52 pre-configured merchant rules across 10 categories
+- User overrides persist across uploads
+- Duplicate detection and warning system
+- No database — in-memory state with PostgreSQL noted as the production choice
+- 88 tests covering parser, brain, overrides, and API endpoints
+- No AI/LLM used for categorization decisions (verified by test)
