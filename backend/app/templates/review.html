@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block title %}Review Queue{% endblock %}
+{% block meta_description %}Review and correct uncertain transaction classifications{% endblock %}
+
+{% macro category_badge(name) %}
+  {% set cls_map = {
+    'Software': 'badge-software', 'Cloud Hosting': 'badge-cloud-hosting',
+    'Hardware and Equipment': 'badge-hardware',
+    'Internet and Telecommunications': 'badge-internet',
+    'Office Supplies': 'badge-office', 'Advertising and Marketing': 'badge-advertising',
+    'Professional Services': 'badge-professional', 'Travel': 'badge-travel',
+    'Meals': 'badge-meals', 'Bank Fees': 'badge-bank-fees',
+    'Business Income': 'badge-income', 'Refund': 'badge-refund',
+    'Reversal': 'badge-reversal', 'Internal Transfer': 'badge-transfer',
+    'Personal Expense': 'badge-personal', 'Needs Review': 'badge-review',
+  } %}
+  <span class="ll-badge {{ cls_map.get(name, 'badge-review') }}">{{ name or 'Needs Review' }}</span>
+{% endmacro %}
+
+{% block content %}
+<div class="ll-page">
+
+  <div class="ll-page-header">
+    <h1><i class="bi bi-flag" style="color:var(--ll-yellow)"></i> Review Queue</h1>
+    <p class="subtitle">
+      Transactions the engine was not confident about — select the correct category for each
+    </p>
+  </div>
+
+  {% if transactions %}
+  <div class="ll-alert ll-alert-info" style="margin-bottom:1.25rem;">
+    <strong>{{ transactions|length }} transaction{{ 's' if transactions|length != 1 }} need{{ '' if transactions|length != 1 else 's' }} your review.</strong>
+    Select the correct category from the dropdown — changes save automatically.
+  </div>
+
+  <div class="ll-table-wrap">
+    <table class="ll-table" id="review-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Description</th>
+          <th style="text-align:right;">Amount</th>
+          <th>Current Category</th>
+          <th>Reason</th>
+          <th>Confidence</th>
+          <th>Correct Category</th>
+          <th style="text-align:right;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for t in transactions %}
+        <tr id="row-{{ t.id }}">
+          <td style="color:var(--ll-text-muted);white-space:nowrap;font-size:0.8rem;">
+            {{ t.transaction_date.isoformat() if t.transaction_date else '—' }}
+          </td>
+          <td style="max-width:220px;">
+            <div style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"
+                 title="{{ t.original_description }}">{{ t.original_description }}</div>
+          </td>
+          <td style="text-align:right;white-space:nowrap;">
+            {% if t.amount > 0 %}
+              <span class="amount-positive">+${{ "%.2f"|format(t.amount) }}</span>
+            {% elif t.amount < 0 %}
+              <span class="amount-negative">-${{ "%.2f"|format(t.amount|abs) }}</span>
+            {% else %}
+              <span class="amount-zero">$0.00</span>
+            {% endif %}
+          </td>
+          <td>
+            <span id="cat-badge-{{ t.id }}">
+              {{ category_badge(t.category.name if t.category else 'Needs Review') }}
+            </span>
+          </td>
+          <td style="max-width:200px;">
+            <span style="font-size:0.78rem;color:var(--ll-text-muted);"
+                  title="{{ t.classification_reason }}">
+              {{ t.classification_reason[:55] }}{% if t.classification_reason|length > 55 %}…{% endif %}
+            </span>
+          </td>
+          <td>
+            <div data-confidence="{{ t.confidence_score }}"></div>
+          </td>
+          <td>
+            <div class="category-select-wrap">
+              <select class="inline-cat-select"
+                      id="select-{{ t.id }}"
+                      data-tx-id="{{ t.id }}"
+                      aria-label="Select category for transaction {{ t.id }}">
+                {% for cat in categories %}
+                <option value="{{ cat.id }}"
+                  {% if t.category and t.category.id == cat.id %}selected{% endif %}>
+                  {{ cat.name }}
+                </option>
+                {% endfor %}
+              </select>
+              <span id="save-{{ t.id }}" class="save-indicator"></span>
+            </div>
+          </td>
+          <td style="text-align:right;white-space:nowrap;">
+            <a href="/rules?prefill_pattern={{ t.normalized_description }}&prefill_category_id={{ t.category_id or '' }}"
+               class="ll-btn ll-btn-secondary ll-btn-sm" style="padding:0.2rem 0.5rem;font-size:0.72rem;"
+               title="Create permanent reusable rule from this transaction">
+              <i class="bi bi-sliders"></i> Rule
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="ll-table-wrap">
+    <div class="ll-empty">
+      <div class="empty-icon">✅</div>
+      <h3>All clear — nothing to review!</h3>
+      <p>Every transaction has been confidently categorized or already reviewed.</p>
+      <div style="display:flex;gap:0.75rem;justify-content:center;margin-top:0.75rem;">
+        <a href="/transactions" class="ll-btn ll-btn-secondary">View all transactions</a>
+        <a href="/" class="ll-btn ll-btn-primary">Dashboard</a>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,362 @@
+{% extends "base.html" %}
+{% block title %}Transaction #{{ transaction.id }}{% endblock %}
+{% block meta_description %}Details for transaction #{{ transaction.id }} in LedgerLens{% endblock %}
+
+{% macro category_badge(name) %}
+  {% set cls_map = {
+    'Software': 'badge-software', 'Cloud Hosting': 'badge-cloud-hosting',
+    'Hardware and Equipment': 'badge-hardware',
+    'Internet and Telecommunications': 'badge-internet',
+    'Office Supplies': 'badge-office', 'Advertising and Marketing': 'badge-advertising',
+    'Professional Services': 'badge-professional', 'Travel': 'badge-travel',
+    'Meals': 'badge-meals', 'Bank Fees': 'badge-bank-fees',
+    'Business Income': 'badge-income', 'Refund': 'badge-refund',
+    'Reversal': 'badge-reversal', 'Internal Transfer': 'badge-transfer',
+    'Personal Expense': 'badge-personal', 'Needs Review': 'badge-review',
+  } %}
+  <span class="ll-badge {{ cls_map.get(name, 'badge-review') }}">{{ name or 'Needs Review' }}</span>
+{% endmacro %}
+
+{% block content %}
+<div class="ll-page">
+
+  <!-- Breadcrumb Navigation -->
+  <nav aria-label="breadcrumb" style="margin-bottom:1rem;">
+    <ol class="breadcrumb" style="background:transparent;padding:0;margin:0;font-size:0.8rem;">
+      <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
+      <li class="breadcrumb-item"><a href="/transactions">Transactions</a></li>
+      <li class="breadcrumb-item active" aria-current="page" style="color:var(--ll-text-muted);">Transaction #{{ transaction.id }}</li>
+    </ol>
+  </nav>
+
+  <!-- Page Header -->
+  <div class="ll-page-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;">
+    <div>
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.35rem;">
+        <h1 style="margin:0;">Transaction #{{ transaction.id }}</h1>
+        <span id="cat-badge-{{ transaction.id }}">
+          {{ category_badge(transaction.category.name if transaction.category else 'Needs Review') }}
+        </span>
+        {% if transaction.review_status == 'PENDING' %}
+          <span class="ll-badge badge-pending" id="review-badge-{{ transaction.id }}">Needs Review</span>
+        {% elif transaction.review_status == 'REVIEWED' %}
+          <span class="ll-badge badge-reviewed" id="review-badge-{{ transaction.id }}">Reviewed</span>
+        {% else %}
+          <span class="ll-badge badge-auto" id="review-badge-{{ transaction.id }}">Auto</span>
+        {% endif %}
+      </div>
+      <p class="subtitle">
+        Recorded on {{ transaction.transaction_date.strftime('%B %d, %Y') if transaction.transaction_date else 'Unknown Date' }}
+        &nbsp;·&nbsp; Statement #{{ transaction.statement_id }}
+      </p>
+    </div>
+
+    <!-- Actions -->
+    <div style="display:flex;gap:0.5rem;align-items:center;">
+      <a href="/transactions" class="ll-btn ll-btn-secondary ll-btn-sm">
+        <i class="bi bi-arrow-left"></i> All Transactions
+      </a>
+      {% if transaction.statement %}
+      <a href="/statements/{{ transaction.statement_id }}" class="ll-btn ll-btn-secondary ll-btn-sm">
+        <i class="bi bi-file-earmark-text"></i> View Statement
+      </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Detail Grid -->
+  <div class="detail-grid">
+
+    <!-- Left Column: Primary Details & Classification -->
+    <div style="display:flex;flex-direction:column;gap:1.5rem;">
+
+      <!-- Transaction Overview Card -->
+      <div class="ll-card">
+        <div class="ll-card-title">Transaction Information</div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:1.25rem;margin-top:1rem;">
+          <!-- Amount -->
+          <div>
+            <div style="font-size:0.72rem;color:var(--ll-text-muted);font-weight:600;text-transform:uppercase;">Monetary Amount</div>
+            <div style="font-size:1.75rem;font-weight:700;margin-top:0.25rem;">
+              {% if transaction.amount > 0 %}
+                <span class="amount-positive">+${{ "%.2f"|format(transaction.amount) }} {{ transaction.currency }}</span>
+              {% elif transaction.amount < 0 %}
+                <span class="amount-negative">-${{ "%.2f"|format(transaction.amount|abs) }} {{ transaction.currency }}</span>
+              {% else %}
+                <span class="amount-zero">$0.00 {{ transaction.currency }}</span>
+              {% endif %}
+            </div>
+            <div style="font-size:0.75rem;color:var(--ll-text-muted);margin-top:0.2rem;">
+              {% if transaction.amount > 0 %}
+                Inflow (Credit / Income)
+              {% elif transaction.amount < 0 %}
+                Outflow (Debit / Expense)
+              {% else %}
+                Zero-amount entry
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Transaction Date -->
+          <div>
+            <div style="font-size:0.72rem;color:var(--ll-text-muted);font-weight:600;text-transform:uppercase;">Transaction Date</div>
+            <div style="font-size:1.1rem;font-weight:600;color:var(--ll-text);margin-top:0.35rem;">
+              {{ transaction.transaction_date.isoformat() if transaction.transaction_date else 'Not Provided' }}
+            </div>
+            <div style="font-size:0.75rem;color:var(--ll-text-muted);margin-top:0.2rem;">
+              Normalized calendar date
+            </div>
+          </div>
+        </div>
+
+        <hr style="border-color:var(--ll-border);margin:1.25rem 0;">
+
+        <!-- Descriptions -->
+        <div style="display:flex;flex-direction:column;gap:1rem;">
+          <div>
+            <div style="font-size:0.72rem;color:var(--ll-text-muted);font-weight:600;text-transform:uppercase;margin-bottom:0.25rem;">
+              Original Description (As Imported)
+            </div>
+            <div style="background:var(--ll-surface-2);border:1px solid var(--ll-border);padding:0.75rem 1rem;border-radius:var(--radius-sm);font-family:'JetBrains Mono',monospace;font-size:0.88rem;word-break:break-all;">
+              {{ transaction.original_description }}
+            </div>
+            <div style="font-size:0.72rem;color:var(--ll-text-muted);margin-top:0.3rem;">
+              Preserved verbatim from statement CSV without modification.
+            </div>
+          </div>
+
+          <div>
+            <div style="font-size:0.72rem;color:var(--ll-text-muted);font-weight:600;text-transform:uppercase;margin-bottom:0.25rem;">
+              Normalized Description
+            </div>
+            <div style="background:var(--ll-surface-2);border:1px solid var(--ll-border);padding:0.6rem 1rem;border-radius:var(--radius-sm);font-family:'JetBrains Mono',monospace;font-size:0.84rem;color:var(--ll-accent);">
+              {{ transaction.normalized_description }}
+            </div>
+            <div style="font-size:0.72rem;color:var(--ll-text-muted);margin-top:0.3rem;">
+              Normalized text string evaluated against deterministic categorization rules.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Brain & Classification Details Card -->
+      <div class="ll-card">
+        <div class="ll-card-title">Brain Decision & Categorization Logic</div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:1.25rem;margin-top:1rem;">
+          <!-- Category -->
+          <div>
+            <div style="font-size:0.72rem;color:var(--ll-text-muted);font-weight:600;text-transform:uppercase;">Assigned Category</div>
+            <div style="margin-top:0.4rem;display:flex;align-items:center;gap:0.5rem;">
+              {{ category_badge(transaction.category.name if transaction.category else 'Needs Review') }}
+              {% if transaction.was_manually_categorized %}
+                <span class="ll-badge badge-manual">Manually Corrected</span>
+              {% else %}
+                <span class="ll-badge badge-auto">Deterministic Match</span>
+              {% endif %}
+            </div>
+            {% if transaction.category and transaction.category.description %}
+            <div style="font-size:0.75rem;color:var(--ll-text-muted);margin-top:0.4rem;">
+              {{ transaction.category.description }}
+            </div>
+            {% endif %}
+          </div>
+
+          <!-- Confidence Score -->
+          <div>
+            <div style="font-size:0.72rem;color:var(--ll-text-muted);font-weight:600;text-transform:uppercase;">Confidence Score</div>
+            <div style="display:flex;align-items:center;gap:0.75rem;margin-top:0.4rem;">
+              <div style="width:120px;" data-confidence="{{ transaction.confidence_score }}"></div>
+              <span style="font-size:0.85rem;color:var(--ll-text-muted);">
+                {% if transaction.confidence_score >= 0.85 %}
+                  High Confidence
+                {% elif transaction.confidence_score >= 0.50 %}
+                  Moderate Confidence
+                {% else %}
+                  Uncertain / Needs Review
+                {% endif %}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <hr style="border-color:var(--ll-border);margin:1.25rem 0;">
+
+        <!-- Explanation & Decision Rationale -->
+        <div>
+          <div style="font-size:0.72rem;color:var(--ll-text-muted);font-weight:600;text-transform:uppercase;margin-bottom:0.25rem;">
+            Classification Reason / Rule Match
+          </div>
+          <div style="background:var(--ll-surface-2);border:1px solid var(--ll-border);padding:0.75rem 1rem;border-radius:var(--radius-sm);font-size:0.85rem;line-height:1.6;">
+            <i class="bi bi-info-circle" style="color:var(--ll-accent);margin-right:0.35rem;"></i>
+            {{ transaction.classification_reason }}
+          </div>
+        </div>
+
+        <!-- Quick Inline Category Reassignment -->
+        <div style="margin-top:1.25rem;background:rgba(88,166,255,0.06);border:1px solid rgba(88,166,255,0.2);padding:1rem;border-radius:var(--radius);">
+          <div style="font-weight:600;font-size:0.82rem;margin-bottom:0.5rem;color:var(--ll-text);">
+            Change Category / Confirm Review
+          </div>
+          <div class="category-select-wrap">
+            <select class="inline-cat-select" data-tx-id="{{ transaction.id }}" style="max-width:280px;">
+              {% for cat in categories %}
+              <option value="{{ cat.id }}" {% if transaction.category_id == cat.id %}selected{% endif %}>
+                {{ cat.name }}
+              </option>
+              {% endfor %}
+            </select>
+            <span class="save-indicator" id="save-{{ transaction.id }}"></span>
+          </div>
+          <div style="font-size:0.72rem;color:var(--ll-text-muted);margin-top:0.4rem;">
+            Selecting a category immediately persists your correction, updates review status, and logs a classification audit event.
+          </div>
+          <div style="margin-top:0.75rem;padding-top:0.75rem;border-top:1px dashed var(--ll-border);">
+            <a href="/rules?prefill_pattern={{ transaction.normalized_description }}&prefill_category_id={{ transaction.category_id or '' }}"
+               class="ll-btn ll-btn-secondary ll-btn-sm" style="font-size:0.75rem;">
+              <i class="bi bi-sliders"></i> Create Reusable Rule from this Transaction
+            </a>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Audit History Timeline Card -->
+      <div class="ll-card">
+        <div class="ll-card-title">Classification Audit History</div>
+
+        {% if transaction.classification_events %}
+        <div style="margin-top:1rem;display:flex;flex-direction:column;gap:0.75rem;">
+          {% for ev in transaction.classification_events %}
+          <div style="display:flex;gap:0.75rem;align-items:flex-start;padding:0.75rem;background:var(--ll-surface-2);border:1px solid var(--ll-border);border-radius:var(--radius-sm);">
+            <div style="font-size:1.1rem;margin-top:0.1rem;">
+              {% if ev.event_type == 'MANUAL_OVERRIDE' %}
+                ✍️
+              {% else %}
+                ⚡
+              {% endif %}
+            </div>
+            <div style="flex:1;">
+              <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.25rem;">
+                <span style="font-weight:600;font-size:0.82rem;color:var(--ll-text);">
+                  {{ ev.event_type }}
+                </span>
+                <span style="font-size:0.72rem;color:var(--ll-text-muted);">
+                  {{ ev.created_at.strftime('%b %d, %Y at %H:%M:%S') if ev.created_at else '' }}
+                </span>
+              </div>
+              <div style="font-size:0.78rem;color:var(--ll-text);margin-top:0.25rem;">
+                {% if ev.previous_category %}
+                  Reassigned from <strong>{{ ev.previous_category.name }}</strong> to <strong>{{ ev.new_category.name if ev.new_category else 'None' }}</strong>
+                {% else %}
+                  Initially assigned to <strong>{{ ev.new_category.name if ev.new_category else 'None' }}</strong>
+                {% endif %}
+              </div>
+              {% if ev.reason %}
+              <div style="font-size:0.72rem;color:var(--ll-text-muted);margin-top:0.2rem;font-style:italic;">
+                "{{ ev.reason }}"
+              </div>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div style="font-size:0.8rem;color:var(--ll-text-muted);margin-top:0.75rem;">
+          No audit history events recorded for this transaction.
+        </div>
+        {% endif %}
+      </div>
+
+    </div>
+
+    <!-- Right Column: Statement Reference & Metadata -->
+    <div style="display:flex;flex-direction:column;gap:1.5rem;">
+
+      <!-- Statement Reference Card -->
+      <div class="ll-card">
+        <div class="ll-card-title">Statement Reference</div>
+
+        {% if transaction.statement %}
+        <div style="margin-top:0.75rem;display:flex;flex-direction:column;gap:0.75rem;">
+          <div>
+            <div style="font-size:0.72rem;color:var(--ll-text-muted);font-weight:600;text-transform:uppercase;">Statement File</div>
+            <div style="font-weight:600;font-size:0.88rem;color:var(--ll-text);word-break:break-all;margin-top:0.2rem;">
+              {{ transaction.statement.original_filename }}
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+            <div>
+              <div style="font-size:0.72rem;color:var(--ll-text-muted);font-weight:600;text-transform:uppercase;">Statement ID</div>
+              <div style="font-weight:600;margin-top:0.15rem;">#{{ transaction.statement.id }}</div>
+            </div>
+            <div>
+              <div style="font-size:0.72rem;color:var(--ll-text-muted);font-weight:600;text-transform:uppercase;">Import Status</div>
+              <div style="margin-top:0.15rem;">
+                {% if transaction.statement.status == 'COMPLETED' %}
+                  <span class="ll-badge badge-ok">Completed</span>
+                {% elif transaction.statement.status == 'COMPLETED_WITH_ERRORS' %}
+                  <span class="ll-badge badge-errors">Partial</span>
+                {% else %}
+                  <span class="ll-badge badge-failed">{{ transaction.statement.status }}</span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div style="font-size:0.72rem;color:var(--ll-text-muted);font-weight:600;text-transform:uppercase;">Import Date</div>
+            <div style="font-size:0.82rem;color:var(--ll-text);margin-top:0.15rem;">
+              {{ transaction.statement.created_at.strftime('%b %d, %Y at %H:%M') if transaction.statement.created_at else 'Unknown' }}
+            </div>
+          </div>
+
+          <div style="margin-top:0.5rem;">
+            <a href="/statements/{{ transaction.statement_id }}" class="ll-btn ll-btn-secondary ll-btn-sm" style="width:100%;justify-content:center;">
+              <i class="bi bi-folder2-open"></i> Open Statement Records
+            </a>
+          </div>
+        </div>
+        {% else %}
+        <div style="color:var(--ll-text-muted);font-size:0.8rem;margin-top:0.5rem;">
+          Statement record #{{ transaction.statement_id }}
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Record Timestamps Card -->
+      <div class="ll-card">
+        <div class="ll-card-title">System Metadata</div>
+
+        <div style="margin-top:0.75rem;display:flex;flex-direction:column;gap:0.75rem;font-size:0.8rem;">
+          <div>
+            <div style="font-size:0.72rem;color:var(--ll-text-muted);font-weight:600;text-transform:uppercase;">Database Record ID</div>
+            <div style="font-family:'JetBrains Mono',monospace;color:var(--ll-text);margin-top:0.15rem;">
+              tx_{{ transaction.id }}
+            </div>
+          </div>
+
+          <div>
+            <div style="font-size:0.72rem;color:var(--ll-text-muted);font-weight:600;text-transform:uppercase;">Created In Database</div>
+            <div style="color:var(--ll-text);margin-top:0.15rem;">
+              {{ transaction.created_at.strftime('%Y-%m-%d %H:%M:%S UTC') if transaction.created_at else '—' }}
+            </div>
+          </div>
+
+          <div>
+            <div style="font-size:0.72rem;color:var(--ll-text-muted);font-weight:600;text-transform:uppercase;">Last Updated</div>
+            <div style="color:var(--ll-text);margin-top:0.15rem;">
+              {{ transaction.updated_at.strftime('%Y-%m-%d %H:%M:%S UTC') if transaction.updated_at else '—' }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div><!-- /detail-grid -->
+
+</div>
+{% endblock %}

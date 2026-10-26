@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+{% block title %}Merchant Rules{% endblock %}
+{% block meta_description %}Manage reusable deterministic merchant categorization rules{% endblock %}
+
+{% macro category_badge(name) %}
+  {% set cls_map = {
+    'Software': 'badge-software', 'Cloud Hosting': 'badge-cloud-hosting',
+    'Hardware and Equipment': 'badge-hardware',
+    'Internet and Telecommunications': 'badge-internet',
+    'Office Supplies': 'badge-office', 'Advertising and Marketing': 'badge-advertising',
+    'Professional Services': 'badge-professional', 'Travel': 'badge-travel',
+    'Meals': 'badge-meals', 'Bank Fees': 'badge-bank-fees',
+    'Business Income': 'badge-income', 'Refund': 'badge-refund',
+    'Reversal': 'badge-reversal', 'Internal Transfer': 'badge-transfer',
+    'Personal Expense': 'badge-personal', 'Needs Review': 'badge-review',
+  } %}
+  <span class="ll-badge {{ cls_map.get(name, 'badge-review') }}">{{ name or 'Needs Review' }}</span>
+{% endmacro %}
+
+{% block content %}
+<div class="ll-page">
+
+  <!-- Header -->
+  <div class="ll-page-header" style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:1rem;">
+    <div>
+      <h1><i class="bi bi-sliders" style="color:var(--ll-accent)"></i> Categorization Rules</h1>
+      <p class="subtitle">Reusable, deterministic merchant rules evaluated in strict priority order</p>
+    </div>
+    <div>
+      <a href="#new-rule-card" class="ll-btn ll-btn-primary ll-btn-sm" onclick="document.getElementById('merchant_pattern').focus();">
+        <i class="bi bi-plus-circle"></i> Create New Rule
+      </a>
+    </div>
+  </div>
+
+  <!-- Flash Alerts -->
+  {% if success %}
+  <div class="ll-alert ll-alert-success" data-dismiss="5000">
+    <i class="bi bi-check-circle"></i> {{ success }}
+  </div>
+  {% endif %}
+
+  {% if error %}
+  <div class="ll-alert ll-alert-error" data-dismiss="7000">
+    <i class="bi bi-exclamation-octagon"></i> {{ error }}
+  </div>
+  {% endif %}
+
+  <!-- Grid: New Rule Form + Precedence Guide -->
+  <div style="display:grid;grid-template-columns:1fr 340px;gap:1.5rem;align-items:start;margin-bottom:2rem;">
+
+    <!-- Create Rule Card -->
+    <div class="ll-card" id="new-rule-card">
+      <div class="ll-card-title">
+        <i class="bi bi-magic" style="color:var(--ll-accent);"></i>
+        {% if prefill_pattern %}Create Rule from Transaction{% else %}Create Reusable Categorization Rule{% endif %}
+      </div>
+
+      <form method="post" action="/rules" style="margin-top:1rem;">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:1rem;margin-bottom:1rem;">
+          <!-- Merchant Pattern -->
+          <div style="grid-column: 1 / -1;">
+            <label for="merchant_pattern" style="font-size:0.75rem;color:var(--ll-text-muted);font-weight:600;text-transform:uppercase;display:block;margin-bottom:0.35rem;">
+              Merchant Pattern / Text Substring <span style="color:var(--ll-red);">*</span>
+            </label>
+            <input type="text" id="merchant_pattern" name="merchant_pattern" required
+                   value="{{ prefill_pattern }}"
+                   placeholder="e.g. GITHUB, DIGITALOCEAN, STARBUCKS, ADOBE"
+                   class="form-control" style="background:var(--ll-surface-2);color:var(--ll-text);border-color:var(--ll-border);font-family:'JetBrains Mono',monospace;">
+            <div style="font-size:0.72rem;color:var(--ll-text-muted);margin-top:0.3rem;">
+              Matched case-insensitively against incoming transaction descriptions.
+            </div>
+          </div>
+
+          <!-- Target Category -->
+          <div>
+            <label for="category_id" style="font-size:0.75rem;color:var(--ll-text-muted);font-weight:600;text-transform:uppercase;display:block;margin-bottom:0.35rem;">
+              Target Category <span style="color:var(--ll-red);">*</span>
+            </label>
+            <select id="category_id" name="category_id" required class="form-select"
+                    style="background:var(--ll-surface-2);color:var(--ll-text);border-color:var(--ll-border);">
+              {% for cat in categories %}
+              <option value="{{ cat.id }}" {% if prefill_category_id == cat.id %}selected{% endif %}>
+                {{ cat.name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Match Type -->
+          <div>
+            <label for="match_type" style="font-size:0.75rem;color:var(--ll-text-muted);font-weight:600;text-transform:uppercase;display:block;margin-bottom:0.35rem;">
+              Match Strategy
+            </label>
+            <select id="match_type" name="match_type" class="form-select"
+                    style="background:var(--ll-surface-2);color:var(--ll-text);border-color:var(--ll-border);">
+              <option value="CONTAINS" selected>CONTAINS (Substring match)</option>
+              <option value="EXACT">EXACT (Full text match)</option>
+              <option value="REGEX">REGEX (Regular expression)</option>
+            </select>
+          </div>
+
+          <!-- Priority -->
+          <div>
+            <label for="priority" style="font-size:0.75rem;color:var(--ll-text-muted);font-weight:600;text-transform:uppercase;display:block;margin-bottom:0.35rem;">
+              Rule Priority
+            </label>
+            <input type="number" id="priority" name="priority" value="100" min="1" max="10000"
+                   class="form-control" style="background:var(--ll-surface-2);color:var(--ll-text);border-color:var(--ll-border);">
+            <div style="font-size:0.72rem;color:var(--ll-text-muted);margin-top:0.3rem;">
+              Higher numbers are evaluated first.
+            </div>
+          </div>
+
+          <!-- Active state & dry-run option -->
+          <div style="display:flex;flex-direction:column;justify-content:center;gap:0.4rem;">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="is_active" id="is_active" value="1" checked
+                     style="background-color:var(--ll-surface-2);border-color:var(--ll-border);">
+              <label class="form-check-label" for="is_active" style="font-size:0.8rem;color:var(--ll-text);">
+                Enable rule immediately
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="preview_first" id="preview_first" value="1" checked
+                     style="background-color:var(--ll-surface-2);border-color:var(--ll-border);">
+              <label class="form-check-label" for="preview_first" style="font-size:0.8rem;color:var(--ll-accent);">
+                Preview matches before applying
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:0.75rem;">
+          <button type="submit" class="ll-btn ll-btn-primary">
+            <i class="bi bi-save"></i> Save Rule
+          </button>
+          {% if prefill_pattern %}
+          <a href="/rules" class="ll-btn ll-btn-secondary">Clear prefill</a>
+          {% endif %}
+        </div>
+      </form>
+    </div>
+
+    <!-- Rule Precedence Information Card -->
+    <div class="ll-card">
+      <div class="ll-card-title"><i class="bi bi-shield-check" style="color:var(--ll-green);"></i> Rule Precedence & Safety</div>
+      <div style="font-size:0.8rem;color:var(--ll-text-muted);line-height:1.6;margin-top:0.5rem;">
+        <p style="margin-bottom:0.75rem;">
+          <strong style="color:var(--ll-text);">1. Priority Ordering:</strong> Rules with higher priority numbers take precedence over lower ones.
+        </p>
+        <p style="margin-bottom:0.75rem;">
+          <strong style="color:var(--ll-text);">2. Manual Protection:</strong> Transactions that were manually reviewed/categorized are <span style="color:var(--ll-yellow);font-weight:600;">protected by default</span> and will never be overwritten unless explicitly requested.
+        </p>
+        <p style="margin-bottom:0.75rem;">
+          <strong style="color:var(--ll-text);">3. Deterministic Brain:</strong> Rules run 100% locally via deterministic Python matching without third-party LLMs.
+        </p>
+        <p style="margin-bottom:0;">
+          <strong style="color:var(--ll-text);">4. Safe Deletion:</strong> Deleting a rule removes the pattern but leaves past categorized transactions intact.
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Rules Table Card -->
+  <div class="ll-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;">
+      <div>
+        <div class="ll-card-title" style="margin:0;">Active & Configured Rules</div>
+        <p class="subtitle" style="font-size:0.78rem;margin:0;">{{ rules|length }} reusable categorization rule{% if rules|length != 1 %}s{% endif %} in database</p>
+      </div>
+    </div>
+
+    {% if rules %}
+    <div class="table-responsive">
+      <table class="ll-table">
+        <thead>
+          <tr>
+            <th>Priority</th>
+            <th>Merchant Pattern</th>
+            <th>Strategy</th>
+            <th>Target Category</th>
+            <th>Status</th>
+            <th>Created</th>
+            <th style="text-align:right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in rules %}
+          <tr id="rule-row-{{ r.id }}" style="{% if not r.is_active %}opacity:0.6;{% endif %}">
+            <td style="white-space:nowrap;">
+              <span class="ll-badge" style="background:rgba(88,166,255,0.15);color:var(--ll-accent);font-family:'JetBrains Mono',monospace;">
+                {{ r.priority }}
+              </span>
+            </td>
+            <td style="font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--ll-text);">
+              {{ r.merchant_pattern }}
+            </td>
+            <td>
+              <span class="ll-badge" style="background:var(--ll-surface-2);color:var(--ll-text-muted);font-size:0.7rem;">
+                {{ r.match_type }}
+              </span>
+            </td>
+            <td>
+              {{ category_badge(r.category.name if r.category else 'Unknown') }}
+            </td>
+            <td>
+              {% if r.is_active %}
+                <span class="ll-badge badge-ok">Active</span>
+              {% else %}
+                <span class="ll-badge" style="background:rgba(139,148,158,0.15);color:var(--ll-text-muted);">Disabled</span>
+              {% endif %}
+            </td>
+            <td style="font-size:0.75rem;color:var(--ll-text-muted);white-space:nowrap;">
+              {{ r.created_at.strftime('%b %d, %Y') if r.created_at else '—' }}
+            </td>
+            <td style="text-align:right;white-space:nowrap;">
+              <div style="display:inline-flex;gap:0.35rem;align-items:center;">
+                <!-- Preview & Run -->
+                <a href="/rules/{{ r.id }}/preview" class="ll-btn ll-btn-primary ll-btn-sm" style="padding:0.2rem 0.55rem;font-size:0.75rem;" title="Preview matching transactions and run recategorization">
+                  <i class="bi bi-play-circle"></i> Preview & Run
+                </a>
+
+                <!-- Toggle Active -->
+                <form method="post" action="/rules/{{ r.id }}/toggle" style="display:inline;">
+                  <button type="submit" class="ll-btn ll-btn-secondary ll-btn-sm" style="padding:0.2rem 0.5rem;font-size:0.75rem;" title="{% if r.is_active %}Disable rule{% else %}Enable rule{% endif %}">
+                    {% if r.is_active %}
+                      <i class="bi bi-pause-circle"></i>
+                    {% else %}
+                      <i class="bi bi-play"></i>
+                    {% endif %}
+                  </button>
+                </form>
+
+                <!-- Delete Rule -->
+                <form method="post" action="/rules/{{ r.id }}/delete" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete rule for \'{{ r.merchant_pattern }}\'? Past transactions will not be modified.');">
+                  <button type="submit" class="ll-btn ll-btn-secondary ll-btn-sm" style="padding:0.2rem 0.5rem;font-size:0.75rem;color:var(--ll-red);" title="Delete rule">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="ll-empty" style="padding:3rem 1rem;">
+      <div class="empty-icon" style="font-size:2.5rem;">📐</div>
+      <h3>No custom merchant rules configured</h3>
+      <p>Create a rule above to automatically sort transactions matching specific merchant patterns.</p>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

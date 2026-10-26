@@ -1,0 +1,334 @@
+{% extends "base.html" %}
+
+{% block title %}Database Backup & Restore{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+
+  <!-- Header & Actions -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+    <div>
+      <h1 class="h3 mb-1 text-light fw-bold">
+        <i class="bi bi-shield-check text-primary me-2"></i>Database Backup & Data Management
+      </h1>
+      <p class="text-secondary small mb-0">
+        Safeguard financial statements, transactions, categories, and deterministic rules against accidental loss.
+      </p>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <form action="/backups/prune" method="POST" onsubmit="return confirm('Prune old backups based on retention policy (max {{ diagnostics.retention_max_count }} backups, {{ diagnostics.retention_days }} days)? The last known good backup is always preserved.');">
+        <button type="submit" class="btn btn-outline-secondary btn-sm">
+          <i class="bi bi-trash3 me-1"></i> Prune Old Backups
+        </button>
+      </form>
+      <form action="/backups/create" method="POST">
+        <button type="submit" class="btn btn-primary btn-sm px-3 shadow-sm">
+          <i class="bi bi-cloud-arrow-up-fill me-1"></i> Create Backup Now
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Flash Messages -->
+  {% if success %}
+  <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+    <i class="bi bi-check-circle-fill me-2"></i> {{ success }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  {% endif %}
+
+  {% if error %}
+  <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ error }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  {% endif %}
+
+  <!-- Warning Banner if no recent backup -->
+  {% if diagnostics.backup_warning %}
+  <div class="alert alert-warning border-0 shadow-sm mb-4 d-flex align-items-center" role="alert">
+    <i class="bi bi-shield-exclamation fs-4 me-3 text-warning"></i>
+    <div>
+      <strong>Backup Recommendation:</strong> {{ diagnostics.backup_warning }}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Diagnostic & Operational Metrics Cards -->
+  <div class="row g-3 mb-4">
+    <!-- Database Connection Status -->
+    <div class="col-12 col-md-6 col-xl-3">
+      <div class="card h-100 bg-dark border-secondary shadow-sm">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start">
+            <span class="text-secondary small fw-semibold text-uppercase">Database Connection</span>
+            {% if diagnostics.database_connected %}
+            <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50">
+              <i class="bi bi-circle-fill small me-1"></i> Connected
+            </span>
+            {% else %}
+            <span class="badge bg-danger bg-opacity-25 text-danger border border-danger border-opacity-50">
+              <i class="bi bi-x-circle small me-1"></i> Disconnected
+            </span>
+            {% endif %}
+          </div>
+          <div class="h5 fw-bold text-light mt-2 mb-1">MySQL 8.0+</div>
+          <div class="text-secondary small text-truncate" title="{{ diagnostics.database_masked_url }}">
+            {{ diagnostics.database_masked_url }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Financial Data Records -->
+    <div class="col-12 col-md-6 col-xl-3">
+      <div class="card h-100 bg-dark border-secondary shadow-sm">
+        <div class="card-body">
+          <span class="text-secondary small fw-semibold text-uppercase">Protected Records</span>
+          <div class="d-flex align-items-baseline gap-2 mt-2">
+            <span class="h4 fw-bold text-light mb-0">{{ diagnostics.table_counts.get('transactions', 0) }}</span>
+            <span class="text-secondary small">transactions</span>
+          </div>
+          <div class="d-flex gap-3 text-secondary small mt-2">
+            <span><strong class="text-light">{{ diagnostics.table_counts.get('categories', 0) }}</strong> categories</span>
+            <span><strong class="text-light">{{ diagnostics.table_counts.get('statements', 0) }}</strong> statements</span>
+            <span><strong class="text-light">{{ diagnostics.table_counts.get('merchant_rules', 0) }}</strong> rules</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Last Successful Backup -->
+    <div class="col-12 col-md-6 col-xl-3">
+      <div class="card h-100 bg-dark border-secondary shadow-sm">
+        <div class="card-body">
+          <span class="text-secondary small fw-semibold text-uppercase">Last Successful Backup</span>
+          {% if diagnostics.last_successful_backup %}
+          <div class="h5 fw-bold text-light mt-2 mb-1">
+            {% if diagnostics.days_since_last_backup == 0 %}
+              Today
+            {% elif diagnostics.days_since_last_backup == 1 %}
+              Yesterday
+            {% else %}
+              {{ diagnostics.days_since_last_backup }} days ago
+            {% endif %}
+          </div>
+          <div class="text-secondary small">
+            {{ diagnostics.last_successful_backup.created_at[:19].replace('T', ' ') }} UTC
+          </div>
+          {% else %}
+          <div class="h6 fw-bold text-warning mt-2 mb-1">None created yet</div>
+          <div class="text-secondary small">Protect your data now</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Storage and Retention -->
+    <div class="col-12 col-md-6 col-xl-3">
+      <div class="card h-100 bg-dark border-secondary shadow-sm">
+        <div class="card-body">
+          <span class="text-secondary small fw-semibold text-uppercase">Storage & Retention</span>
+          <div class="d-flex align-items-baseline gap-2 mt-2">
+            <span class="h4 fw-bold text-light mb-0">{{ diagnostics.total_backups_count }}</span>
+            <span class="text-secondary small">backups ({{ diagnostics.total_size_formatted }})</span>
+          </div>
+          <div class="text-secondary small mt-2">
+            Policy: Retain {{ diagnostics.retention_max_count }} latest &bull; {{ diagnostics.retention_days }} days
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Available Backups Table -->
+  <div class="card bg-dark border-secondary shadow-sm">
+    <div class="card-header bg-dark border-secondary py-3 d-flex justify-content-between align-items-center">
+      <h2 class="h5 mb-0 text-light fw-bold">
+        <i class="bi bi-clock-history text-secondary me-2"></i>Available Backups
+      </h2>
+      <span class="badge bg-secondary text-light">{{ backups|length }} Total</span>
+    </div>
+    <div class="card-body p-0">
+      {% if backups %}
+      <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle mb-0">
+          <thead class="text-secondary small text-uppercase" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+            <tr>
+              <th scope="col" class="ps-4">Backup ID & Timestamp</th>
+              <th scope="col">Type</th>
+              <th scope="col">File Size</th>
+              <th scope="col">Checksum (SHA-256)</th>
+              <th scope="col">Status</th>
+              <th scope="col">Verification</th>
+              <th scope="col" class="text-end pe-4">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for b in backups %}
+            <tr>
+              <!-- Backup ID and Date -->
+              <td class="ps-4 py-3">
+                <div class="fw-semibold text-light">{{ b.backup_id }}</div>
+                <div class="text-secondary small">
+                  {{ b.created_at[:19].replace('T', ' ') }} UTC
+                </div>
+              </td>
+
+              <!-- Backup Type -->
+              <td>
+                {% if b.backup_type == 'safety' %}
+                <span class="badge bg-warning bg-opacity-25 text-warning border border-warning border-opacity-50">
+                  <i class="bi bi-shield-lock me-1"></i> Pre-Restore Safety
+                </span>
+                {% elif b.backup_type == 'scheduled' %}
+                <span class="badge bg-info bg-opacity-25 text-info border border-info border-opacity-50">
+                  <i class="bi bi-clock me-1"></i> Scheduled
+                </span>
+                {% else %}
+                <span class="badge bg-primary bg-opacity-25 text-primary border border-primary border-opacity-50">
+                  <i class="bi bi-hand-index-thumb me-1"></i> Manual
+                </span>
+                {% endif %}
+              </td>
+
+              <!-- File Size -->
+              <td>
+                <span class="text-light">
+                  {% if b.file_size_bytes >= 1048576 %}
+                    {{ (b.file_size_bytes / 1048576)|round(2) }} MB
+                  {% else %}
+                    {{ (b.file_size_bytes / 1024)|round(1) }} KB
+                  {% endif %}
+                </span>
+              </td>
+
+              <!-- SHA-256 Checksum -->
+              <td>
+                {% if b.sha256_checksum %}
+                <code class="text-secondary small" title="{{ b.sha256_checksum }}">
+                  {{ b.sha256_checksum[:12] }}...
+                </code>
+                {% else %}
+                <span class="text-secondary small">&mdash;</span>
+                {% endif %}
+              </td>
+
+              <!-- Status -->
+              <td>
+                {% if b.status == 'success' %}
+                <span class="badge bg-success bg-opacity-25 text-success">
+                  <i class="bi bi-check2 me-1"></i> Valid
+                </span>
+                {% elif b.status == 'corrupted' %}
+                <span class="badge bg-danger bg-opacity-25 text-danger">
+                  <i class="bi bi-exclamation-triangle me-1"></i> Corrupted
+                </span>
+                {% else %}
+                <span class="badge bg-secondary bg-opacity-25 text-secondary">
+                  {{ b.status }}
+                </span>
+                {% endif %}
+              </td>
+
+              <!-- Verification -->
+              <td>
+                {% if b.verification_status == 'restore_verified' %}
+                <span class="badge bg-success text-dark">
+                  <i class="bi bi-check-all me-1"></i> Restore Tested
+                </span>
+                {% elif b.verification_status == 'format_verified' %}
+                <span class="badge bg-info bg-opacity-25 text-info border border-info border-opacity-50">
+                  <i class="bi bi-file-earmark-check me-1"></i> Format Valid
+                </span>
+                {% elif b.verification_status == 'failed' %}
+                <span class="badge bg-danger bg-opacity-25 text-danger">
+                  <i class="bi bi-x-circle me-1"></i> Failed
+                </span>
+                {% else %}
+                <span class="badge bg-secondary bg-opacity-25 text-secondary">
+                  Unverified
+                </span>
+                {% endif %}
+              </td>
+
+              <!-- Actions -->
+              <td class="text-end pe-4">
+                <div class="btn-group btn-group-sm">
+                  <!-- Verify Action -->
+                  <form action="/backups/{{ b.backup_id }}/verify" method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-outline-secondary btn-sm" title="Verify Checksum and SQL Format">
+                      <i class="bi bi-check-circle"></i> Verify
+                    </button>
+                  </form>
+
+                  <!-- Restore Trigger Modal -->
+                  <button type="button" class="btn btn-outline-warning btn-sm" data-bs-toggle="modal" data-bs-target="#restoreModal-{{ loop.index }}">
+                    <i class="bi bi-arrow-counterclockwise"></i> Restore
+                  </button>
+
+                  <!-- Delete Action -->
+                  <form action="/backups/{{ b.backup_id }}/delete" method="POST" class="d-inline" onsubmit="return confirm('Delete backup {{ b.backup_id }} permanently?');">
+                    <button type="submit" class="btn btn-outline-danger btn-sm" title="Delete Backup">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </form>
+                </div>
+
+                <!-- Restore Confirmation Modal -->
+                <div class="modal fade" id="restoreModal-{{ loop.index }}" tabindex="-1" aria-labelledby="restoreModalLabel-{{ loop.index }}" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content bg-dark border-warning text-light">
+                      <div class="modal-header border-secondary">
+                        <h5 class="modal-title text-warning" id="restoreModalLabel-{{ loop.index }}">
+                          <i class="bi bi-exclamation-triangle-fill me-2"></i> Confirm Database Restore
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <form action="/backups/{{ b.backup_id }}/restore" method="POST">
+                        <div class="modal-body text-start">
+                          <div class="alert alert-danger border-0 mb-3 small">
+                            <strong>Warning:</strong> Restoring this backup will replace current tables and transactions with the snapshot taken on <strong>{{ b.created_at[:19].replace('T', ' ') }} UTC</strong>.
+                          </div>
+                          <p class="small text-secondary mb-3">
+                            <i class="bi bi-shield-check text-success me-1"></i> A safety backup of your current database state will be generated automatically before restoring begins.
+                          </p>
+                          <div class="mb-3">
+                            <label class="form-label small fw-semibold text-light">
+                              Type <span class="badge bg-danger">RESTORE</span> below to proceed:
+                            </label>
+                            <input type="text" name="confirm_text" class="form-control bg-dark border-secondary text-light" placeholder="RESTORE" required autocomplete="off">
+                          </div>
+                        </div>
+                        <div class="modal-footer border-secondary">
+                          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                          <button type="submit" class="btn btn-danger btn-sm">Confirm & Restore</button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="text-center py-5">
+        <i class="bi bi-shield-slash fs-1 text-secondary mb-3 d-block"></i>
+        <h3 class="h6 text-light fw-bold">No Backups Available</h3>
+        <p class="text-secondary small mb-3">Click the button below to create your initial full backup.</p>
+        <form action="/backups/create" method="POST">
+          <button type="submit" class="btn btn-primary btn-sm">
+            <i class="bi bi-cloud-arrow-up-fill me-1"></i> Create Initial Backup
+          </button>
+        </form>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

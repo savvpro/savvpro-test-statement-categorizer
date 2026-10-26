@@ -1,0 +1,326 @@
+{% extends "base.html" %}
+{% block title %}Transactions{% endblock %}
+{% block meta_description %}Manage, search, and filter all transactions across imported statements{% endblock %}
+
+{% macro category_badge(name) %}
+  {% set cls_map = {
+    'Software': 'badge-software', 'Cloud Hosting': 'badge-cloud-hosting',
+    'Hardware and Equipment': 'badge-hardware',
+    'Internet and Telecommunications': 'badge-internet',
+    'Office Supplies': 'badge-office', 'Advertising and Marketing': 'badge-advertising',
+    'Professional Services': 'badge-professional', 'Travel': 'badge-travel',
+    'Meals': 'badge-meals', 'Bank Fees': 'badge-bank-fees',
+    'Business Income': 'badge-income', 'Refund': 'badge-refund',
+    'Reversal': 'badge-reversal', 'Internal Transfer': 'badge-transfer',
+    'Personal Expense': 'badge-personal', 'Needs Review': 'badge-review',
+  } %}
+  <span class="ll-badge {{ cls_map.get(name, 'badge-review') }}">{{ name or 'Needs Review' }}</span>
+{% endmacro %}
+
+{% macro sort_icon(col_name) %}
+  {% if sort_by == col_name %}
+    {% if sort_dir == 'asc' %}
+      <i class="bi bi-sort-up" style="color:var(--ll-accent);"></i>
+    {% else %}
+      <i class="bi bi-sort-down" style="color:var(--ll-accent);"></i>
+    {% endif %}
+  {% else %}
+    <i class="bi bi-arrow-down-up" style="opacity:0.3;font-size:0.7rem;"></i>
+  {% endif %}
+{% endmacro %}
+
+{% block content %}
+<div class="ll-page">
+
+  <!-- Header -->
+  <div class="ll-page-header" style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:1rem;">
+    <div>
+      <h1><i class="bi bi-list-ul" style="color:var(--ll-accent)"></i> Transactions</h1>
+      <p class="subtitle">Search, filter, and review categorized transactions across all statements</p>
+    </div>
+    <div style="display:flex;gap:0.5rem;">
+      <a href="/export/transactions?q={{ q }}&category_id={{ category_id or '' }}&status={{ status }}&tx_type={{ tx_type }}&statement_id={{ statement_id or '' }}&start_date={{ start_date }}&end_date={{ end_date }}&sort_by={{ sort_by }}&sort_dir={{ sort_dir }}"
+         class="ll-btn ll-btn-secondary ll-btn-sm"
+         id="btn-export-transactions"
+         title="Export all matching transactions to CSV with formula injection protection">
+        <i class="bi bi-download"></i> Export CSV
+      </a>
+      <a href="/statements/upload" class="ll-btn ll-btn-primary ll-btn-sm">
+        <i class="bi bi-upload"></i> Upload CSV
+      </a>
+    </div>
+  </div>
+
+
+  {% if date_error %}
+  <div class="ll-alert ll-alert-warning" role="alert">
+    <i class="bi bi-exclamation-triangle"></i> {{ date_error }}
+  </div>
+  {% endif %}
+
+  <!-- Filter & Search Toolbar Card -->
+  <div class="ll-card" style="margin-bottom:1.5rem;padding:1.25rem;">
+    <form method="get" action="/transactions" id="filter-form">
+      <!-- Search Input row -->
+      <div style="display:flex;gap:0.75rem;margin-bottom:1rem;flex-wrap:wrap;">
+        <div style="flex:1;min-width:240px;position:relative;">
+          <input type="text" name="q" value="{{ q }}" placeholder="Search by merchant or description..."
+                 class="form-control" style="background:var(--ll-surface-2);color:var(--ll-text);border-color:var(--ll-border);padding-left:2.25rem;">
+          <i class="bi bi-search" style="position:absolute;left:0.8rem;top:50%;transform:translateY(-50%);color:var(--ll-text-muted);"></i>
+        </div>
+        <button type="submit" class="ll-btn ll-btn-primary">
+          <i class="bi bi-search"></i> Search
+        </button>
+        {% if q or category_id or status or tx_type or statement_id or start_date or end_date %}
+        <a href="/transactions" class="ll-btn ll-btn-secondary" title="Clear all active filters">
+          <i class="bi bi-x-circle"></i> Reset All
+        </a>
+        {% endif %}
+      </div>
+
+      <!-- Advanced Filter Controls -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));gap:0.75rem;align-items:flex-end;">
+        <!-- Category Filter -->
+        <div>
+          <label style="font-size:0.72rem;color:var(--ll-text-muted);font-weight:600;text-transform:uppercase;display:block;margin-bottom:0.25rem;">Category</label>
+          <select name="category_id" class="form-select form-select-sm" style="background:var(--ll-surface-2);color:var(--ll-text);border-color:var(--ll-border);font-size:0.8rem;">
+            <option value="">All Categories</option>
+            <option value="0" {% if category_id == 0 %}selected{% endif %}>Needs Review / Unassigned</option>
+            {% for cat in categories %}
+            <option value="{{ cat.id }}" {% if category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Status Filter -->
+        <div>
+          <label style="font-size:0.72rem;color:var(--ll-text-muted);font-weight:600;text-transform:uppercase;display:block;margin-bottom:0.25rem;">Review Status</label>
+          <select name="status" class="form-select form-select-sm" style="background:var(--ll-surface-2);color:var(--ll-text);border-color:var(--ll-border);font-size:0.8rem;">
+            <option value="">All Statuses</option>
+            <option value="PENDING" {% if status == 'PENDING' %}selected{% endif %}>Needs Review (Pending)</option>
+            <option value="REVIEWED" {% if status == 'REVIEWED' %}selected{% endif %}>Reviewed (Confirmed)</option>
+            <option value="NOT_REQUIRED" {% if status == 'NOT_REQUIRED' %}selected{% endif %}>Auto-Categorized</option>
+          </select>
+        </div>
+
+        <!-- Type Filter -->
+        <div>
+          <label style="font-size:0.72rem;color:var(--ll-text-muted);font-weight:600;text-transform:uppercase;display:block;margin-bottom:0.25rem;">Transaction Type</label>
+          <select name="tx_type" class="form-select form-select-sm" style="background:var(--ll-surface-2);color:var(--ll-text);border-color:var(--ll-border);font-size:0.8rem;">
+            <option value="">All Types</option>
+            <option value="expense" {% if tx_type == 'expense' %}selected{% endif %}>Expenses / Outflow (-)</option>
+            <option value="income" {% if tx_type == 'income' %}selected{% endif %}>Income / Inflow (+)</option>
+          </select>
+        </div>
+
+        <!-- Statement Filter -->
+        <div>
+          <label style="font-size:0.72rem;color:var(--ll-text-muted);font-weight:600;text-transform:uppercase;display:block;margin-bottom:0.25rem;">Statement Batch</label>
+          <select name="statement_id" class="form-select form-select-sm" style="background:var(--ll-surface-2);color:var(--ll-text);border-color:var(--ll-border);font-size:0.8rem;">
+            <option value="">All Statements</option>
+            {% for s in statements %}
+            <option value="{{ s.id }}" {% if statement_id == s.id %}selected{% endif %}>
+              #{{ s.id }}: {{ s.original_filename }} ({{ s.transaction_count }} txs)
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Start Date -->
+        <div>
+          <label for="start_date" style="font-size:0.72rem;color:var(--ll-text-muted);font-weight:600;text-transform:uppercase;display:block;margin-bottom:0.25rem;">From Date</label>
+          <input type="date" id="start_date" name="start_date" value="{{ start_date }}"
+                 class="form-control form-control-sm" style="background:var(--ll-surface-2);color:var(--ll-text);border-color:var(--ll-border);font-size:0.8rem;">
+        </div>
+
+        <!-- End Date -->
+        <div>
+          <label for="end_date" style="font-size:0.72rem;color:var(--ll-text-muted);font-weight:600;text-transform:uppercase;display:block;margin-bottom:0.25rem;">To Date</label>
+          <input type="date" id="end_date" name="end_date" value="{{ end_date }}"
+                 class="form-control form-control-sm" style="background:var(--ll-surface-2);color:var(--ll-text);border-color:var(--ll-border);font-size:0.8rem;">
+        </div>
+      </div>
+
+      <!-- Preserve sorting parameters -->
+      <input type="hidden" name="sort_by" value="{{ sort_by }}">
+      <input type="hidden" name="sort_dir" value="{{ sort_dir }}">
+    </form>
+  </div>
+
+  <!-- Results Count & Active Filter Indicator -->
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;flex-wrap:wrap;gap:0.5rem;">
+    <div style="font-size:0.85rem;color:var(--ll-text-muted);">
+      {% if total_count > 0 %}
+        Showing <strong style="color:var(--ll-text);">{{ start_item }}–{{ end_item }}</strong> of <strong style="color:var(--ll-text);">{{ total_count }}</strong> transaction{% if total_count != 1 %}s{% endif %}
+      {% else %}
+        No matching transactions
+      {% endif %}
+    </div>
+
+    <!-- Quick Filter Links / Active badges -->
+    <div style="display:flex;gap:0.4rem;flex-wrap:wrap;align-items:center;">
+      <a href="/transactions?status=PENDING" class="ll-btn ll-btn-sm {% if status == 'PENDING' %}ll-btn-primary{% else %}ll-btn-secondary{% endif %}" style="font-size:0.75rem;">
+        <i class="bi bi-flag"></i> Needs Review
+      </a>
+      <a href="/transactions?tx_type=expense" class="ll-btn ll-btn-sm {% if tx_type == 'expense' %}ll-btn-primary{% else %}ll-btn-secondary{% endif %}" style="font-size:0.75rem;">
+        Expenses Only
+      </a>
+      <a href="/transactions?tx_type=income" class="ll-btn ll-btn-sm {% if tx_type == 'income' %}ll-btn-primary{% else %}ll-btn-secondary{% endif %}" style="font-size:0.75rem;">
+        Income Only
+      </a>
+    </div>
+  </div>
+
+  <!-- Transactions Table -->
+  {% if transactions %}
+  <div class="ll-table-wrap">
+    <div class="table-responsive">
+      <table class="ll-table">
+        <thead>
+          <tr>
+            <th>
+              <a href="{{ url_for_sort('date') }}" style="color:inherit;display:inline-flex;align-items:center;gap:0.3rem;">
+                Date {{ sort_icon('date') }}
+              </a>
+            </th>
+            <th>
+              <a href="{{ url_for_sort('description') }}" style="color:inherit;display:inline-flex;align-items:center;gap:0.3rem;">
+                Description {{ sort_icon('description') }}
+              </a>
+            </th>
+            <th style="text-align:right;">
+              <a href="{{ url_for_sort('amount') }}" style="color:inherit;display:inline-flex;align-items:center;gap:0.3rem;">
+                Amount {{ sort_icon('amount') }}
+              </a>
+            </th>
+            <th>
+              <a href="{{ url_for_sort('category') }}" style="color:inherit;display:inline-flex;align-items:center;gap:0.3rem;">
+                Category {{ sort_icon('category') }}
+              </a>
+            </th>
+            <th>
+              <a href="{{ url_for_sort('confidence') }}" style="color:inherit;display:inline-flex;align-items:center;gap:0.3rem;">
+                Confidence {{ sort_icon('confidence') }}
+              </a>
+            </th>
+            <th>
+              <a href="{{ url_for_sort('status') }}" style="color:inherit;display:inline-flex;align-items:center;gap:0.3rem;">
+                Status {{ sort_icon('status') }}
+              </a>
+            </th>
+            <th>Source</th>
+            <th style="text-align:right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in transactions %}
+          <tr>
+            <td style="color:var(--ll-text-muted);white-space:nowrap;font-size:0.8rem;">
+              {{ t.transaction_date.isoformat() if t.transaction_date else '—' }}
+            </td>
+            <td style="max-width:280px;">
+              <a href="/transactions/{{ t.id }}" style="font-weight:500;color:var(--ll-text);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"
+                 title="{{ t.original_description }}">
+                {{ t.original_description }}
+              </a>
+              {% if t.statement %}
+              <div style="font-size:0.7rem;color:var(--ll-text-subtle);">
+                <a href="/statements/{{ t.statement_id }}" style="color:var(--ll-text-subtle);">
+                  Stmt #{{ t.statement_id }}: {{ t.statement.original_filename }}
+                </a>
+              </div>
+              {% endif %}
+            </td>
+            <td style="text-align:right;white-space:nowrap;">
+              {% if t.amount > 0 %}
+                <span class="amount-positive">+${{ "%.2f"|format(t.amount) }}</span>
+              {% elif t.amount < 0 %}
+                <span class="amount-negative">-${{ "%.2f"|format(t.amount|abs) }}</span>
+              {% else %}
+                <span class="amount-zero">$0.00</span>
+              {% endif %}
+            </td>
+            <td>
+              <span id="cat-badge-{{ t.id }}">
+                {{ category_badge(t.category.name if t.category else 'Needs Review') }}
+              </span>
+            </td>
+            <td><div data-confidence="{{ t.confidence_score }}"></div></td>
+            <td>
+              {% if t.review_status == 'PENDING' %}
+                <span class="ll-badge badge-pending" id="review-badge-{{ t.id }}">Needs Review</span>
+              {% elif t.review_status == 'REVIEWED' %}
+                <span class="ll-badge badge-reviewed" id="review-badge-{{ t.id }}">Reviewed</span>
+              {% else %}
+                <span class="ll-badge badge-auto" id="review-badge-{{ t.id }}">Auto</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if t.was_manually_categorized %}
+                <span class="ll-badge badge-manual">Manual</span>
+              {% else %}
+                <span class="ll-badge badge-auto" style="opacity:0.6;">Auto</span>
+              {% endif %}
+            </td>
+            <td style="text-align:right;white-space:nowrap;">
+              <a href="/transactions/{{ t.id }}" class="ll-btn ll-btn-secondary ll-btn-sm" style="padding:0.2rem 0.55rem;font-size:0.75rem;">
+                Details
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Server-Side Pagination Bar -->
+    {% if total_pages > 1 %}
+    <div class="ll-pagination" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.75rem;">
+      <div>
+        {% if has_prev %}
+        <a href="{{ url_for_page(page - 1) }}" class="ll-btn ll-btn-secondary ll-btn-sm">
+          <i class="bi bi-chevron-left"></i> Previous
+        </a>
+        {% else %}
+        <button class="ll-btn ll-btn-secondary ll-btn-sm" disabled style="opacity:0.4;cursor:not-allowed;">
+          <i class="bi bi-chevron-left"></i> Previous
+        </button>
+        {% endif %}
+      </div>
+
+      <div style="color:var(--ll-text-muted);font-size:0.82rem;font-weight:500;">
+        Page <strong style="color:var(--ll-text);">{{ page }}</strong> of <strong style="color:var(--ll-text);">{{ total_pages }}</strong>
+      </div>
+
+      <div>
+        {% if has_next %}
+        <a href="{{ url_for_page(page + 1) }}" class="ll-btn ll-btn-secondary ll-btn-sm">
+          Next <i class="bi bi-chevron-right"></i>
+        </a>
+        {% else %}
+        <button class="ll-btn ll-btn-secondary ll-btn-sm" disabled style="opacity:0.4;cursor:not-allowed;">
+          Next <i class="bi bi-chevron-right"></i>
+        </button>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+  {% else %}
+  <div class="ll-table-wrap">
+    <div class="ll-empty">
+      <div class="empty-icon">🔍</div>
+      <h3>No transactions found</h3>
+      <p>No transactions match your search query and selected filter options.</p>
+      <div style="margin-top:1rem;">
+        <a href="/transactions" class="ll-btn ll-btn-secondary">
+          <i class="bi bi-arrow-counterclockwise"></i> Clear All Filters
+        </a>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

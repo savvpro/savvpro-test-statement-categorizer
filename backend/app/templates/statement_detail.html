@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+{% block title %}Statement #{{ statement.id }}{% endblock %}
+{% block meta_description %}Statement detail for {{ statement.original_filename }}{% endblock %}
+
+{% macro category_badge(name) %}
+  {% set cls_map = {
+    'Software': 'badge-software',
+    'Cloud Hosting': 'badge-cloud-hosting',
+    'Hardware and Equipment': 'badge-hardware',
+    'Internet and Telecommunications': 'badge-internet',
+    'Office Supplies': 'badge-office',
+    'Advertising and Marketing': 'badge-advertising',
+    'Professional Services': 'badge-professional',
+    'Travel': 'badge-travel',
+    'Meals': 'badge-meals',
+    'Bank Fees': 'badge-bank-fees',
+    'Business Income': 'badge-income',
+    'Refund': 'badge-refund',
+    'Reversal': 'badge-reversal',
+    'Internal Transfer': 'badge-transfer',
+    'Personal Expense': 'badge-personal',
+    'Needs Review': 'badge-review',
+  } %}
+  <span class="ll-badge {{ cls_map.get(name, 'badge-review') }}">{{ name or 'Needs Review' }}</span>
+{% endmacro %}
+
+{% block content %}
+<div class="ll-page">
+
+  <!-- Page header -->
+  <div class="ll-page-header" style="display:flex;justify-content:space-between;align-items:flex-start;">
+    <div>
+      <div style="font-size:0.8rem;color:var(--ll-text-muted);margin-bottom:0.3rem;">
+        <a href="/statements">Statements</a> /
+      </div>
+      <h1><i class="bi bi-file-earmark-spreadsheet" style="color:var(--ll-accent)"></i>
+          {{ statement.original_filename }}</h1>
+      <p class="subtitle">
+        Imported {{ statement.created_at.strftime('%B %d, %Y at %H:%M') if statement.created_at else '' }}
+        &nbsp;·&nbsp; {{ statement.transaction_count }} transactions
+      </p>
+    </div>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+      {% if review_count > 0 %}
+      <a href="/review" class="ll-btn ll-btn-secondary ll-btn-sm" style="color:var(--ll-yellow);border-color:var(--ll-yellow);">
+        <i class="bi bi-flag"></i> {{ review_count }} to review
+      </a>
+      {% endif %}
+      <a href="/reconciliation?statement_id={{ statement.id }}#balance-check-card" class="ll-btn ll-btn-secondary ll-btn-sm">
+        <i class="bi bi-check2-circle"></i> Reconcile
+      </a>
+      <a href="/export/transactions?statement_id={{ statement.id }}" class="ll-btn ll-btn-secondary ll-btn-sm">
+        <i class="bi bi-download"></i> Export CSV
+      </a>
+      <a href="/api/statements/{{ statement.id }}/summary" class="ll-btn ll-btn-secondary ll-btn-sm">
+        <i class="bi bi-bar-chart"></i> JSON Summary
+      </a>
+    </div>
+  </div>
+
+
+  {% if just_imported %}
+  <div class="ll-alert ll-alert-success" data-dismiss="5000">
+    <strong>✓ Import successful!</strong> {{ statement.transaction_count }} transactions have been categorized and saved.
+  </div>
+  {% endif %}
+
+  <!-- Summary + breakdown grid -->
+  <div class="detail-grid" style="margin-bottom:1.75rem;">
+
+    <!-- Transactions table -->
+    <div>
+      <!-- Stat mini-bar -->
+      <div style="display:flex;gap:0.75rem;margin-bottom:1rem;flex-wrap:wrap;">
+        <div class="ll-card" style="flex:1;padding:0.75rem 1rem;">
+          <div class="stat-label">Money In</div>
+          <div class="stat-value" style="font-size:1.15rem;color:var(--ll-green);">
+            ${{ "%.2f"|format(total_in) }}
+          </div>
+        </div>
+        <div class="ll-card" style="flex:1;padding:0.75rem 1rem;">
+          <div class="stat-label">Money Out</div>
+          <div class="stat-value" style="font-size:1.15rem;color:var(--ll-red);">
+            ${{ "%.2f"|format(total_out) }}
+          </div>
+        </div>
+        <div class="ll-card" style="flex:1;padding:0.75rem 1rem;">
+          <div class="stat-label">Needs Review</div>
+          <div class="stat-value" style="font-size:1.15rem;color:{{ 'var(--ll-yellow)' if review_count > 0 else 'var(--ll-green)' }};">
+            {{ review_count }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Transaction table -->
+      <div class="ll-table-wrap">
+        <table class="ll-table" id="tx-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Description</th>
+              <th>Amount</th>
+              <th>Category</th>
+              <th>Confidence</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for t in transactions %}
+            <tr>
+              <td style="color:var(--ll-text-muted);white-space:nowrap;">
+                {{ t.transaction_date.strftime('%b %d') if t.transaction_date else '—' }}
+              </td>
+              <td style="max-width:280px;">
+                <div style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"
+                     title="{{ t.original_description }}">
+                  {{ t.original_description }}
+                </div>
+                <div style="font-size:0.72rem;color:var(--ll-text-subtle);"
+                     title="{{ t.classification_reason }}">
+                  {{ t.classification_reason[:60] }}{% if t.classification_reason|length > 60 %}…{% endif %}
+                </div>
+              </td>
+              <td style="white-space:nowrap;">
+                {% if t.amount > 0 %}
+                  <span class="amount-positive">+${{ "%.2f"|format(t.amount) }}</span>
+                {% elif t.amount < 0 %}
+                  <span class="amount-negative">-${{ "%.2f"|format(t.amount|abs) }}</span>
+                {% else %}
+                  <span class="amount-zero">$0.00</span>
+                {% endif %}
+              </td>
+              <td>{{ category_badge(t.category.name if t.category else 'Needs Review') }}</td>
+              <td>
+                <div data-confidence="{{ t.confidence_score }}"></div>
+              </td>
+              <td>
+                {% if t.review_status == 'PENDING' %}
+                  <span class="ll-badge badge-pending">Pending</span>
+                {% elif t.review_status == 'REVIEWED' %}
+                  <span class="ll-badge badge-reviewed">Reviewed</span>
+                {% else %}
+                  <span class="ll-badge badge-auto">Auto</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        {% if not transactions %}
+        <div class="ll-empty">
+          <div class="empty-icon">🔍</div>
+          <h3>No transactions</h3>
+          <p>This statement has no persisted transactions.</p>
+        </div>
+        {% endif %}
+      </div><!-- /table-wrap -->
+    </div>
+
+    <!-- Sidebar: category breakdown -->
+    <div>
+      <div class="ll-card">
+        <div class="ll-card-title">Category Breakdown</div>
+        {% if category_totals %}
+          {% set max_val = category_totals.values()|list|max %}
+          {% for cat_name, total in category_totals.items() %}
+          <div class="category-bar" style="margin-top:0.75rem;">
+            <div class="category-bar-label">
+              <span style="font-size:0.8rem;">{{ cat_name }}</span>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:var(--ll-text-muted);">
+                ${{ "%.2f"|format(total) }}
+              </span>
+            </div>
+            <div class="category-bar-track">
+              <div class="category-bar-fill" style="width:{{ (total / max_val * 100)|int }}%"></div>
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div style="color:var(--ll-text-muted);font-size:0.84rem;padding:0.5rem 0;">
+            No category data available.
+          </div>
+        {% endif %}
+
+        <div style="margin-top:1.25rem;padding-top:1rem;border-top:1px solid var(--ll-border);">
+          <div style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:0.4rem;">
+            <span style="color:var(--ll-text-muted);">Status</span>
+            <span>
+              {% if statement.status == 'COMPLETED' %}
+                <span class="ll-badge badge-ok">Completed</span>
+              {% elif statement.status == 'COMPLETED_WITH_ERRORS' %}
+                <span class="ll-badge badge-errors">Partial</span>
+              {% elif statement.status == 'FAILED' %}
+                <span class="ll-badge badge-failed">Failed</span>
+              {% else %}
+                <span class="ll-badge">{{ statement.status }}</span>
+              {% endif %}
+            </span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:0.4rem;">
+            <span style="color:var(--ll-text-muted);">Currency</span>
+            <span>{{ statement.currency or 'USD' }}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:0.82rem;">
+            <span style="color:var(--ll-text-muted);">Statement ID</span>
+            <span style="font-family:'JetBrains Mono',monospace;">#{{ statement.id }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div style="margin-top:1rem;display:flex;flex-direction:column;gap:0.5rem;">
+        {% if review_count > 0 %}
+        <a href="/review" class="ll-btn ll-btn-secondary">
+          <i class="bi bi-flag"></i> Review {{ review_count }} transactions
+        </a>
+        {% endif %}
+        <a href="/statements" class="ll-btn ll-btn-secondary">
+          <i class="bi bi-arrow-left"></i> All Statements
+        </a>
+      </div>
+    </div>
+
+  </div><!-- /detail-grid -->
+
+</div>
+{% endblock %}
