@@ -1,83 +1,81 @@
-# Step-by-Step Guide: How to Fork, Clone, and Submit Your Assessment
+# Statement Categorizer
 
-**Repository:** https://github.com/savvpro/savvpro-test-statement-categorizer
+Upload a CSV bank or credit card statement and get every transaction sorted
+into tax categories. Built for **freelance designers** doing their taxes.
+The categorizing "brain" is plain, deterministic Python rules. No AI model
+decides any category. When the code is not sure, it says so and asks you.
 
----
+## Project layout
 
-## Step 1: Fork the Repository
-
-1. Go to the repository: https://github.com/savvpro/savvpro-test-statement-categorizer
-2. Click the **Fork** button in the top-right corner.
-3. This will create a copy of the repository in your GitHub account.
-
----
-
-## Step 2: Clone Your Fork
-
-1. Open your forked repository in your GitHub account.
-2. Click the green **Code** button and copy the URL.
-3. Run the following commands:
-
-```bash
-git clone https://github.com/your-username/savvpro-test-statement-categorizer.git
-cd savvpro-test-statement-categorizer
+```
+backend/    FastAPI app (parser, rules, categorizer, API) and pytest tests
+frontend/   React (Vite) single page app
+sample_data/fake_statement.csv   Fake data only
+DESIGN.md   Use case and how the brain decides
+AI_USAGE.md AI tools used, mistakes, token usage
 ```
 
----
+## Requirements
 
-## Step 3: Read the Task
+- Python 3.11+
+- Node.js 20+
 
-Open and read **TASK.md** carefully before writing any code.
+## Run the backend
 
-- TASK.md URL: https://github.com/savvpro/savvpro-test-statement-categorizer/blob/main/TASK.md
-
----
-
-## Step 4: Create a New Branch
-
-Branch pattern: `candidate-<your-github-username>`
-
-```bash
-git checkout -b candidate-<your-github-username>
+```powershell
+cd backend
+python -m venv .venv
+.venv\Scripts\Activate.ps1          # macOS/Linux: source .venv/bin/activate
+pip install -r requirements.txt
+python -m uvicorn app.main:app --reload
 ```
 
-**Example:**
-```bash
-git checkout -b candidate-johndoe
+The API runs on http://localhost:8000. Check http://localhost:8000/api/health
+and the interactive docs at http://localhost:8000/docs.
+
+## Run the frontend
+
+In a second terminal:
+
+```powershell
+cd frontend
+npm install
+npm run dev
 ```
 
----
+Open http://localhost:5173 and upload `sample_data/fake_statement.csv`.
+To point the frontend at another API, set `VITE_API_URL`.
 
-## Step 5: Complete the Task
+## Run the tests
 
-Build the full application on your branch.
-
----
-
-## Step 6: Push Your Branch
-
-```bash
-git add .
-git commit -m "feat: complete statement-categorizer assessment"
-git push origin candidate-<your-github-username>
+```powershell
+cd backend
+python -m pytest -v
 ```
 
----
+## Using the app
 
-## Step 7: Create a Pull Request
+1. Choose a CSV file (columns like `Date, Description, Amount`, or separate
+   `Debit` / `Credit` columns). Tick the box if your card lists purchases as
+   positive numbers.
+2. Click **Categorize**. Each row shows its category and the reason.
+3. Rows highlighted as **Needs review** are ones the app was not sure about.
+   Pick a category from the dropdown. It applies to every row from the same
+   merchant, and the totals update.
+4. Click **Download CSV** to export the result.
 
-1. Go to your **forked** repository on GitHub (`https://github.com/your-username/savvpro-test-statement-categorizer`).
-2. Click **Compare & pull request** (GitHub will show this banner after you push your branch).
-3. Ensure the following settings in the PR form:
-   - **Base repository:** `savvpro/savvpro-test-statement-categorizer` ← the original repo
-   - **Base branch:** `main`
-   - **Head repository:** `your-username/savvpro-test-statement-categorizer` ← your fork
-   - **Compare branch:** `candidate-<your-github-username>`
-4. Use the title: `feat: complete statement-categorizer assessment`
-5. Submit the pull request.
+## API
 
-> 💡 **Tip:** If you don't see the banner, go to the original repo (`savvpro/savvpro-test-statement-categorizer`), click the **Pull requests** tab, then click **New pull request** → **compare across forks**.
+| Method | Path | Purpose |
+|---|---|---|
+| GET | `/api/health` | Health check |
+| GET | `/api/categories` | Categories a user can pick |
+| POST | `/api/categorize` | Multipart: `file`, `charges_positive`, `user_rules` (JSON). Returns `rows`, `summary`, `skipped` |
 
----
+The API is stateless. The browser keeps the user's fixes and sends them with
+each request. No database, no accounts, nothing is stored on the server.
 
-> ⚠️ **Important:** No submissions will be accepted after the deadline.
+## Notes
+
+- All data in this repo is fake. Do not commit real statements.
+- No keys or secrets are needed to run the project.
