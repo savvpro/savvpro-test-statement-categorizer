@@ -1,83 +1,69 @@
-# Step-by-Step Guide: How to Fork, Clone, and Submit Your Assessment
+# Freelancer Statement Categorizer
 
-**Repository:** https://github.com/savvpro/savvpro-test-statement-categorizer
+Upload a freelancer's business credit-card or bank statement (CSV). The app sorts every
+transaction into a tax category, shows totals per category, and leaves anything it is not
+sure about in **Needs Review** for you to fix.
 
----
+The categorizer is plain, deterministic Python (rules + checks). **No AI model makes any
+decision.** See [DESIGN.md](DESIGN.md) for how it works and [AI_USAGE.md](AI_USAGE.md) for how
+AI tools were used to *write* the code.
 
-## Step 1: Fork the Repository
-
-1. Go to the repository: https://github.com/savvpro/savvpro-test-statement-categorizer
-2. Click the **Fork** button in the top-right corner.
-3. This will create a copy of the repository in your GitHub account.
-
----
-
-## Step 2: Clone Your Fork
-
-1. Open your forked repository in your GitHub account.
-2. Click the green **Code** button and copy the URL.
-3. Run the following commands:
-
-```bash
-git clone https://github.com/your-username/savvpro-test-statement-categorizer.git
-cd savvpro-test-statement-categorizer
+```
+backend/    FastAPI app: CSV parser, categorizer ("the brain"), API, tests
+frontend/   React (Vite) app: upload, review table, summary, CSV export
+backend/sample_data/freelancer_statement.csv   fake statement to try
 ```
 
----
+## Requirements
 
-## Step 3: Read the Task
+- Python 3.11+
+- Node.js 18+
 
-Open and read **TASK.md** carefully before writing any code.
+## Run it
 
-- TASK.md URL: https://github.com/savvpro/savvpro-test-statement-categorizer/blob/main/TASK.md
-
----
-
-## Step 4: Create a New Branch
-
-Branch pattern: `candidate-<your-github-username>`
+Backend (terminal 1):
 
 ```bash
-git checkout -b candidate-<your-github-username>
+cd backend
+python -m venv .venv
+# Windows: .venv\Scripts\activate      macOS/Linux: source .venv/bin/activate
+pip install -r requirements-dev.txt
+uvicorn app.main:app --reload --port 8000
 ```
 
-**Example:**
-```bash
-git checkout -b candidate-johndoe
-```
-
----
-
-## Step 5: Complete the Task
-
-Build the full application on your branch.
-
----
-
-## Step 6: Push Your Branch
+Frontend (terminal 2):
 
 ```bash
-git add .
-git commit -m "feat: complete statement-categorizer assessment"
-git push origin candidate-<your-github-username>
+cd frontend
+npm install
+npm run dev
 ```
 
----
+Open http://localhost:5173, choose `backend/sample_data/freelancer_statement.csv` and click **Categorize**.
+The dev server proxies `/api` to the backend on port 8000.
 
-## Step 7: Create a Pull Request
+## Using it
 
-1. Go to your **forked** repository on GitHub (`https://github.com/your-username/savvpro-test-statement-categorizer`).
-2. Click **Compare & pull request** (GitHub will show this banner after you push your branch).
-3. Ensure the following settings in the PR form:
-   - **Base repository:** `savvpro/savvpro-test-statement-categorizer` ← the original repo
-   - **Base branch:** `main`
-   - **Head repository:** `your-username/savvpro-test-statement-categorizer` ← your fork
-   - **Compare branch:** `candidate-<your-github-username>`
-4. Use the title: `feat: complete statement-categorizer assessment`
-5. Submit the pull request.
+1. Upload a CSV with a date, a description and an amount column (or separate debit/credit columns).
+2. If your card shows purchases as positive numbers, tick the checkbox.
+3. Review the summary. Open the **Needs review** tab and pick a category for each row.
+   A fix applies to every row from the same merchant.
+4. **Export CSV** to download the categorized result.
 
-> 💡 **Tip:** If you don't see the banner, go to the original repo (`savvpro/savvpro-test-statement-categorizer`), click the **Pull requests** tab, then click **New pull request** → **compare across forks**.
+## Tests
 
----
+```bash
+cd backend && pytest          # parser, categorizer, API
+cd frontend && npm test       # formatting / CSV export helpers
+```
 
-> ⚠️ **Important:** No submissions will be accepted after the deadline.
+## API
+
+`POST /api/categorize` (multipart): `file` (CSV, max 2 MB), `positive_is_charge` (bool),
+`overrides` (JSON `{merchant_key: category}`). Returns transactions, summary, skipped-row
+issues and warnings. `GET /api/health` for a liveness check.
+
+## Notes
+
+- Everything is stateless: nothing is stored on the server, and statements are not logged.
+- All sample data is fake. Do not commit real statements.
