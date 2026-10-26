@@ -1,0 +1,14 @@
+{
+  "tool": "Claude (Opus 5.5)",
+  "captured_at": "2026-10-26T23:47:00+05:00",
+  "session_tokens_used": 165426,
+  "breakdown": {
+    "messages": 85719,
+    "system_tools": 37949,
+    "tool_definitions": 21781,
+    "system_prompt": 13514,
+    "skills": 5825,
+    "other": 638
+  },
+  "plan_usage_percent": { "5_hour_window": 12, "weekly": 16 }
+}

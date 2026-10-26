@@ -1,83 +1,65 @@
-# Step-by-Step Guide: How to Fork, Clone, and Submit Your Assessment
+# Statement Categorizer
 
-**Repository:** https://github.com/savvpro/savvpro-test-statement-categorizer
+Sorts a freelance designer's bank / credit-card statement into tax categories.
+Upload a CSV, see every transaction categorized with a reason and confidence,
+fix the rows the app was not sure about, and get per-category tax totals.
 
----
+The decision-making "brain" is plain Python rules + scoring (no LLM). See [DESIGN.md](DESIGN.md).
 
-## Step 1: Fork the Repository
+## Project layout
 
-1. Go to the repository: https://github.com/savvpro/savvpro-test-statement-categorizer
-2. Click the **Fork** button in the top-right corner.
-3. This will create a copy of the repository in your GitHub account.
-
----
-
-## Step 2: Clone Your Fork
-
-1. Open your forked repository in your GitHub account.
-2. Click the green **Code** button and copy the URL.
-3. Run the following commands:
-
-```bash
-git clone https://github.com/your-username/savvpro-test-statement-categorizer.git
-cd savvpro-test-statement-categorizer
+```
+backend/            FastAPI app (Python 3.11+)
+  app/parser.py     messy CSV -> transactions (+ per-row errors)
+  app/brain.py      the categorizer (rules, refunds, transfers, duplicates, review logic)
+  app/rules.py      merchant/keyword knowledge base
+  app/service.py    upload / review / totals (in-memory store)
+  app/main.py       HTTP API
+  tests/            pytest suite
+frontend/           React + Vite single page
+sample_data/        fake statement to try it with
 ```
 
----
+## Run it
 
-## Step 3: Read the Task
-
-Open and read **TASK.md** carefully before writing any code.
-
-- TASK.md URL: https://github.com/savvpro/savvpro-test-statement-categorizer/blob/main/TASK.md
-
----
-
-## Step 4: Create a New Branch
-
-Branch pattern: `candidate-<your-github-username>`
+Backend:
 
 ```bash
-git checkout -b candidate-<your-github-username>
+cd backend
+python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -r requirements.txt -r requirements-dev.txt
+uvicorn app.main:app --reload --port 8000
 ```
 
-**Example:**
-```bash
-git checkout -b candidate-johndoe
-```
-
----
-
-## Step 5: Complete the Task
-
-Build the full application on your branch.
-
----
-
-## Step 6: Push Your Branch
+Frontend (in another terminal):
 
 ```bash
-git add .
-git commit -m "feat: complete statement-categorizer assessment"
-git push origin candidate-<your-github-username>
+cd frontend
+npm install
+npm run dev
 ```
 
----
+Open http://localhost:5173 and upload `sample_data/freelancer_statement.csv`.
+The Vite dev server proxies `/api` to `localhost:8000`. For other setups set
+`VITE_API_URL` (frontend) and `CORS_ORIGINS` (backend, comma-separated).
 
-## Step 7: Create a Pull Request
+## Tests
 
-1. Go to your **forked** repository on GitHub (`https://github.com/your-username/savvpro-test-statement-categorizer`).
-2. Click **Compare & pull request** (GitHub will show this banner after you push your branch).
-3. Ensure the following settings in the PR form:
-   - **Base repository:** `savvpro/savvpro-test-statement-categorizer` ← the original repo
-   - **Base branch:** `main`
-   - **Head repository:** `your-username/savvpro-test-statement-categorizer` ← your fork
-   - **Compare branch:** `candidate-<your-github-username>`
-4. Use the title: `feat: complete statement-categorizer assessment`
-5. Submit the pull request.
+```bash
+cd backend
+python -m pytest -q
+```
 
-> 💡 **Tip:** If you don't see the banner, go to the original repo (`savvpro/savvpro-test-statement-categorizer`), click the **Pull requests** tab, then click **New pull request** → **compare across forks**.
+## API
 
----
+| Method | Path | Purpose |
+|---|---|---|
+| GET | `/api/health` | liveness |
+| GET | `/api/categories` | list of categories |
+| POST | `/api/statements` | upload CSV (`file` form field) -> transactions, errors, summary |
+| GET | `/api/statements/{id}` | fetch a processed statement |
+| PATCH | `/api/statements/{id}/transactions/{tx_id}` | `{category, apply_to_same_merchant}` fix a row; the brain remembers the merchant |
 
-> ⚠️ **Important:** No submissions will be accepted after the deadline.
+## Data
+
+All data in this repo is fake. No keys or secrets are needed.
