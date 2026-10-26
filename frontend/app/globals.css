@@ -1,0 +1,131 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens. Components reference these by name only (bg-paper, text-ink-2, ...).
+ * Utilitarian ledger look: warm paper, cool ink, one teal accent, amber reserved for
+ * "needs your attention" so it never competes with decoration.
+ */
+@theme {
+  --color-paper: oklch(98.4% 0.004 95);
+  --color-surface: oklch(100% 0 0);
+  --color-sunken: oklch(96% 0.005 95);
+  --color-ink: oklch(22% 0.012 260);
+  --color-ink-2: oklch(42% 0.014 260);
+  --color-ink-3: oklch(50% 0.014 260);
+  --color-rule: oklch(91% 0.006 260);
+  --color-rule-strong: oklch(80% 0.01 260);
+
+  --color-accent: oklch(46% 0.1 200);
+  --color-accent-hover: oklch(40% 0.1 200);
+  --color-accent-active: oklch(35% 0.09 200);
+  --color-on-accent: oklch(99% 0 0);
+  --color-focus: oklch(55% 0.17 250);
+
+  --color-review-bg: oklch(96.6% 0.04 88);
+  --color-review-edge: oklch(72% 0.15 80);
+  --color-review-ink: oklch(38% 0.08 70);
+
+  --color-pos: oklch(42% 0.11 155);
+  --color-neg: oklch(46% 0.16 28);
+  --color-danger-bg: oklch(96% 0.03 25);
+
+  --color-kind-income: oklch(58% 0.14 155);
+  --color-kind-deductible: oklch(55% 0.13 250);
+  --color-kind-personal: oklch(60% 0.11 25);
+  --color-kind-excluded: oklch(66% 0.01 260);
+  --color-kind-refund: oklch(60% 0.11 195);
+  --color-kind-review: oklch(72% 0.16 80);
+}
+
+@theme inline {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-paper: oklch(17% 0.01 260);
+    --color-surface: oklch(21% 0.012 260);
+    --color-sunken: oklch(14.5% 0.01 260);
+    --color-ink: oklch(95% 0.005 260);
+    --color-ink-2: oklch(78% 0.01 260);
+    --color-ink-3: oklch(68% 0.012 260);
+    --color-rule: oklch(29% 0.012 260);
+    --color-rule-strong: oklch(40% 0.014 260);
+
+    --color-accent: oklch(74% 0.11 200);
+    --color-accent-hover: oklch(79% 0.11 200);
+    --color-accent-active: oklch(84% 0.1 200);
+    --color-on-accent: oklch(18% 0.02 200);
+    --color-focus: oklch(76% 0.14 250);
+
+    --color-review-bg: oklch(25% 0.05 85);
+    --color-review-edge: oklch(74% 0.14 80);
+    --color-review-ink: oklch(86% 0.1 85);
+
+    --color-pos: oklch(77% 0.14 155);
+    --color-neg: oklch(76% 0.14 25);
+    --color-danger-bg: oklch(25% 0.05 25);
+
+    --color-kind-income: oklch(72% 0.14 155);
+    --color-kind-deductible: oklch(70% 0.13 250);
+    --color-kind-personal: oklch(72% 0.12 25);
+    --color-kind-excluded: oklch(60% 0.01 260);
+    --color-kind-refund: oklch(74% 0.11 195);
+    --color-kind-review: oklch(80% 0.15 85);
+  }
+}
+
+html,
+body {
+  overflow-x: clip;
+}
+
+html {
+  color-scheme: light dark;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-feature-settings: "tnum" 0;
+}
+
+/* Money columns line up digit for digit. */
+.num {
+  font-variant-numeric: tabular-nums;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* A row the brain just re-categorised after the user's fix. */
+@keyframes settle {
+  from {
+    background-color: var(--color-review-bg);
+  }
+}
+.row-updated {
+  animation: settle 2.4s ease-out;
+  outline: 2px solid var(--color-review-edge);
+  outline-offset: -2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

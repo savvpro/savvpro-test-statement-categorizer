@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "review_threshold": 0.75,
+  "learned_confidence": 0.97,
+  "fuzzy": { "min_score": 80, "scale": 0.85 },
+
+  "noise_words": [
+    "LAHORE", "KARACHI", "ISLAMABAD", "RAWALPINDI", "FAISALABAD", "MULTAN", "PESHAWAR",
+    "PK", "PAK", "POS", "PURCHASE", "DEBIT CARD", "ONLINE"
+  ],
+
+  "structural": [
+    { "pattern": "TRANSFER (TO|FROM) (MY |OWN |SELF |)(SAVINGS?|CURRENT|OWN ACCOUNT|SELF)|OWN ACCOUNT TRANSFER|SELF TRANSFER|INTER ?ACCOUNT TRANSFER", "category": "Transfer", "confidence": 0.99 },
+    { "pattern": "TRANSFER (TO|FROM)", "category": "Transfer", "confidence": 0.6 },
+    { "pattern": "CREDIT CARD PAYMENT|CARD PAYMENT|PAYMENT THANK YOU|CARD AUTOPAY", "category": "Card Payment", "confidence": 0.99 }
+  ],
+
+  "income": [
+    { "pattern": "UBER (BV )?PAYOUT", "category": "Income", "confidence": 0.95 },
+    { "pattern": "CAREEM PAYOUT", "category": "Income", "confidence": 0.95 },
+    { "pattern": "FOODPANDA PAYOUT|RIDER PAYOUT|BYKEA PAYOUT|INDRIVE PAYOUT|INDRIVER PAYOUT", "category": "Income", "confidence": 0.95 }
+  ],
+
+  "refund_words": "REFUND|REVERSAL|REVERSED|CHARGEBACK|CREDIT NOTE",
+
+  "expense": [
+    { "pattern": "SHELL|PSO|PARCO|ATTOCK|HASCOL|CNG|PETROL|PETROLEUM|FUEL", "category": "Fuel", "confidence": 0.9 },
+    { "pattern": "TOLL|PARKING|MOTORWAY|E ?TAG", "category": "Tolls & Parking", "confidence": 0.9 },
+    { "pattern": "WORKSHOP|TYRE|TIRE|OIL CHANGE|AUTO PARTS|MECHANIC|CAR WASH|BATTERY", "category": "Car Maintenance", "confidence": 0.85 },
+    { "pattern": "JAZZ|ZONG|TELENOR|UFONE|PTCL|STORMFIBER|NAYATEL|MOBILE BILL|INTERNET", "category": "Phone & Internet", "confidence": 0.85 },
+    { "pattern": "(UBER|CAREEM|FOODPANDA|BYKEA|INDRIVE|INDRIVER) (SERVICE FEE|COMMISSION|FEES?)|PLATFORM FEE", "category": "Platform Fees", "confidence": 0.9 },
+    { "pattern": "SERVICE FEE|COMMISSION", "category": "Platform Fees", "confidence": 0.7 },
+    { "pattern": "FOODPANDA ORDER|DARAZ|NETFLIX|SPOTIFY|YOUTUBE PREMIUM", "category": "Personal", "confidence": 0.8 }
+  ],
+
+  "always_review": ["ATM", "CASH WITHDRAWAL", "CASH DEPOSIT", "EASYPAISA", "JAZZCASH", "RAAST", "IBFT"]
+}
