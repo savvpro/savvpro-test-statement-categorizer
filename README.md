@@ -1,83 +1,123 @@
-# Step-by-Step Guide: How to Fork, Clone, and Submit Your Assessment
+# TaxSort — Bank Statement Categorizer for Freelancers
 
-**Repository:** https://github.com/savvpro/savvpro-test-statement-categorizer
+A production-grade web application that ingests messy bank and credit card statements, classifies every transaction for tax season (IRS Schedule C / business deductions), calculates net tax deductions, and flags ambiguous rows for user review.
 
----
-
-## Step 1: Fork the Repository
-
-1. Go to the repository: https://github.com/savvpro/savvpro-test-statement-categorizer
-2. Click the **Fork** button in the top-right corner.
-3. This will create a copy of the repository in your GitHub account.
+> **The One Big Rule:** The categorization brain is 100% deterministic custom Python code. No large AI models (GPT, Claude, Gemini) are used for categorization decisions.
 
 ---
 
-## Step 2: Clone Your Fork
+## 🚀 Quick Start (1-Click Run)
 
-1. Open your forked repository in your GitHub account.
-2. Click the green **Code** button and copy the URL.
-3. Run the following commands:
+### Windows:
+Double-click `run_app.bat` or run in terminal:
+```cmd
+run_app.bat
+```
+This automatically starts the FastAPI backend (port `8000`), the React frontend (port `5173`), and opens your default browser.
 
+### Mac / Linux:
 ```bash
-git clone https://github.com/your-username/savvpro-test-statement-categorizer.git
-cd savvpro-test-statement-categorizer
+chmod +x run_app.sh
+./run_app.sh
 ```
 
 ---
 
-## Step 3: Read the Task
+## 🛠️ Manual Setup
 
-Open and read **TASK.md** carefully before writing any code.
+### 1. Backend (Python FastAPI)
+```bash
+cd backend
+python -m pip install -r requirements.txt
+python run.py
+```
+Backend API will be running at `http://localhost:8000` (Swagger docs at `http://localhost:8000/docs`).
 
-- TASK.md URL: https://github.com/savvpro/savvpro-test-statement-categorizer/blob/main/TASK.md
+### 2. Frontend (React + Vite)
+```bash
+cd frontend
+npm install
+npm run dev
+```
+Frontend will be running at `http://localhost:5173`.
+
+### 3. Run Automated Tests
+```bash
+cd backend
+python -m pytest tests -v
+```
+All **22 unit tests** pass with 100% success rate testing the normalization pipeline, edge cases, Brain decision rules, and API endpoints.
 
 ---
 
-## Step 4: Create a New Branch
+## 🎯 Use Case: Freelance Creative Designer & Tech Consultant
 
-Branch pattern: `candidate-<your-github-username>`
+Built specifically for digital freelancers, creative designers, and consultants filing business taxes:
 
-```bash
-git checkout -b candidate-<your-github-username>
+- **100% Deductible Software & Subscriptions:** `Adobe Creative Cloud`, `Figma`, `GitHub`, `Notion`, `AWS`, `Vercel`, `OpenAI`.
+- **100% Deductible Travel & Rideshare:** `Uber`, `Lyft`, `Delta Air Lines`.
+- **50% Deductible Meals & Client Entertainment:** `Starbucks`, `Blue Bottle Coffee` (50% deduction rule applied to net tax summary).
+- **Internal Transfers (Not Expenses):** `TRANSFER TO SAVINGS`, `AUTOPAY CREDIT CARD` are recognized and excluded from expenses.
+- **Refunds (Expense Offsets, NOT Income):** Negative expense amounts or returns (e.g. `REFUND: APPLE STORE`) reduce total deductions instead of being falsely counted as taxable income.
+- **Needs Review (Ambiguity Detection):** Cryptic or unrecognized venues (`JOES CAFE 9921`) are flagged for user review with a confidence score and explanation.
+- **User Feedback Loop:** When a user re-categorizes a transaction in the UI, the Brain learns the override for that merchant and auto-updates similar and future rows.
+
+---
+
+## 📂 Project Structure
+
+```
+savvpro-test-statement-categorizer/
+├── backend/
+│   ├── app/
+│   │   ├── engine/
+│   │   │   ├── normalizer.py       # POS prefixes, phone, store & state stripper
+│   │   │   ├── rules.py            # Tax taxonomy, keywords & movement patterns
+│   │   │   ├── brain.py            # "The Brain" deterministic categorizer
+│   │   │   ├── memory.py           # User override feedback learning store
+│   │   │   └── aggregator.py       # Financial summaries & tax calculations
+│   │   ├── parser/
+│   │   │   └── csv_parser.py       # Universal bank CSV statement parser
+│   │   ├── models/
+│   │   │   └── schemas.py          # Pydantic schemas
+│   │   └── main.py                 # FastAPI application endpoints
+│   ├── tests/
+│   │   ├── conftest.py             # Test isolation fixtures
+│   │   ├── test_normalizer.py      # Merchant string sanitization tests
+│   │   ├── test_brain.py           # Core category assignment tests
+│   │   ├── test_edge_cases.py      # Refunds, transfers & Joe's Cafe tests
+│   │   └── test_api.py             # Integration tests for FastAPI endpoints
+│   ├── requirements.txt
+│   └── run.py                      # Backend launcher
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   │   └── Icons.jsx           # Zero-dependency SVG icons
+│   │   ├── App.jsx                 # Main application dashboard
+│   │   └── index.css               # Clean dark-mode design system
+│   ├── package.json
+│   └── vite.config.js
+├── sample_data/
+│   └── freelancer_bank_statement.csv # 23 realistic transactions with all edge cases
+├── DESIGN.md                       # In-depth system design & Brain architecture
+├── AI_USAGE.md                     # Transparency log, prompt notes & token counts
+├── run_app.bat                     # 1-click Windows runner
+├── run_app.sh                      # 1-click Mac/Linux runner
+└── README.md                       # Documentation
 ```
 
-**Example:**
-```bash
-git checkout -b candidate-johndoe
-```
+---
+
+## 📋 Documentation Links
+
+- [DESIGN.md](DESIGN.md) — Detailed use case analysis, Brain decision algorithm, confidence formulas, and edge case breakdown.
+- [AI_USAGE.md](AI_USAGE.md) — Transparent documentation of AI tools used, mistakes encountered, resolutions, and token accounting.
 
 ---
 
-## Step 5: Complete the Task
+## 👤 Author & Candidate Info
 
-Build the full application on your branch.
-
----
-
-## Step 6: Push Your Branch
-
-```bash
-git add .
-git commit -m "feat: complete statement-categorizer assessment"
-git push origin candidate-<your-github-username>
-```
-
----
-
-## Step 7: Create a Pull Request
-
-1. Go to your **forked** repository on GitHub (`https://github.com/your-username/savvpro-test-statement-categorizer`).
-2. Click **Compare & pull request** (GitHub will show this banner after you push your branch).
-3. Ensure the following settings in the PR form:
-   - **Base repository:** `savvpro/savvpro-test-statement-categorizer` ← the original repo
-   - **Base branch:** `main`
-   - **Head repository:** `your-username/savvpro-test-statement-categorizer` ← your fork
-   - **Compare branch:** `candidate-<your-github-username>`
-4. Use the title: `feat: complete statement-categorizer assessment`
-5. Submit the pull request.
-
-> 💡 **Tip:** If you don't see the banner, go to the original repo (`savvpro/savvpro-test-statement-categorizer`), click the **Pull requests** tab, then click **New pull request** → **compare across forks**.
-
----
-
-> ⚠️ **Important:** No submissions will be accepted after the deadline.
+- **Candidate:** Muhammad Usman
+- **GitHub:** [@usmhan123](https://github.com/usmhan123)
+- **Branch:** `candidate-usmhan123`
+- **Assessment Target:** `savvpro/savvpro-test-statement-categorizer` (main branch)
