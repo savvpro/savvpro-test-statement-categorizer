@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="620" viewBox="0 0 1200 620">
+  <style>
+    .box{fill:#fff;stroke:#287a5b;stroke-width:2}.title{font:700 18px Arial;fill:#17241d}.text{font:14px Arial;fill:#5f7066}.arrow{stroke:#287a5b;stroke-width:3;fill:none}.head{font:700 24px Arial;fill:#17241d}.sub{font:14px Arial;fill:#718078}
+  </style>
+  <rect width="1200" height="620" rx="18" fill="#f7f8f4"/>
+  <text x="52" y="52" class="head">FreelanceBooks architecture</text><text x="52" y="78" class="sub">A small, explainable system with server-side authorization and persistent local storage.</text>
+  <rect x="55" y="135" width="250" height="160" rx="14" class="box"/><text x="86" y="175" class="title">React + Vite frontend</text><text x="86" y="208" class="text">Login and workspace selector</text><text x="86" y="232" class="text">Upload and review table</text><text x="86" y="256" class="text">History and audit trail</text>
+  <path d="M305 215h110" class="arrow"/><path d="m405 205 12 10-12 10" class="arrow"/><text x="318" y="198" class="sub">HTTPS / JSON</text>
+  <rect x="420" y="105" width="330" height="220" rx="14" class="box"/><text x="458" y="145" class="title">FastAPI backend</text><text x="458" y="180" class="text">Authentication and sessions</text><text x="458" y="204" class="text">Workspace authorization</text><text x="458" y="228" class="text">CSV parser and validation</text><text x="458" y="252" class="text">Deterministic categorization brain</text><text x="458" y="276" class="text">Audit and shared-rule review APIs</text>
+  <path d="M750 215h110" class="arrow"/><path d="m850 205 12 10-12 10" class="arrow"/><text x="768" y="198" class="sub">Parameterized SQL</text>
+  <rect x="865" y="135" width="280" height="160" rx="14" class="box"/><text x="900" y="175" class="title">SQLite repository</text><text x="900" y="208" class="text">Users and memberships</text><text x="900" y="232" class="text">Statements and transactions</text><text x="900" y="256" class="text">Private rules and audit events</text>
+  <rect x="160" y="400" width="880" height="110" rx="14" class="box"/><text x="205" y="440" class="title">Deployment boundary</text><text x="205" y="470" class="text">Frontend static build + API container + persistent /data volume + HTTPS reverse proxy</text><text x="205" y="494" class="text">Secrets come from environment variables; demo credentials are for assessment only.</text>
+  <path d="M585 325v70" class="arrow"/><path d="m575 385 10 12 10-12" class="arrow"/>
+</svg>

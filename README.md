@@ -1,83 +1,155 @@
-# Step-by-Step Guide: How to Fork, Clone, and Submit Your Assessment
+# FreelanceBooks
 
-**Repository:** https://github.com/savvpro/savvpro-test-statement-categorizer
+FreelanceBooks is an explainable statement categorizer for freelancers working with foreign clients. It reads a CSV statement, classifies transactions with deterministic code, highlights uncertainty, and learns from corrections without using a large language model to make decisions.
 
----
+![FreelanceBooks review flow](docs/app-flow.svg)
 
-## Step 1: Fork the Repository
+## Why this product
 
-1. Go to the repository: https://github.com/savvpro/savvpro-test-statement-categorizer
-2. Click the **Fork** button in the top-right corner.
-3. This will create a copy of the repository in your GitHub account.
+Tax preparation is stressful when a freelancer has client income, software subscriptions, payment fees, transfers, refunds, and mixed personal spending in the same statement. FreelanceBooks creates a reviewable first pass instead of pretending that every transaction can be guessed safely.
 
----
+The guiding rule is:
 
-## Step 2: Clone Your Fork
+> When the evidence is strong, categorize with a reason. When it is weak, ask the user.
 
-1. Open your forked repository in your GitHub account.
-2. Click the green **Code** button and copy the URL.
-3. Run the following commands:
+## Features
 
-```bash
-git clone https://github.com/your-username/savvpro-test-statement-categorizer.git
-cd savvpro-test-statement-categorizer
+- CSV upload for bank statements and expense datasets
+- 1,211-row sample dataset support
+- Deterministic categorization brain written in Python
+- Income, expense, refund, and transfer detection
+- Freelancer and general expense categories
+- Confidence score and explanation for every row
+- Needs Review workflow for ambiguous transactions
+- Private workspace rules learned from user corrections
+- Curated shared defaults that never override personal rules
+- SQLite persistence
+- Workspace isolation
+- Password-hashed demo authentication and signed sessions
+- Statement history and correction audit trail
+- Pending shared-rule candidates for administrator review
+- Upload size limit and secure response headers
+
+## Architecture
+
+![FreelanceBooks architecture](docs/architecture.svg)
+
+The frontend is React/Vite. The API is FastAPI. SQLite stores users, workspace membership, statements, transactions, personal rules, audit events, and pending shared-rule candidates.
+
+## Run locally
+
+### Backend terminal
+
+```powershell
+cd "D:\KAMMM\SAVVPRO Hiring Task\savvpro-test-statement-categorizer\backend"
+py -3.14 -m pip install -r requirements.txt
+$env:FREELANCEBOOKS_SESSION_SECRET="local-test-secret"
+$env:FRONTEND_ORIGIN="http://localhost:5173"
+py -3.14 -m uvicorn app.main:app --reload
 ```
 
----
+### Frontend terminal
 
-## Step 3: Read the Task
-
-Open and read **TASK.md** carefully before writing any code.
-
-- TASK.md URL: https://github.com/savvpro/savvpro-test-statement-categorizer/blob/main/TASK.md
-
----
-
-## Step 4: Create a New Branch
-
-Branch pattern: `candidate-<your-github-username>`
-
-```bash
-git checkout -b candidate-<your-github-username>
+```powershell
+cd "D:\KAMMM\SAVVPRO Hiring Task\savvpro-test-statement-categorizer\frontend"
+npm install
+npm run dev
 ```
 
-**Example:**
-```bash
-git checkout -b candidate-johndoe
+Open the URL printed by Vite, normally `http://localhost:5173`.
+
+### Demo accounts
+
+```text
+User:  demo
+Pass:  demo-password-change-me
+
+Admin: admin
+Pass: admin-password-change-me
 ```
 
----
+These are seeded assessment accounts, not production credentials. Change or remove them before a public deployment.
 
-## Step 5: Complete the Task
+## Try the app
 
-Build the full application on your branch.
+1. Sign in as `demo`.
+2. Select `Freelancer Demo`.
+3. Upload `sample_statement.csv` or `combined_expense_dataset.csv`.
+4. Review confidence and explanations.
+5. Change a category to create a private workspace rule.
+6. Switch to `Small Agency Demo` to verify isolation.
+7. Sign out and confirm protected data is no longer accessible.
 
----
+## CSV formats
 
-## Step 6: Push Your Branch
+Standard statement CSV:
 
-```bash
-git add .
-git commit -m "feat: complete statement-categorizer assessment"
-git push origin candidate-<your-github-username>
+```csv
+Date,Description,Amount,Currency,Type
+2026-01-02,CLIENT PAYMENT,1200,USD,Income
+2026-01-03,ADOBE,-30,USD,Expense
 ```
 
----
+Expense dataset CSV:
 
-## Step 7: Create a Pull Request
+```csv
+expense_id,amount,merchant,description,category
+SEED0,2713.64,Swiggy,bought groceries at dmart,Food & Dining
+```
 
-1. Go to your **forked** repository on GitHub (`https://github.com/your-username/savvpro-test-statement-categorizer`).
-2. Click **Compare & pull request** (GitHub will show this banner after you push your branch).
-3. Ensure the following settings in the PR form:
-   - **Base repository:** `savvpro/savvpro-test-statement-categorizer` ← the original repo
-   - **Base branch:** `main`
-   - **Head repository:** `your-username/savvpro-test-statement-categorizer` ← your fork
-   - **Compare branch:** `candidate-<your-github-username>`
-4. Use the title: `feat: complete statement-categorizer assessment`
-5. Submit the pull request.
+The supplied `category` column is never trusted as the brain's answer.
 
-> 💡 **Tip:** If you don't see the banner, go to the original repo (`savvpro/savvpro-test-statement-categorizer`), click the **Pull requests** tab, then click **New pull request** → **compare across forks**.
+## Tests
 
----
+```powershell
+cd backend
+$env:PYTHONPATH="."
+py -3.14 -m pytest -q
+py -3.14 -m compileall -q app tests
 
-> ⚠️ **Important:** No submissions will be accepted after the deadline.
+cd ..\frontend
+npm run build
+```
+
+## Inspect SQLite
+
+The generated database is `freelancebooks.sqlite3` at the project root:
+
+```powershell
+cd "D:\KAMMM\SAVVPRO Hiring Task\savvpro-test-statement-categorizer"
+@'
+import sqlite3
+c = sqlite3.connect("freelancebooks.sqlite3")
+for table in ("users", "workspaces", "statements", "transactions", "rules", "audit_events", "shared_rule_candidates"):
+    print(table, c.execute(f"select count(*) from {table}").fetchone()[0])
+'@ | py -3.14 -
+```
+
+## Deployment
+
+The backend has a [Dockerfile](backend/Dockerfile). Build and run it without reload mode:
+
+```powershell
+docker build -t freelancebooks-api .\backend
+New-Item -ItemType Directory -Force .\data
+docker run --rm -p 8000:8000 `
+  -e FREELANCEBOOKS_SESSION_SECRET="replace-with-a-long-random-secret" `
+  -e FRONTEND_ORIGIN="http://localhost:5173" `
+  -v "${PWD}\data:/data" `
+  freelancebooks-api
+```
+
+Build the frontend with the API URL configured:
+
+```powershell
+$env:VITE_API_URL="https://your-api.example.com/api"
+npm run build
+```
+
+For a real deployment, put both services behind HTTPS, use strong unique credentials, protect the SQLite volume and backups, and replace seeded users with a managed identity provider.
+
+## Project documents
+
+- [DESIGN.md](DESIGN.md): product decisions and categorization brain
+- [AI_USAGE.md](AI_USAGE.md): how AI assistance was used
+- [TASK.md](TASK.md): original assessment brief

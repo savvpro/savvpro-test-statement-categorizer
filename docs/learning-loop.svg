@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="330" viewBox="0 0 1100 330">
+  <style>.box{fill:#fff;stroke:#287a5b;stroke-width:2}.title{font:700 17px Arial;fill:#17241d}.text{font:14px Arial;fill:#5f7066}.arrow{stroke:#287a5b;stroke-width:3;fill:none}</style>
+  <rect width="1100" height="330" rx="18" fill="#f7f8f4"/><text x="45" y="45" class="title">Safe learning loop</text>
+  <rect x="45" y="100" width="190" height="120" rx="12" class="box"/><text x="76" y="140" class="title">Shared defaults</text><text x="68" y="170" class="text">Curated generic rules</text><text x="68" y="192" class="text">available to everyone</text>
+  <path d="M235 160h65" class="arrow"/><path d="m290 150 12 10-12 10" class="arrow"/>
+  <rect x="305" y="100" width="190" height="120" rx="12" class="box"/><text x="344" y="140" class="title">User review</text><text x="328" y="170" class="text">User corrects a row</text><text x="328" y="192" class="text">when confidence is low</text>
+  <path d="M495 160h65" class="arrow"/><path d="m550 150 12 10-12 10" class="arrow"/>
+  <rect x="565" y="100" width="190" height="120" rx="12" class="box"/><text x="594" y="140" class="title">Private rule</text><text x="588" y="170" class="text">Immediate workspace</text><text x="588" y="192" class="text">personalization</text>
+  <path d="M755 160h65" class="arrow"/><path d="m810 150 12 10-12 10" class="arrow"/>
+  <rect x="825" y="100" width="220" height="120" rx="12" class="box"/><text x="858" y="140" class="title">Review candidate</text><text x="850" y="170" class="text">Anonymized candidate</text><text x="850" y="192" class="text">waits for admin approval</text>
+  <text x="245" y="270" class="text">Personal rules override shared defaults. Nothing becomes global automatically.</text>
+</svg>
