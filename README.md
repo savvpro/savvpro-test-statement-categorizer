@@ -1,83 +1,76 @@
-# Step-by-Step Guide: How to Fork, Clone, and Submit Your Assessment
+# Proofsheet
 
-**Repository:** https://github.com/savvpro/savvpro-test-statement-categorizer
+Proofsheet sorts a freelance designer's credit-card statement before tax time. Upload a CSV, review the rows the rules are willing to file, and confirm the ones they are not.
 
----
+The category decision is ordinary Python: merchant rules, statement-shape rules, and merchants you have confirmed before. No large language model chooses a category.
 
-## Step 1: Fork the Repository
+## Run it
 
-1. Go to the repository: https://github.com/savvpro/savvpro-test-statement-categorizer
-2. Click the **Fork** button in the top-right corner.
-3. This will create a copy of the repository in your GitHub account.
+Use two terminals. Python 3.11+ and Node 20+ are enough.
 
----
-
-## Step 2: Clone Your Fork
-
-1. Open your forked repository in your GitHub account.
-2. Click the green **Code** button and copy the URL.
-3. Run the following commands:
+Backend:
 
 ```bash
-git clone https://github.com/your-username/savvpro-test-statement-categorizer.git
-cd savvpro-test-statement-categorizer
+cd backend
+python -m venv .venv
 ```
 
----
-
-## Step 3: Read the Task
-
-Open and read **TASK.md** carefully before writing any code.
-
-- TASK.md URL: https://github.com/savvpro/savvpro-test-statement-categorizer/blob/main/TASK.md
-
----
-
-## Step 4: Create a New Branch
-
-Branch pattern: `candidate-<your-github-username>`
+Windows:
 
 ```bash
-git checkout -b candidate-<your-github-username>
+.venv\Scripts\activate
+pip install -r requirements.txt
+python -m uvicorn app.main:app --reload --port 8000
 ```
 
-**Example:**
-```bash
-git checkout -b candidate-johndoe
-```
-
----
-
-## Step 5: Complete the Task
-
-Build the full application on your branch.
-
----
-
-## Step 6: Push Your Branch
+macOS or Linux:
 
 ```bash
-git add .
-git commit -m "feat: complete statement-categorizer assessment"
-git push origin candidate-<your-github-username>
+source .venv/bin/activate
+pip install -r requirements.txt
+python -m uvicorn app.main:app --reload --port 8000
 ```
 
----
+Frontend:
 
-## Step 7: Create a Pull Request
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-1. Go to your **forked** repository on GitHub (`https://github.com/your-username/savvpro-test-statement-categorizer`).
-2. Click **Compare & pull request** (GitHub will show this banner after you push your branch).
-3. Ensure the following settings in the PR form:
-   - **Base repository:** `savvpro/savvpro-test-statement-categorizer` ← the original repo
-   - **Base branch:** `main`
-   - **Head repository:** `your-username/savvpro-test-statement-categorizer` ← your fork
-   - **Compare branch:** `candidate-<your-github-username>`
-4. Use the title: `feat: complete statement-categorizer assessment`
-5. Submit the pull request.
+Open http://127.0.0.1:5173. The page talks to the API through the Vite proxy.
 
-> 💡 **Tip:** If you don't see the banner, go to the original repo (`savvpro/savvpro-test-statement-categorizer`), click the **Pull requests** tab, then click **New pull request** → **compare across forks**.
+Click **Load the Studio North sample** to try a fictional January statement. To use your own export, choose credit card or bank so the signs are read the right way, then upload a CSV.
 
----
+## Tests
 
-> ⚠️ **Important:** No submissions will be accepted after the deadline.
+```bash
+cd backend
+python -m pytest
+```
+
+## What the screen is showing
+
+- **Deductible expenses** includes filed expense categories after refunds. Needs-review rows, personal charges, card payments, and transfers stay out of it.
+- **Still to review** is the work list. Saving a category files that row. "Remember merchant" reuses your choice on later statements.
+- Money out is a normal amount. Money in is shown in green with a minus.
+
+`DESIGN.md` explains the rules. `AI_USAGE.md` explains which AI tools helped write this project.
+
+## Layout
+
+```text
+backend/app/parser.py      CSV reading and amount signs
+backend/app/brain.py       category rules
+backend/app/service.py     totals, duplicates, corrections
+backend/app/memory.py      saved merchants (SQLite)
+backend/sample_statements  fictional Studio North statement
+frontend/src               upload, review, and export screen
+```
+
+Saved merchants are stored in `backend/data/memory.db`. Uploaded statements live in memory and clear when the API restarts.
+
+## Statement file
+
+CSV, up to 5 MB. A preamble before the header is fine. These headers are recognized: date, description (or memo, merchant, narrative), amount, or separate debit and credit columns. A transaction-type column can say Sale, Return, or Payment. Dates can be `MM/DD/YYYY`, `YYYY-MM-DD`, or `02-Jan-2026`. Amounts can include `$`, commas, parentheses, a trailing minus, or a `CR` / `DR` suffix.
