@@ -1,0 +1,47 @@
+{
+  "_comment": "Weighted merchant/keyword knowledge. 1.0 = known merchant, ~0.5-0.7 = generic keyword. Edit here to extend coverage without touching code.",
+  "categories": {
+    "Phone, Internet & Software": {
+      "ADOBE": 1.0, "GITHUB": 1.0, "FIGMA": 1.0, "NOTION": 1.0, "SLACK": 1.0, "JETBRAINS": 1.0,
+      "AWS": 0.95, "DIGITALOCEAN": 1.0, "GOOGLE WORKSPACE": 1.0, "MICROSOFT 365": 1.0,
+      "DROPBOX": 0.95, "ZOOM": 0.95, "VODAFONE": 0.9, "EE LIMITED": 0.9, "BT BROADBAND": 0.9,
+      "SUBSCRIPTION": 0.5
+    },
+    "Office Costs": {
+      "VIKING": 0.95, "RYMAN": 0.95, "ROYAL MAIL": 0.9, "WEWORK": 1.0, "REGUS": 1.0, "STATIONERY": 0.7
+    },
+    "Travel": {
+      "TRAINLINE": 1.0, "TFL": 1.0, "UBER TRIP": 0.95, "NATIONAL RAIL": 1.0, "EASYJET": 0.9,
+      "RYANAIR": 0.9, "PREMIER INN": 0.85, "SHELL": 0.7, "BP": 0.7, "PARKING": 0.7
+    },
+    "Professional Fees": {
+      "ACCOUNTANCY": 0.9, "ACCOUNTANTS": 0.9, "SOLICITORS": 0.9, "PROFESSIONAL INDEMNITY": 1.0,
+      "HISCOX": 1.0, "COMPANIES HOUSE": 1.0
+    },
+    "Advertising & Marketing": {
+      "GOOGLE ADS": 1.0, "FACEBK": 0.95, "META ADS": 1.0, "LINKEDIN": 0.8, "VISTAPRINT": 0.9
+    },
+    "Training": {
+      "UDEMY": 1.0, "COURSERA": 1.0, "PLURALSIGHT": 1.0
+    },
+    "Bank & Finance Charges": {
+      "OVERDRAFT": 0.95, "ACCOUNT FEE": 0.95, "MONTHLY FEE": 0.9, "INTEREST CHARGE": 0.95,
+      "STRIPE FEE": 1.0, "FX FEE": 0.95
+    },
+    "Tax Payments": {
+      "HMRC": 1.0
+    },
+    "Personal (Not Allowable)": {
+      "NETFLIX": 1.0, "SPOTIFY": 0.9, "DELIVEROO": 0.9, "JUST EAT": 0.9, "TESCO": 0.75,
+      "SAINSBURYS": 0.75, "PUREGYM": 0.95, "CASH WITHDRAWAL": 0.6, "ATM": 0.6
+    }
+  },
+  "mixed_use": ["AMAZON", "AMZN", "PAYPAL", "APPLE", "ARGOS", "CURRYS", "JOHN LEWIS", "COSTCO"],
+  "transfer": [
+    "TRANSFER TO", "TRANSFER FROM", "TFR", "OWN ACCOUNT", "SAVINGS", "ISA",
+    "CREDIT CARD PAYMENT", "CARD REPAYMENT", "PAYMENT RECEIVED THANK YOU", "AMEX PAYMENT"
+  ],
+  "refund": ["REFUND", "REVERSAL", "REVERSED", "CHARGEBACK", "RETURN", "CASHBACK"],
+  "income": ["INVOICE", "INV", "PAYMENT FROM", "FASTER PAYMENT", "BACS", "STRIPE PAYOUT", "UPWORK", "FIVERR"],
+  "non_income_credit": ["INTEREST", "SALARY", "HMRC", "DWP", "LOAN"]
+}

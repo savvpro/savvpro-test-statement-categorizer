@@ -1,83 +1,126 @@
-# Step-by-Step Guide: How to Fork, Clone, and Submit Your Assessment
+# Statement Categorizer
 
-**Repository:** https://github.com/savvpro/savvpro-test-statement-categorizer
+Statement Categorizer is for **UK freelancers and sole traders**. You upload a business bank or card statement and the app does four things:
 
----
+- Sorts every transaction into HMRC Self Assessment (SA103) categories
+- Explains each decision
+- Sends anything uncertain to **Needs Review**, rather than guessing
+- Turns the reviewed result into a tax estimate
 
-## Step 1: Fork the Repository
+Categorization is done by a deterministic rule engine written for this project. No AI model is called at runtime. See [DESIGN.md](DESIGN.md) for the use case, the architecture and how the engine decides, and [AI_USAGE.md](AI_USAGE.md) for development tooling.
 
-1. Go to the repository: https://github.com/savvpro/savvpro-test-statement-categorizer
-2. Click the **Fork** button in the top-right corner.
-3. This will create a copy of the repository in your GitHub account.
+## Features
 
----
+**Categorization**
+- **Explained decisions:** every row gets a category, a confidence score and a plain-English reason.
+- **Review when unsure:** unknown merchants, conflicting signals, weak matches, mixed-use shops (Amazon, PayPal) and unexplained money in all go to Needs Review, with a suggested category where one exists.
+- **Messy-data handling:**
+  - refunds are matched to the original purchase and net it off (never counted as income)
+  - transfers and card repayments are excluded
+  - duplicate rows are flagged
+  - HMRC payments are kept apart from expenses
+  - large purchases are flagged as possible capital assets
 
-## Step 2: Clone Your Fork
+**Reviewing**
+- **One-click fixes:** use the suggested category, or apply a fix to every row from the same merchant.
+- **Learns from corrections:** "Always use this for <merchant>" saves a rule. Saved rules apply to every future upload and can be managed in the UI.
+- **Search and filtering:** search the table, filter by category (click a total card) or show only rows that need review. A progress bar tracks the review.
+- **Recurring payments:** monthly subscriptions are detected and flagged.
+- **Export:** a categorized CSV with reasons. Export is unlocked once nothing is left to review.
 
-1. Open your forked repository in your GitHub account.
-2. Click the green **Code** button and copy the URL.
-3. Run the following commands:
+**Tax**
+- **Self Assessment estimate (2025/26):** shows profit, income tax and Class 4 NIC, and how much to set aside. It applies the £1,000 trading allowance automatically when that beats actual expenses, and tapers the personal allowance for income over £100,000.
 
-```bash
-git clone https://github.com/your-username/savvpro-test-statement-categorizer.git
-cd savvpro-test-statement-categorizer
-```
+## Quick start
 
----
-
-## Step 3: Read the Task
-
-Open and read **TASK.md** carefully before writing any code.
-
-- TASK.md URL: https://github.com/savvpro/savvpro-test-statement-categorizer/blob/main/TASK.md
-
----
-
-## Step 4: Create a New Branch
-
-Branch pattern: `candidate-<your-github-username>`
+### Option 1: Docker
 
 ```bash
-git checkout -b candidate-<your-github-username>
+docker compose up --build
 ```
 
-**Example:**
-```bash
-git checkout -b candidate-johndoe
-```
+Open http://localhost:8080.
 
----
+### Option 2: Local development
 
-## Step 5: Complete the Task
-
-Build the full application on your branch.
-
----
-
-## Step 6: Push Your Branch
+Requirements: Python 3.9+ and Node 18+.
 
 ```bash
-git add .
-git commit -m "feat: complete statement-categorizer assessment"
-git push origin candidate-<your-github-username>
+make install    # creates backend/.venv and installs frontend packages
+make backend    # API on http://localhost:8000 (docs at /docs)
+make frontend   # UI on http://localhost:5173, proxies /api to the backend
 ```
 
----
+To try it, upload [`samples/freelancer_statement.csv`](samples/freelancer_statement.csv). All of its data is fake.
 
-## Step 7: Create a Pull Request
+### Tests
 
-1. Go to your **forked** repository on GitHub (`https://github.com/your-username/savvpro-test-statement-categorizer`).
-2. Click **Compare & pull request** (GitHub will show this banner after you push your branch).
-3. Ensure the following settings in the PR form:
-   - **Base repository:** `savvpro/savvpro-test-statement-categorizer` ← the original repo
-   - **Base branch:** `main`
-   - **Head repository:** `your-username/savvpro-test-statement-categorizer` ← your fork
-   - **Compare branch:** `candidate-<your-github-username>`
-4. Use the title: `feat: complete statement-categorizer assessment`
-5. Submit the pull request.
+```bash
+make test
+```
 
-> 💡 **Tip:** If you don't see the banner, go to the original repo (`savvpro/savvpro-test-statement-categorizer`), click the **Pull requests** tab, then click **New pull request** → **compare across forks**.
+The test suite covers the CSV reader, every classifier, refunds, duplicates, recurring detection, learned rules, tax calculations, the repository and the API end to end. CI runs the backend tests and the frontend build on every push (`.github/workflows/ci.yml`).
 
----
+## Project structure
 
-> ⚠️ **Important:** No submissions will be accepted after the deadline.
+```
+backend/app/
+  main.py               app factory: wires settings, adapters and services together
+  config.py             environment-driven settings
+  api/                  HTTP routes and request/response schemas (thin layer)
+  services/             use cases: categorize a statement, manage merchant rules
+  domain/               models, categories, domain errors
+  ingestion/            StatementReader interface, ReaderRegistry, CSV reader
+  categorization/       normalizer, rulebook, classifier chain, confidence policy,
+                        post-processors, engine, factory (composition root)
+  learning/             merchant-rule repository (in-memory and JSON file)
+  reporting/            category totals, Self Assessment estimate
+  data/rules.json       merchant and keyword knowledge (edit without code changes)
+backend/tests/          pytest suite
+frontend/src/
+  components/           UI components
+  hooks/                useStatement (state and actions), useTaxEstimate
+  lib/                  API client, formatting, CSV export
+samples/                fake statement for demos
+```
+
+## Supported statement format
+
+The app reads CSV files with a header row and accepts common bank variants:
+
+- **Columns:** `Date` or `Transaction Date`; `Description`, `Details` or `Narrative`; either one signed `Amount` column or separate `Money Out` / `Money In` (`Debit` / `Credit`) columns
+- **Dates:** `2026-03-01`, `01/03/2026`, `01/03/26`, `1 Mar 2026`
+- **Amounts:** `£1,234.50`, `(12.00)`, `12.00 DR`, `12.00 CR`
+- **Encodings:** UTF-8 (with or without BOM) and Latin-1
+
+Unreadable rows are listed in the UI and don't stop the rest of the file from being processed.
+
+## API
+
+| Method | Path                  | Purpose                                     |
+|--------|-----------------------|---------------------------------------------|
+| GET    | `/api/health`         | Liveness check                              |
+| GET    | `/api/categories`     | Available categories                        |
+| POST   | `/api/categorize`     | Upload a statement (multipart `file`)       |
+| POST   | `/api/tax-estimate`   | Estimate tax from categorized rows          |
+| GET    | `/api/rules`          | List saved merchant rules                   |
+| PUT    | `/api/rules`          | Save a rule (`{merchant, category}`)        |
+| DELETE | `/api/rules/{merchant}` | Remove a rule                             |
+
+Interactive docs are at `http://localhost:8000/docs`.
+
+## Configuration
+
+All configuration is through environment variables. Defaults are in `backend/app/config.py`.
+
+| Variable               | Default                          | Purpose                                   |
+|------------------------|----------------------------------|-------------------------------------------|
+| `CORS_ORIGINS`         | `http://localhost:5173`          | Allowed frontend origins (comma-separated) |
+| `MAX_UPLOAD_BYTES`     | `5242880`                        | Upload size limit                         |
+| `MAX_ROWS`             | `10000`                          | Row limit per statement                   |
+| `CONFIDENCE_THRESHOLD` | `0.7`                            | Below this score, rows go to review       |
+| `AMBIGUITY_MARGIN`     | `0.2`                            | Minimum score gap between the top two categories |
+| `LARGE_AMOUNT`         | `1000`                           | Threshold for the capital-asset flag      |
+| `RULES_STORE_PATH`     | `backend/var/merchant_rules.json` | Where learned rules are stored           |
+
+The repo contains no secrets, and all data in it is fake.
