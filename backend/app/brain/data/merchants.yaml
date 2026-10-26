@@ -1,0 +1,96 @@
+# Known merchants -> category. Keys are merchant_key form (see normalizer.py). A key matches
+# when it equals the row's merchant_key or is a whole-word prefix of it ("AWS" ~ "AWS EMEA").
+# Only merchants whose business purpose is clear for a freelance designer/developer belong here;
+# mixed-use stores (AMAZON, TARGET, ...) live in ambiguous.yaml instead.
+merchants:
+  # software & subscriptions
+  ADOBE: software_subscriptions
+  FIGMA: software_subscriptions
+  NOTION: software_subscriptions
+  CANVA: software_subscriptions
+  SLACK: software_subscriptions
+  ZOOM: software_subscriptions
+  DROPBOX: software_subscriptions
+  GITHUB: software_subscriptions
+  ATLASSIAN: software_subscriptions
+  JETBRAINS: software_subscriptions
+  1PASSWORD: software_subscriptions
+  GRAMMARLY: software_subscriptions
+  LOOM: software_subscriptions
+  CALENDLY: software_subscriptions
+  INTUIT QUICKBOOKS: software_subscriptions
+  QUICKBOOKS: software_subscriptions
+  MICROSOFT 365: software_subscriptions
+  GOOGLE WORKSPACE: software_subscriptions
+  WORKSPACE: software_subscriptions  # "GOOGLE *WORKSPACE" after the processor prefix is stripped
+  # hosting & cloud
+  AWS: hosting_cloud
+  AMAZON WEB SERVICES: hosting_cloud
+  DIGITALOCEAN: hosting_cloud
+  HEROKU: hosting_cloud
+  VERCEL: hosting_cloud
+  NETLIFY: hosting_cloud
+  CLOUDFLARE: hosting_cloud
+  GOOGLE CLOUD: hosting_cloud
+  SQUARESPACE: hosting_cloud
+  WEBFLOW: hosting_cloud
+  NAMECHEAP: hosting_cloud
+  GODADDY: hosting_cloud
+  # advertising & marketing
+  LINKEDIN ADS: advertising_marketing
+  FACEBOOK ADS: advertising_marketing
+  FACEBK ADS: advertising_marketing
+  META ADS: advertising_marketing
+  MAILCHIMP: advertising_marketing
+  DRIBBBLE PRO: advertising_marketing
+  BEHANCE: advertising_marketing
+  # equipment & supplies
+  BEST BUY: equipment
+  B&H PHOTO: equipment
+  APPLE STORE: equipment
+  STAPLES: office_supplies
+  OFFICE DEPOT: office_supplies
+  # phone & internet
+  XFINITY: phone_internet
+  COMCAST: phone_internet
+  VERIZON: phone_internet
+  AT&T: phone_internet
+  T-MOBILE: phone_internet
+  SPECTRUM: phone_internet
+  # coworking
+  WEWORK: coworking_rent
+  REGUS: coworking_rent
+  INDUSTRIOUS: coworking_rent
+  # travel
+  DELTA AIR LINES: travel
+  UNITED AIRLINES: travel
+  AMERICAN AIRLINES: travel
+  SOUTHWEST AIRLINES: travel
+  JETBLUE: travel
+  ALASKA AIRLINES: travel
+  AMTRAK: travel
+  MARRIOTT: travel
+  HILTON: travel
+  HYATT: travel
+  AIRBNB: travel
+  LYFT: travel
+  # education, professional, insurance, postage
+  UDEMY: education_training
+  COURSERA: education_training
+  SKILLSHARE: education_training
+  DOMESTIKA: education_training
+  LEGALZOOM: professional_services
+  HISCOX: insurance_business
+  NEXT INSURANCE: insurance_business
+  USPS: postage_shipping
+  FEDEX: postage_shipping
+  UPS STORE: postage_shipping
+  # clearly personal
+  TRADER JOES: personal
+  WHOLE FOODS: personal
+  SAFEWAY: personal
+  KROGER: personal
+  NETFLIX: personal
+  SPOTIFY: personal
+  HULU: personal
+  DISNEY PLUS: personal

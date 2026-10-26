@@ -1,0 +1,26 @@
+file,row_index,expected_category,description
+credit_card.xlsx,0,software_subscriptions,ADOBE CREATIVE CLOUD
+credit_card.xlsx,1,software_subscriptions,FIGMA MONTHLY
+credit_card.xlsx,2,hosting_cloud,AWS EMEA AWS.AMAZON.CO
+credit_card.xlsx,3,travel,UBER *TRIP HELP.UBER.COM
+credit_card.xlsx,4,needs_review,SQ *JOES CAFE 9921
+credit_card.xlsx,5,card_payment,AUTOPAY PAYMENT - THANK YOU
+credit_card.xlsx,6,personal,TRADER JOES #552
+credit_card.xlsx,7,equipment,BEST BUY 00123
+credit_card.xlsx,8,platform_fees,UPWORK *SERVICE FEE
+credit_card.xlsx,9,refund,BEST BUY 00123 RETURN
+credit_card.xlsx,10,software_subscriptions,ADOBE CREATIVE CLOUD
+credit_card.xlsx,11,software_subscriptions,FIGMA MONTHLY
+credit_card.xlsx,12,travel,DELTA AIR LINES 0062391
+credit_card.xlsx,13,travel,MARRIOTT AUSTIN DOWNTOWN
+credit_card.xlsx,14,meals,UBER *EATS PENDING.UBER.COM
+credit_card.xlsx,15,card_payment,AUTOPAY PAYMENT - THANK YOU
+credit_card.xlsx,16,needs_review,APPLE.COM/BILL
+credit_card.xlsx,17,needs_review,CASA AZUL LISBOA PT
+credit_card.xlsx,18,bank_fees,FOREIGN TRANSACTION FEE
+credit_card.xlsx,19,software_subscriptions,ADOBE CREATIVE CLOUD
+credit_card.xlsx,20,software_subscriptions,FIGMA MONTHLY
+credit_card.xlsx,21,needs_review,TST* NORTHSIDE TACOS
+credit_card.xlsx,22,card_payment,AUTOPAY PAYMENT - THANK YOU
+credit_card.xlsx,23,needs_review,QUILLFIRE LLC
+credit_card.xlsx,24,advertising_marketing,LINKEDIN ADS 7720193

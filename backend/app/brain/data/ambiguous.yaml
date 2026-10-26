@@ -1,0 +1,36 @@
+# Merchants that could be business or personal (or anything). These always go to review,
+# even if another signal looks confident; a learned user rule is the only way out.
+# `suggest` is offered in the UI when no other signal has an opinion.
+# `always: true` means even structural rules and user rules cannot clear it (chargebacks).
+ambiguous:
+  - id: amazon
+    regex: '^(?!.*\bAWS\b)(?!.*AMAZON WEB SERVICES).*\b(?:AMAZON|AMZN)\b'
+    reason: Amazon sells everything; check the order
+  - id: big_box
+    regex: '\b(?:WALMART|WAL-MART|TARGET|COSTCO)\b'
+    reason: mixed-use store
+  - id: p2p
+    regex: '\b(?:VENMO|ZELLE|CASH ?APP|SQUARE CASH)\b'
+    reason: person-to-person payment; could be a contractor, a client or personal
+  - id: paypal_non_fee
+    regex: '\bPAYPAL\b(?!.*\bFEES?\b)'
+    reason: PayPal hides the real merchant or payer
+  - id: apple_bill
+    regex: '\bAPPLE\.COM/BILL\b|\bITUNES\b'
+    reason: App Store charges are often personal
+  - id: atm
+    regex: '\bATM\b'
+    reason: cash withdrawal; what was it spent on?
+    suggest: owner_draw
+  - id: check
+    regex: '^CHECK\b|\bCHECK #?\d+\b|\bCHK #?\d+\b'
+    reason: a paper check does not say who it paid
+  - id: generic_deposit
+    regex: '^(?:MOBILE |REMOTE |BRANCH |COUNTER |ATM )?DEPOSIT\b(?! .*\bINV)'
+    reason: deposit without a payer or invoice
+    suggest: client_income
+  - id: chargeback
+    regex: '\b(?:DISPUTE|CHARGEBACK|CHARGE BACK|PROVISIONAL CREDIT)\b'
+    reason: dispute or chargeback; confirm whether the original charge was reversed
+    suggest: refund
+    always: true

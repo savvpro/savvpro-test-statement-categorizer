@@ -1,0 +1,12 @@
+# Weak single-word hints (score 0.60). Never enough to auto-assign on their own; they only
+# feed a suggestion, or agree with a stronger signal.
+keywords:
+  meals: [CAFE, COFFEE, BISTRO, RESTAURANT, TACOS, PIZZA, GRILL, DINER, BAKERY, KITCHEN]
+  travel: [HOTEL, MOTEL, AIRLINE, AIRLINES, PARKING, TAXI, RENTAL]
+  office_supplies: [SUPPLY, SUPPLIES, PRINT, PRINTING, STATIONERY]
+  professional_services: [CPA, ACCOUNTING, BOOKKEEPING, LEGAL, ATTORNEY]
+  education_training: [COURSE, ACADEMY, WORKSHOP, CONFERENCE]
+  insurance_business: [INSURANCE]
+  postage_shipping: [SHIPPING, POSTAL, POSTAGE]
+  personal: [GROCERY, GROCERIES, SUPERMARKET, PHARMACY]
+  client_income: [DEPOSIT]

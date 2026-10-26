@@ -1,0 +1,15 @@
+file,row_index,expected_category,description
+bank_messy.csv,0,client_income,ACH DEPOSIT HARBOR & PINE CO INV-2026-001
+bank_messy.csv,1,coworking_rent,WEWORK MEMBERSHIP FEES
+bank_messy.csv,2,phone_internet,XFINITY INTERNET
+bank_messy.csv,3,transfer,ONLINE TRANSFER TO SAVINGS XXXX5521
+bank_messy.csv,4,tax_payment,IRS USATAXPYMT EST TAX 2025 Q4
+bank_messy.csv,5,client_income,STRIPE TRANSFER ST-8F3K2L9Q
+bank_messy.csv,6,phone_internet,VERIZON WIRELESS PAYMENT
+bank_messy.csv,7,card_payment,CARD SERVICES AUTOPAY PAYMENT
+bank_messy.csv,8,client_income,UPWORK WITHDRAWAL 7731988
+bank_messy.csv,9,bank_fees,MONTHLY SERVICE FEE
+bank_messy.csv,10,interest_income,INTEREST PAID
+bank_messy.csv,11,client_income,ACH DEPOSIT LUMEN ATLAS INC INV-2026-005
+bank_messy.csv,12,needs_review,ZELLE TO MORGAN ELLIS
+bank_messy.csv,13,travel,UBER *TRIP HELP.UBER.COM

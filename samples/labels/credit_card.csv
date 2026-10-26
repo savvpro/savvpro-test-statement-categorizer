@@ -1,0 +1,51 @@
+file,row_index,expected_category,description
+credit_card.csv,0,software_subscriptions,ADOBE CREATIVE CLOUD
+credit_card.csv,1,software_subscriptions,FIGMA MONTHLY
+credit_card.csv,2,software_subscriptions,NOTION LABS INC
+credit_card.csv,3,software_subscriptions,GOOGLE *WORKSPACE SAMRIV
+credit_card.csv,4,hosting_cloud,AWS EMEA AWS.AMAZON.CO
+credit_card.csv,5,travel,UBER *TRIP HELP.UBER.COM
+credit_card.csv,6,needs_review,SQ *JOES CAFE 9921
+credit_card.csv,7,needs_review,AMAZON MKTPLACE PMTS AMZN.COM/BILL
+credit_card.csv,8,advertising_marketing,LINKEDIN ADS 7720193
+credit_card.csv,9,card_payment,PAYMENT THANK YOU
+credit_card.csv,10,personal,TRADER JOES #552
+credit_card.csv,11,personal,NETFLIX.COM
+credit_card.csv,12,needs_review,TST* BLUE FIG BISTRO
+credit_card.csv,13,equipment,BEST BUY 00123
+credit_card.csv,14,platform_fees,UPWORK *SERVICE FEE
+credit_card.csv,15,needs_review,PXL*GRN 88231
+credit_card.csv,16,refund,BEST BUY 00123 RETURN
+credit_card.csv,17,software_subscriptions,ADOBE CREATIVE CLOUD
+credit_card.csv,18,software_subscriptions,FIGMA MONTHLY
+credit_card.csv,19,software_subscriptions,NOTION LABS INC
+credit_card.csv,20,software_subscriptions,GOOGLE *WORKSPACE SAMRIV
+credit_card.csv,21,hosting_cloud,AWS EMEA AWS.AMAZON.CO
+credit_card.csv,22,travel,DELTA AIR LINES 0062391
+credit_card.csv,23,travel,MARRIOTT AUSTIN DOWNTOWN
+credit_card.csv,24,travel,UBER *TRIP HELP.UBER.COM
+credit_card.csv,25,meals,UBER *EATS PENDING.UBER.COM
+credit_card.csv,26,needs_review,SQ *JOES CAFE 9921
+credit_card.csv,27,needs_review,SQ *JOES CAFE 9921
+credit_card.csv,28,card_payment,PAYMENT THANK YOU
+credit_card.csv,29,needs_review,KLARO PRINT SHOP
+credit_card.csv,30,needs_review,APPLE.COM/BILL
+credit_card.csv,31,personal,NETFLIX.COM
+credit_card.csv,32,needs_review,MERIDIAN SUPPLY 4410
+credit_card.csv,33,needs_review,CASA AZUL LISBOA PT
+credit_card.csv,34,bank_fees,FOREIGN TRANSACTION FEE
+credit_card.csv,35,personal,TRADER JOES #552
+credit_card.csv,36,needs_review,DISPUTE CREDIT KLARO PRINT SHOP
+credit_card.csv,37,software_subscriptions,ADOBE CREATIVE CLOUD
+credit_card.csv,38,software_subscriptions,FIGMA MONTHLY
+credit_card.csv,39,software_subscriptions,NOTION LABS INC
+credit_card.csv,40,software_subscriptions,GOOGLE *WORKSPACE SAMRIV
+credit_card.csv,41,hosting_cloud,AWS EMEA AWS.AMAZON.CO
+credit_card.csv,42,meals,UBER *EATS PENDING.UBER.COM
+credit_card.csv,43,needs_review,TST* NORTHSIDE TACOS
+credit_card.csv,44,card_payment,PAYMENT THANK YOU
+credit_card.csv,45,needs_review,AMAZON MKTPLACE PMTS AMZN.COM/BILL
+credit_card.csv,46,travel,UBER *TRIP HELP.UBER.COM
+credit_card.csv,47,needs_review,QUILLFIRE LLC
+credit_card.csv,48,advertising_marketing,LINKEDIN ADS 7720193
+credit_card.csv,49,platform_fees,UPWORK *SERVICE FEE

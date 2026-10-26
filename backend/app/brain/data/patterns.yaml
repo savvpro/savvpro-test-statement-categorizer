@@ -1,0 +1,87 @@
+# Regex rules matched against the uppercased raw description.
+# structural (score 0.95): money movements whose meaning is unambiguous.
+# patterns   (score 0.85): merchant aliases and fee/payout wording.
+# Optional fields: direction (in | out) and account (checking | credit_card) restrict a rule.
+structural:
+  - id: own_transfer
+    regex: '\bTRANSFER (?:TO|FROM) (?:MY )?(?:SAVINGS|CHECKING|SAV|CHK)\b'
+    category: transfer
+  - id: card_payment_thank_you
+    regex: '\bPAYMENT\b.*\bTHANK YOU\b|^AUTOPAY PAYMENT\b'
+    category: card_payment
+  - id: card_payment_from_checking
+    regex: '\b(?:CARD|CREDIT CARD|CC)\b.*\b(?:AUTOPAY|AUTO PAY|PAYMENT|PMT)\b'
+    category: card_payment
+    direction: out
+    account: checking
+  - id: card_payment_received
+    regex: '^(?:ONLINE |MOBILE |AUTOMATIC |ELECTRONIC )?PAYMENT(?: RECEIVED)?\b'
+    category: card_payment
+    direction: in
+    account: credit_card
+  - id: irs_estimated_tax
+    regex: '\bUSATAXPYMT\b|\bEFTPS\b|\bIRS\b.*\bEST(?:IMATED)? TAX\b'
+    category: tax_payment
+    direction: out
+  - id: refund_wording
+    regex: '\b(?:REFUND|RETURN|REVERSAL|REVERSED|CREDIT VOUCHER|MERCHANDISE CREDIT)\b'
+    category: refund
+    direction: in
+  - id: client_ach_invoice
+    regex: '^(?:ACH|DIRECT) (?:DEPOSIT|CREDIT)\b.*\bINV(?:OICE)?\b'
+    category: client_income
+    direction: in
+
+patterns:
+  - id: uber_trip
+    regex: '\bUBER ?\*? ?TRIP\b'
+    category: travel
+    direction: out
+  - id: uber_eats
+    regex: '\bUBER ?\*? ?EATS\b'
+    category: meals
+    direction: out
+  - id: airline
+    regex: '\b(?:AIR ?LINES?|AIRWAYS)\b'
+    category: travel
+    direction: out
+  - id: hotel
+    regex: '\b(?:HOTEL|MARRIOTT|HILTON|HYATT|INN|SUITES)\b'
+    category: travel
+    direction: out
+  - id: google_workspace
+    regex: '\bGOOGLE ?\*? ?(?:WORKSPACE|GSUITE)\b'
+    category: software_subscriptions
+    direction: out
+  - id: google_ads
+    regex: '\bGOOGLE ?\*? ?ADS\b'
+    category: advertising_marketing
+    direction: out
+  - id: stripe_payout
+    regex: '\bSTRIPE\b.*\b(?:TRANSFER|PAYOUT)\b'
+    category: client_income
+    direction: in
+  - id: marketplace_withdrawal
+    regex: '\b(?:UPWORK|FIVERR|TOPTAL|CONTRA)\b.*\b(?:WITHDRAWAL|PAYOUT|TRANSFER)\b'
+    category: client_income
+    direction: in
+  - id: platform_fee
+    regex: '\b(?:UPWORK|FIVERR|STRIPE|PAYPAL|TOPTAL)\b.*\b(?:FEES?|COMMISSION)\b'
+    category: platform_fees
+    direction: out
+  - id: bank_service_fee
+    regex: '^(?!.*\b(?:UPWORK|FIVERR|STRIPE|PAYPAL|TOPTAL)\b).*\b(?:MONTHLY |ACCOUNT )?(?:SERVICE|MAINTENANCE) (?:FEE|CHARGE)\b|\bWIRE (?:TRANSFER )?FEE\b|\bOVERDRAFT\b'
+    category: bank_fees
+    direction: out
+  - id: fx_fee
+    regex: '\b(?:FOREIGN|INTL|INTERNATIONAL) (?:TRANSACTION|TXN|EXCHANGE) FEE\b|\bFX FEE\b'
+    category: bank_fees
+    direction: out
+  - id: interest_charge
+    regex: '\b(?:INTEREST|FINANCE) CHARGE\b'
+    category: bank_fees
+    direction: out
+  - id: interest_earned
+    regex: '\bINTEREST (?:PAID|EARNED|CREDIT)\b'
+    category: interest_income
+    direction: in

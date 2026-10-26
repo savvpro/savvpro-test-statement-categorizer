@@ -1,0 +1,46 @@
+file,row_index,expected_category,description
+checking_simple.csv,0,client_income,ACH DEPOSIT HARBOR & PINE CO INV-2026-001
+checking_simple.csv,1,coworking_rent,WEWORK MEMBERSHIP FEES
+checking_simple.csv,2,transfer,ONLINE TRANSFER TO SAVINGS XXXX5521
+checking_simple.csv,3,client_income,STRIPE TRANSFER ST-8F3K2L9Q
+checking_simple.csv,4,phone_internet,XFINITY INTERNET 800-555-0142
+checking_simple.csv,5,phone_internet,VERIZON WIRELESS PAYMENT
+checking_simple.csv,6,needs_review,ZELLE TO MORGAN ELLIS
+checking_simple.csv,7,card_payment,CARD SERVICES AUTOPAY PAYMENT
+checking_simple.csv,8,tax_payment,IRS USATAXPYMT EST TAX 2025 Q4
+checking_simple.csv,9,client_income,UPWORK WITHDRAWAL 7731042
+checking_simple.csv,10,needs_review,ATM WITHDRAWAL #4412 MAIN ST
+checking_simple.csv,11,needs_review,CHECK #1043
+checking_simple.csv,12,client_income,ACH DEPOSIT LUMEN ATLAS INC INV-2026-002
+checking_simple.csv,13,needs_review,VENMO PAYMENT RILEY CHEN
+checking_simple.csv,14,bank_fees,MONTHLY SERVICE FEE
+checking_simple.csv,15,interest_income,INTEREST PAID
+checking_simple.csv,16,coworking_rent,WEWORK MEMBERSHIP FEES
+checking_simple.csv,17,client_income,STRIPE TRANSFER ST-2M7N4B1X
+checking_simple.csv,18,transfer,ONLINE TRANSFER TO SAVINGS XXXX5521
+checking_simple.csv,19,client_income,ACH DEPOSIT CEDARLINE GOODS INV-2026-003
+checking_simple.csv,20,phone_internet,XFINITY INTERNET 800-555-0142
+checking_simple.csv,21,phone_internet,VERIZON WIRELESS PAYMENT
+checking_simple.csv,22,card_payment,CARD SERVICES AUTOPAY PAYMENT
+checking_simple.csv,23,client_income,UPWORK WITHDRAWAL 7731988
+checking_simple.csv,24,needs_review,ZELLE TO MORGAN ELLIS
+checking_simple.csv,25,needs_review,ATM WITHDRAWAL #4412 MAIN ST
+checking_simple.csv,26,client_income,ACH DEPOSIT HARBOR & PINE CO INV-2026-004
+checking_simple.csv,27,client_income,STRIPE TRANSFER ST-9Q1W5E3R
+checking_simple.csv,28,bank_fees,MONTHLY SERVICE FEE
+checking_simple.csv,29,interest_income,INTEREST PAID
+checking_simple.csv,30,coworking_rent,WEWORK MEMBERSHIP FEES
+checking_simple.csv,31,client_income,ACH DEPOSIT LUMEN ATLAS INC INV-2026-005
+checking_simple.csv,32,transfer,ONLINE TRANSFER TO SAVINGS XXXX5521
+checking_simple.csv,33,phone_internet,XFINITY INTERNET 800-555-0142
+checking_simple.csv,34,phone_internet,VERIZON WIRELESS PAYMENT
+checking_simple.csv,35,client_income,STRIPE TRANSFER ST-4T6Y8U0I
+checking_simple.csv,36,card_payment,CARD SERVICES AUTOPAY PAYMENT
+checking_simple.csv,37,client_income,UPWORK WITHDRAWAL 7732410
+checking_simple.csv,38,needs_review,CHECK #1044
+checking_simple.csv,39,needs_review,VENMO PAYMENT RILEY CHEN
+checking_simple.csv,40,client_income,ACH DEPOSIT CEDARLINE GOODS INV-2026-006
+checking_simple.csv,41,needs_review,ZELLE FROM JAMIE OKAFOR
+checking_simple.csv,42,needs_review,ATM WITHDRAWAL #4412 MAIN ST
+checking_simple.csv,43,bank_fees,MONTHLY SERVICE FEE
+checking_simple.csv,44,interest_income,INTEREST PAID

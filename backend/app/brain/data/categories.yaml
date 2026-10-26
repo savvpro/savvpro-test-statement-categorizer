@@ -1,0 +1,191 @@
+# Tax categories for a US solo freelancer filing Schedule C.
+# kind: expense | income | non_operating | review
+# deductible_pct: share of the amount that is deductible (0-100). Non-expense kinds are 0.
+# Not tax advice: line mappings are the common default and an accountant may reclassify.
+
+categories:
+  # --- expenses ---
+  - id: software_subscriptions
+    label: Software & Subscriptions
+    kind: expense
+    schedule_c_line: "Line 18 - Office expense"
+    deductible_pct: 100
+    description: Design, dev and productivity tools billed per seat or per month.
+
+  - id: hosting_cloud
+    label: Hosting & Cloud
+    kind: expense
+    schedule_c_line: "Line 27a - Other expenses"
+    deductible_pct: 100
+    description: Web hosting, domains, cloud compute and storage for client work.
+
+  - id: equipment
+    label: Equipment
+    kind: expense
+    schedule_c_line: "Line 13 - Depreciation and section 179"
+    deductible_pct: 100
+    description: Computers, monitors, cameras and other durable gear used for the business.
+
+  - id: office_supplies
+    label: Office Supplies
+    kind: expense
+    schedule_c_line: "Line 22 - Supplies"
+    deductible_pct: 100
+    description: Consumables like paper, ink, cables and small accessories.
+
+  - id: advertising_marketing
+    label: Advertising & Marketing
+    kind: expense
+    schedule_c_line: "Line 8 - Advertising"
+    deductible_pct: 100
+    description: Ads, portfolio sites, promoted posts and marketing tools.
+
+  - id: contract_labor
+    label: Contract Labor
+    kind: expense
+    schedule_c_line: "Line 11 - Contract labor"
+    deductible_pct: 100
+    description: Payments to subcontractors and other freelancers for business work.
+
+  - id: professional_services
+    label: Legal & Professional Services
+    kind: expense
+    schedule_c_line: "Line 17 - Legal and professional services"
+    deductible_pct: 100
+    description: Accountants, lawyers, bookkeeping and tax preparation.
+
+  - id: education_training
+    label: Education & Training
+    kind: expense
+    schedule_c_line: "Line 27a - Other expenses"
+    deductible_pct: 100
+    description: Courses, books, conferences and workshops that maintain current skills.
+
+  - id: phone_internet
+    label: Phone & Internet
+    kind: expense
+    schedule_c_line: "Line 25 - Utilities"
+    deductible_pct: 100
+    description: Mobile and internet service used for the business.
+
+  - id: travel
+    label: Travel
+    kind: expense
+    schedule_c_line: "Line 24a - Travel"
+    deductible_pct: 100
+    description: Flights, hotels, rideshare and transit for business trips.
+
+  - id: meals
+    label: Business Meals
+    kind: expense
+    schedule_c_line: "Line 24b - Deductible meals"
+    deductible_pct: 50
+    description: Meals with clients or while travelling for work (50% deductible).
+
+  - id: coworking_rent
+    label: Coworking & Rent
+    kind: expense
+    schedule_c_line: "Line 20b - Rent or lease (other business property)"
+    deductible_pct: 100
+    description: Coworking memberships, studio or desk rental.
+
+  - id: insurance_business
+    label: Business Insurance
+    kind: expense
+    schedule_c_line: "Line 15 - Insurance (other than health)"
+    deductible_pct: 100
+    description: Professional liability, equipment and general business insurance.
+
+  - id: bank_fees
+    label: Bank & Card Fees
+    kind: expense
+    schedule_c_line: "Line 27a - Other expenses"
+    deductible_pct: 100
+    description: Account fees, wire fees, foreign transaction fees and interest charges.
+
+  - id: platform_fees
+    label: Platform & Payment Fees
+    kind: expense
+    schedule_c_line: "Line 10 - Commissions and fees"
+    deductible_pct: 100
+    description: Marketplace and payment processor fees taken from client payments.
+
+  - id: taxes_licenses
+    label: Taxes & Licenses
+    kind: expense
+    schedule_c_line: "Line 23 - Taxes and licenses"
+    deductible_pct: 100
+    description: Business licenses, permits and deductible business taxes.
+
+  - id: postage_shipping
+    label: Postage & Shipping
+    kind: expense
+    schedule_c_line: "Line 27a - Other expenses"
+    deductible_pct: 100
+    description: Shipping deliverables, samples or equipment.
+
+  # --- income ---
+  - id: client_income
+    label: Client Income
+    kind: income
+    schedule_c_line: "Line 1 - Gross receipts or sales"
+    deductible_pct: 0
+    description: Payments from clients and payouts from freelance platforms.
+
+  - id: interest_income
+    label: Interest Income
+    kind: income
+    schedule_c_line: null
+    deductible_pct: 0
+    description: Interest earned on business accounts (reported on Schedule B, not C).
+
+  # --- non-operating: neither spending nor income ---
+  - id: transfer
+    label: Transfer
+    kind: non_operating
+    schedule_c_line: null
+    deductible_pct: 0
+    description: Moving money between the user's own accounts.
+
+  - id: card_payment
+    label: Credit Card Payment
+    kind: non_operating
+    schedule_c_line: null
+    deductible_pct: 0
+    description: Paying off a credit card balance; the purchases are counted on the card.
+
+  - id: refund
+    label: Refund
+    kind: non_operating
+    schedule_c_line: null
+    deductible_pct: 0
+    description: Money back for an earlier purchase; reduces that expense, not income.
+
+  - id: owner_draw
+    label: Owner Draw
+    kind: non_operating
+    schedule_c_line: null
+    deductible_pct: 0
+    description: Money taken out of the business for personal use.
+
+  - id: tax_payment
+    label: Estimated Tax Payment
+    kind: non_operating
+    schedule_c_line: null
+    deductible_pct: 0
+    description: Federal or state estimated income tax payments (not deductible).
+
+  - id: personal
+    label: Personal
+    kind: non_operating
+    schedule_c_line: null
+    deductible_pct: 0
+    description: Personal spending on a business account; excluded from business totals.
+
+  # --- review ---
+  - id: needs_review
+    label: Needs Review
+    kind: review
+    schedule_c_line: null
+    deductible_pct: 0
+    description: The app is not confident enough to decide; please choose a category.
