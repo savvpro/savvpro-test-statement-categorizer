@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "inter",
+        "createdAt": "2026-10-26T07:41:41.302Z",
+        "reason": "Brand font mandated by CLAUDE.md"
+      }
+    ]
+  }
+}

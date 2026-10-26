@@ -1,0 +1,96 @@
+# LedgerLite categorization rules.
+#
+# Edit this file to teach the brain new merchants or keywords - no code change needed.
+# Matching is done on the *normalized* description (upper case, processor prefixes such
+# as "SQ *" / "PAYPAL *" removed, reference numbers removed) at word boundaries.
+#
+#   merchants:      a known merchant name             -> confidence.merchant (0.90)
+#   keywords:       a word that strongly suggests it  -> confidence.keyword  (0.75)
+#   weak_keywords:  a hint, never enough on its own   -> confidence.weak     (0.50)
+#
+# A merchant listed under two categories (e.g. AMAZON) is a deliberate tie: the brain
+# will send it to Needs Review instead of guessing.
+
+threshold: 0.70
+
+confidence:
+  learned: 1.00
+  special: 0.95
+  merchant: 0.90
+  keyword: 0.75
+  weak: 0.50
+
+# Checked before everything except learned rules, in this order.
+# sign: positive = money in, negative = money out, any = either.
+# A special rule that matches with the wrong sign sends the row to Needs Review.
+special_rules:
+  - name: refund
+    category: Refund
+    sign: positive
+    keywords: [REFUND, RETURN, REVERSAL, CHARGEBACK, CREDIT ADJUSTMENT, PURCHASE CREDIT]
+  - name: card_payment
+    category: Card Payment (not spending)
+    sign: positive
+    keywords: [PAYMENT THANK YOU, AUTOPAY, AUTO PAY, ONLINE PAYMENT, CARD PAYMENT, PAYMENT RECEIVED]
+  - name: transfer
+    category: Transfer (not spending)
+    sign: any
+    keywords: [TRANSFER TO, TRANSFER FROM, ONLINE TRANSFER, INTERNAL TRANSFER, TRANSFER]
+  - name: bank_fees
+    category: Bank Fees
+    sign: negative
+    keywords:
+      - ANNUAL FEE
+      - LATE FEE
+      - FOREIGN TRANSACTION FEE
+      - FX FEE
+      - CASH ADVANCE FEE
+      - OVERLIMIT FEE
+      - SERVICE FEE
+      - INTEREST CHARGE
+      - FINANCE CHARGE
+
+categories:
+  Software & Subscriptions:
+    merchants:
+      [ADOBE, FIGMA, NOTION, DROPBOX, CANVA, GOOGLE WORKSPACE, MICROSOFT 365, SLACK,
+       GITHUB, ZOOM, MAILCHIMP, SHUTTERSTOCK, BEHANCE, DRIBBBLE, APPLE COM BILL]
+    keywords: [SOFTWARE, SUBSCRIPTION, SAAS, CLOUD, LICENSE]
+
+  Travel:
+    merchants:
+      [UBER, LYFT, DELTA AIRLINES, UNITED AIRLINES, AMERICAN AIRLINES, MARRIOTT, HILTON,
+       AIRBNB, SHELL OIL, EXXON, CHEVRON]
+    keywords: [AIRLINES, AIRLINE, AIRWAYS, HOTEL, HOTELS, TAXI, PARKING, TRAIN, RIDE]
+
+  Meals:
+    merchants:
+      [UBER EATS, STARBUCKS, CHIPOTLE, DOORDASH, GRUBHUB, PANERA BREAD, BLUE BOTTLE]
+    keywords: [RESTAURANT, PIZZA, DINNER, LUNCH, BAKERY, DINER]
+    # "JOES CAFE" alone is not enough to be sure it is a business meal.
+    weak_keywords: [CAFE, COFFEE]
+
+  Office Supplies:
+    merchants: [STAPLES, OFFICE DEPOT, WACOM, FEDEX OFFICE, AMAZON, BEST BUY]
+    keywords: [OFFICE, STATIONERY, PRINTING]
+    weak_keywords: [STORE, MARKET]
+
+  Internet & Phone:
+    merchants: [VERIZON, COMCAST, T MOBILE, AT&T, GOOGLE FI]
+    keywords: [WIRELESS, INTERNET, BROADBAND, TELECOM, MOBILE]
+
+  Advertising:
+    merchants: [META ADS, FACEBOOK ADS, GOOGLE ADS, LINKEDIN ADS]
+    keywords: [ADS, ADVERTISING, MARKETING]
+
+  Bank Fees:
+    keywords: [FEE]
+
+  Income:
+    merchants: [UPWORK, STRIPE PAYOUT, FIVERR]
+    keywords: [PAYOUT, INVOICE, CLIENT DEPOSIT]
+
+  Personal:
+    merchants:
+      [NETFLIX, SPOTIFY, WHOLE FOODS, AMAZON, AMAZON PRIME VIDEO, TARGET, BEST BUY]
+    keywords: [GROCERY, GYM]

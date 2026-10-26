@@ -1,83 +1,101 @@
-# Step-by-Step Guide: How to Fork, Clone, and Submit Your Assessment
+# LedgerLite — Statement Categorizer
 
-**Repository:** https://github.com/savvpro/savvpro-test-statement-categorizer
+LedgerLite sorts a freelance designer's business credit card statement for tax time.
+Upload a CSV and every transaction gets a category, a confidence score and a short reason.
+If the app is not sure, the row goes to **Needs Review** instead of getting a guess. You fix
+those rows, the app remembers the fix for that merchant, and you get category totals and a
+CSV export.
 
----
+The categorizer is our own rule-based Python code (`backend/app/engine/`). **No LLM decides
+anything.** See [DESIGN.md](DESIGN.md) for how it decides, and [AI_USAGE.md](AI_USAGE.md) for
+how AI tools were used to build it.
 
-## Step 1: Fork the Repository
+![LedgerLite statement review](docs/screenshot.png)
 
-1. Go to the repository: https://github.com/savvpro/savvpro-test-statement-categorizer
-2. Click the **Fork** button in the top-right corner.
-3. This will create a copy of the repository in your GitHub account.
-
----
-
-## Step 2: Clone Your Fork
-
-1. Open your forked repository in your GitHub account.
-2. Click the green **Code** button and copy the URL.
-3. Run the following commands:
+## Quick start (Docker)
 
 ```bash
-git clone https://github.com/your-username/savvpro-test-statement-categorizer.git
-cd savvpro-test-statement-categorizer
+docker compose up --build
 ```
 
----
+- App: <http://localhost:3000> — click **Try with sample statement**
+- API docs (Swagger): <http://localhost:8000/docs>
 
-## Step 3: Read the Task
+## Run without Docker
 
-Open and read **TASK.md** carefully before writing any code.
-
-- TASK.md URL: https://github.com/savvpro/savvpro-test-statement-categorizer/blob/main/TASK.md
-
----
-
-## Step 4: Create a New Branch
-
-Branch pattern: `candidate-<your-github-username>`
+Requirements: Python 3.11+, Node 20+ (npm).
 
 ```bash
-git checkout -b candidate-<your-github-username>
+# Backend
+cd backend
+python3.11 -m venv .venv
+.venv/bin/pip install -e ".[dev]"
+.venv/bin/uvicorn app.main:app --reload --port 8000
+
+# Frontend (second terminal)
+cd frontend
+npm install
+cp ../.env.example .env.local     # NEXT_PUBLIC_API_URL=http://localhost:8000
+npm run dev
 ```
 
-**Example:**
+Configuration is via environment variables (see [`.env.example`](.env.example)):
+`DATABASE_URL` (SQLite by default), `CORS_ORIGINS`, `MAX_UPLOAD_MB`, `NEXT_PUBLIC_API_URL`.
+There are no secrets.
+
+## Tests and lint
+
 ```bash
-git checkout -b candidate-johndoe
+cd backend
+.venv/bin/pytest --cov=app        # 145 tests: parser, normalizer, rules, brain, API
+.venv/bin/ruff check . && .venv/bin/ruff format --check .
+
+cd ../frontend
+npm run lint && npm run build
 ```
 
----
+GitHub Actions ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs all of the
+above on every push, plus a check that no LLM SDK is referenced in the app code.
 
-## Step 5: Complete the Task
+## Sample data
 
-Build the full application on your branch.
+All data is fake. Files are in [`sample_data/`](sample_data):
 
----
+| File | Layout | What it exercises |
+| --- | --- | --- |
+| `bank_a.csv` | `Date,Description,Amount`, MM/DD/YYYY | clean export, refunds, transfers, fees, unknowns, foreign currency |
+| `bank_b.csv` | `Txn Date,Details,Debit,Credit`, ISO dates | split debit/credit columns, `SQ *` / `PAYPAL *` / `TST*` prefixes, ties |
+| `messy.csv` | preamble lines, `Amount (USD)`, mixed date formats | `(54.99)`, `"1,250.00"`, `$-48.20`, duplicate row, broken rows, a `Total` line |
 
-## Step 6: Push Your Branch
+The app's **Try with sample statement** button loads `messy.csv`.
 
-```bash
-git add .
-git commit -m "feat: complete statement-categorizer assessment"
-git push origin candidate-<your-github-username>
+## Project layout
+
+```
+backend/
+  app/
+    engine/        the brain: normalizer, rules.yaml + loader, classifier, duplicates
+    parsing/       tolerant CSV reader
+    api/routes.py  FastAPI endpoints (contract: docs/api-contract.md)
+    services.py    parse → classify → store, fixes + learning, totals, export
+    models.py db.py config.py main.py
+  tests/
+frontend/          Next.js (App Router) + TypeScript + Tailwind + lucide-react
+sample_data/       fake CSV statements
+docs/              API contract, AI usage screenshots
 ```
 
----
+## API
 
-## Step 7: Create a Pull Request
+| Method | Path | Purpose |
+| --- | --- | --- |
+| POST | `/api/statements` | Upload a CSV (≤ 5 MB) → categorized rows |
+| POST | `/api/statements/sample?name=messy` | Load a bundled fake statement |
+| GET | `/api/statements` · `/api/statements/{id}` | List / read statements |
+| GET | `/api/statements/{id}/summary` | Category totals |
+| GET | `/api/statements/{id}/export` | Download categorized CSV |
+| PATCH | `/api/transactions/{id}` | Change a category (and learn the merchant) |
+| GET / DELETE | `/api/rules/learned[/{id}]` | View / forget learned rules |
+| GET | `/api/health` · `/api/categories` | Health check, category list |
 
-1. Go to your **forked** repository on GitHub (`https://github.com/your-username/savvpro-test-statement-categorizer`).
-2. Click **Compare & pull request** (GitHub will show this banner after you push your branch).
-3. Ensure the following settings in the PR form:
-   - **Base repository:** `savvpro/savvpro-test-statement-categorizer` ← the original repo
-   - **Base branch:** `main`
-   - **Head repository:** `your-username/savvpro-test-statement-categorizer` ← your fork
-   - **Compare branch:** `candidate-<your-github-username>`
-4. Use the title: `feat: complete statement-categorizer assessment`
-5. Submit the pull request.
-
-> 💡 **Tip:** If you don't see the banner, go to the original repo (`savvpro/savvpro-test-statement-categorizer`), click the **Pull requests** tab, then click **New pull request** → **compare across forks**.
-
----
-
-> ⚠️ **Important:** No submissions will be accepted after the deadline.
+Full request/response shapes: [docs/api-contract.md](docs/api-contract.md).
