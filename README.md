@@ -1,4 +1,68 @@
-# Step-by-Step Guide: How to Fork, Clone, and Submit Your Assessment
+# Studio Ledger — Statement Categorizer
+
+Studio Ledger categorizes freelance designers' business transactions from a CSV bank statement. It uses transparent, deterministic Python rules rather than a large language model, and sends uncertain rows to **Needs review**.
+
+## Run locally
+
+### Backend
+
+From the repository root:
+
+```bash
+cd backend
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload
+```
+
+The API runs at `http://localhost:8000`.
+
+### Frontend
+
+In another terminal:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Open `http://localhost:5173`. You can use **Try the sample statement** without preparing a file. Real uploads must be UTF-8 CSV files with `Date`, `Description`, and `Amount` columns.
+
+## Test
+
+```bash
+cd backend
+pytest
+```
+
+The frontend build can be checked with `npm run build` from `frontend`.
+
+See [DESIGN.md](DESIGN.md) for the use case and decision rules, and [AI_USAGE.md](AI_USAGE.md) for development-tool usage.
+
+## SaaS demo
+
+The app now includes a multi-page authenticated workspace:
+
+- `/login` — demo sign-in
+- `/app` — overview dashboard
+- `/app/transactions` — filter, correct, and export transactions
+- `/app/rules` — inspect the categorization rules fetched from the API
+- `/app/settings` — workspace profile
+
+Use the seeded demo credentials:
+
+```text
+Email: demo@studioledger.com
+Password: demo123
+```
+
+The frontend fetches workspace, dashboard, rules, login, and upload data from the FastAPI endpoints. The API uses fake seeded data and an in-memory demo session; no real financial data or credentials are used.
+
+---
+
+# Assessment submission guide
 
 **Repository:** https://github.com/savvpro/savvpro-test-statement-categorizer
 
