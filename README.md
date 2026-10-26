@@ -1,83 +1,133 @@
-# Step-by-Step Guide: How to Fork, Clone, and Submit Your Assessment
+# Statement Categorizer
 
-**Repository:** https://github.com/savvpro/savvpro-test-statement-categorizer
+Upload a bank or credit-card statement (CSV) and get every transaction sorted into
+tax categories. Built for a **freelance designer** at tax time.
 
----
+The categorisation "brain" is plain, rule-based Python. **No AI model (GPT, Claude, Gemini, etc.)
+is used to make decisions.** When the brain is not sure, it says so and marks the row
+**Needs Review** instead of guessing.
 
-## Step 1: Fork the Repository
+## Features
 
-1. Go to the repository: https://github.com/savvpro/savvpro-test-statement-categorizer
-2. Click the **Fork** button in the top-right corner.
-3. This will create a copy of the repository in your GitHub account.
+- CSV upload with validation (empty file, missing columns, bad encoding, size limit)
+- Messy-data handling: mixed date formats, `(45.00)` / `1,200.00` amounts, merchant IDs
+- Refunds are not income; transfers and card payments are not spending
+- Possible duplicates and foreign-currency rows are flagged, never silently dropped
+- Every row carries a category, a confidence (`high`/`low`) and a human-readable reason
+- Tax-deductible hint per category (`yes` / `partial` / `no`)
+- React UI: upload a statement, see how each row was categorised, fix **Needs Review** rows
+  from a dropdown, and watch the totals recalculate
 
----
+## Requirements
 
-## Step 2: Clone Your Fork
+- Python 3.10+
+- Node.js 18+
 
-1. Open your forked repository in your GitHub account.
-2. Click the green **Code** button and copy the URL.
-3. Run the following commands:
+## Setup and run
 
-```bash
-git clone https://github.com/your-username/savvpro-test-statement-categorizer.git
-cd savvpro-test-statement-categorizer
-```
+You need two terminals: one for the backend, one for the frontend.
 
----
-
-## Step 3: Read the Task
-
-Open and read **TASK.md** carefully before writing any code.
-
-- TASK.md URL: https://github.com/savvpro/savvpro-test-statement-categorizer/blob/main/TASK.md
-
----
-
-## Step 4: Create a New Branch
-
-Branch pattern: `candidate-<your-github-username>`
+### 1. Backend (FastAPI)
 
 ```bash
-git checkout -b candidate-<your-github-username>
+cd backend
+python -m venv venv
+# Windows:   venv\Scripts\activate
+# Mac/Linux: source venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload
 ```
 
-**Example:**
-```bash
-git checkout -b candidate-johndoe
-```
+- API: http://localhost:8000
+- Interactive docs: http://localhost:8000/docs
 
----
-
-## Step 5: Complete the Task
-
-Build the full application on your branch.
-
----
-
-## Step 6: Push Your Branch
+### 2. Frontend (React + Vite)
 
 ```bash
-git add .
-git commit -m "feat: complete statement-categorizer assessment"
-git push origin candidate-<your-github-username>
+cd frontend
+npm install
+npm run dev
 ```
 
----
+- App: http://localhost:5173
 
-## Step 7: Create a Pull Request
+The frontend talks to the backend at `http://localhost:8000` by default.
+To change that, copy `frontend/.env.example` to `frontend/.env` and set `VITE_API_URL`.
 
-1. Go to your **forked** repository on GitHub (`https://github.com/your-username/savvpro-test-statement-categorizer`).
-2. Click **Compare & pull request** (GitHub will show this banner after you push your branch).
-3. Ensure the following settings in the PR form:
-   - **Base repository:** `savvpro/savvpro-test-statement-categorizer` ← the original repo
-   - **Base branch:** `main`
-   - **Head repository:** `your-username/savvpro-test-statement-categorizer` ← your fork
-   - **Compare branch:** `candidate-<your-github-username>`
-4. Use the title: `feat: complete statement-categorizer assessment`
-5. Submit the pull request.
+### 3. Try it
 
-> 💡 **Tip:** If you don't see the banner, go to the original repo (`savvpro/savvpro-test-statement-categorizer`), click the **Pull requests** tab, then click **New pull request** → **compare across forks**.
+Open http://localhost:5173 and upload `sample_data/fake_statement.csv`.
+You will see categorised rows, a totals summary, and several rows marked **Needs Review**
+that you can fix from the dropdown.
 
----
+## Run tests
 
-> ⚠️ **Important:** No submissions will be accepted after the deadline.
+```bash
+cd backend
+pytest -v
+```
+
+Frontend lint and production build:
+
+```bash
+cd frontend
+npm run lint
+npm run build
+```
+
+## API
+
+| Method | Path | Purpose |
+|---|---|---|
+| POST | `/upload` | Upload a CSV, returns transactions, skipped rows and summary |
+| GET | `/transactions` | List current transactions |
+| PATCH | `/transactions/{id}` | User sets a category; returns updated row and summary |
+| GET | `/categories` | Allowed categories |
+| GET | `/health` | Health check |
+
+### CSV format
+
+Required columns: `date`, `description`, `amount`. Optional: `currency` (defaults to USD).
+Negative amount = money out, positive = money in.
+
+## Project structure
+
+```
+backend/
+  app/
+    api/         HTTP routes
+    parser/      CSV reading and normalising
+    brain/       decision logic (checks/ = one file per rule)
+    services/    summary totals, in-memory store
+    data/rules.json   keywords and categories (edit rules without touching code)
+  tests/
+frontend/
+  src/
+    api/         API client
+    components/  UploadForm, TransactionTable, CategorySelect, CategorySummary
+    constants/   category list
+    styles/      CSS
+sample_data/     fake statement (fake data only)
+DESIGN.md        use case and how the brain decides
+AI_USAGE.md      AI tools used, mistakes, token usage
+```
+
+## Configuration
+
+| Variable | Where | Default | Purpose |
+|---|---|---|---|
+| `CORS_ORIGINS` | backend | `http://localhost:5173` | Comma-separated allowed origins |
+| `VITE_API_URL` | frontend | `http://localhost:8000` | Backend URL |
+
+No secrets are needed. See `.env.example` files.
+
+## Documentation
+
+- [`DESIGN.md`](DESIGN.md): the use case, the brain's decision order, messy cases, trade-offs
+- [`AI_USAGE.md`](AI_USAGE.md): AI tools used, where they were wrong, token usage
+
+## Notes
+
+- All data is fake. Never upload real statements.
+- The store is in memory (one statement at a time). Swapping in a database only
+  requires changing `services/store.py`.

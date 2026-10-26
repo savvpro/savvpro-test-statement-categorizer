@@ -1,0 +1,66 @@
+{
+  "categories": {
+    "Software": "yes",
+    "Travel": "yes",
+    "Meals": "partial",
+    "Office": "yes",
+    "Marketing": "yes",
+    "Internet & Phone": "partial",
+    "Personal": "no",
+    "Income": "n/a",
+    "Refund": "n/a",
+    "Transfer (not spending)": "n/a",
+    "Duplicate (ignore)": "n/a",
+    "Needs Review": "unknown"
+  },
+  "excluded_categories": ["Transfer (not spending)", "Duplicate (ignore)"],
+
+  "transfer_keywords": [
+    "TRANSFER", "AUTOPAY", "CREDIT CARD PAYMENT", "ONLINE PAYMENT",
+    "PAYMENT THANK YOU", "PAYMENT TO CARD"
+  ],
+  "refund_keywords": ["REFUND", "RETURN", "REVERSAL", "CHARGEBACK"],
+  "income_keywords": [
+    "CLIENT", "INVOICE", "STRIPE PAYOUT", "PAYPAL PAYOUT", "PAYMENT FROM"
+  ],
+
+  "keyword_rules": [
+    {"keyword": "ADOBE", "category": "Software"},
+    {"keyword": "FIGMA", "category": "Software"},
+    {"keyword": "CANVA", "category": "Software"},
+    {"keyword": "DROPBOX", "category": "Software"},
+    {"keyword": "NOTION", "category": "Software"},
+    {"keyword": "GITHUB", "category": "Software"},
+    {"keyword": "ZOOM", "category": "Software"},
+    {"keyword": "SLACK", "category": "Software"},
+    {"keyword": "QUICKBOOKS", "category": "Software"},
+
+    {"keyword": "UBER EATS", "category": "Meals"},
+    {"keyword": "DOORDASH", "category": "Meals"},
+    {"keyword": "STARBUCKS", "category": "Meals"},
+
+    {"keyword": "UBER", "category": "Travel"},
+    {"keyword": "LYFT", "category": "Travel"},
+    {"keyword": "CAREEM", "category": "Travel"},
+    {"keyword": "DELTA AIR", "category": "Travel"},
+    {"keyword": "AIRLINES", "category": "Travel"},
+    {"keyword": "MARRIOTT", "category": "Travel"},
+    {"keyword": "HOTEL", "category": "Travel"},
+
+    {"keyword": "STAPLES", "category": "Office"},
+    {"keyword": "OFFICE DEPOT", "category": "Office"},
+
+    {"keyword": "GOOGLE ADS", "category": "Marketing"},
+    {"keyword": "META ADS", "category": "Marketing"},
+
+    {"keyword": "VERIZON", "category": "Internet & Phone"},
+    {"keyword": "COMCAST", "category": "Internet & Phone"},
+
+    {"keyword": "AMAZON", "category": "Office", "ambiguous": true,
+     "note": "Amazon can be business or personal"},
+    {"keyword": "WALMART", "category": "Office", "ambiguous": true,
+     "note": "Walmart can be business or personal"},
+    {"keyword": "TARGET", "category": "Office", "ambiguous": true,
+     "note": "Target can be business or personal"}
+  ]
+}
