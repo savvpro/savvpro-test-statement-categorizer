@@ -1,0 +1,11 @@
+Token totals for this project, taken from the Claude conversation log
+(one JSON line per request, summed over every request in the conversation).
+
+Measured: 26 Oct 2026, 15:39 Pakistan time
+
+Requests to the model      104
+Input, not cached          204
+Input written to cache     292,822
+Input read from cache      37,693,139
+Output                     188,754
+Total processed            38,174,919

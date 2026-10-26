@@ -1,0 +1,148 @@
+# Built-in rules for a freelance software developer in Pakistan.
+#
+# The engine reads the stages from top to bottom. The first stage that has a
+# matching rule decides the row. Inside a stage the most specific rule wins
+# (exact beats starts_with beats contains, and "AMAZON WEB SERVICES" beats
+# "AMAZON"). Two equally specific rules that disagree send the row to review.
+#
+# business_use (merchant rules only):
+#   always    - this merchant is business spending for a developer -> decided
+#   usually   - decided on a business account, review on a mixed account
+#   sometimes - always review; the category is offered as a suggestion
+#   never     - personal spending -> decided as Personal
+#
+# Patterns are matched against the upper-cased description as whole words.
+
+categories:
+  - {name: Business Income, kind: income}
+  - {name: Software & Subscriptions, kind: expense}
+  - {name: Cloud & Hosting, kind: expense}
+  - {name: Internet & Phone, kind: expense}
+  - {name: Platform & Payment Fees, kind: expense}
+  - {name: Bank Charges, kind: expense}
+  - {name: Office & Equipment, kind: expense}
+  - {name: Travel & Transport, kind: expense}
+  - {name: Meals, kind: expense}
+  - {name: Utilities, kind: expense}
+  - {name: Tax Deducted, kind: tax}
+  - {name: Transfer, kind: transfer}
+  - {name: Personal, kind: personal}
+
+# Words that mark money coming back. These are not a stage: the row still
+# goes through the stages to find out what the money is coming back for.
+refund_words: [REFUND, REFUNDED, REVERSAL, REVERSED, CHARGEBACK]
+
+stages:
+  - name: tax
+    rules:
+      - {id: TAX-WHT, pattern: WHT, category: Tax Deducted}
+      - {id: TAX-WITHHOLDING, pattern: WITHHOLDING TAX, category: Tax Deducted}
+      - {id: TAX-ADVANCE, pattern: ADVANCE TAX, category: Tax Deducted}
+      - {id: TAX-ADV, pattern: ADV TAX, category: Tax Deducted}
+      - {id: TAX-FED, pattern: FED, category: Tax Deducted}
+      - {id: TAX-EXCISE, pattern: EXCISE DUTY, category: Tax Deducted}
+
+  - name: bank_charges
+    rules:
+      - {id: FEE-SMS, pattern: SMS ALERT, category: Bank Charges}
+      - {id: FEE-SMS-CHARGES, pattern: SMS CHARGES, category: Bank Charges}
+      - {id: FEE-SERVICE, pattern: SERVICE CHARGES, category: Bank Charges}
+      - {id: FEE-BANK, pattern: BANK CHARGES, category: Bank Charges}
+      - {id: FEE-ANNUAL, pattern: ANNUAL FEE, category: Bank Charges}
+      - {id: FEE-CARD, pattern: DEBIT CARD FEE, category: Bank Charges}
+      - {id: FEE-IBFT, pattern: IBFT CHARGES, category: Bank Charges}
+      - {id: FEE-CHEQUE, pattern: CHEQUE BOOK, category: Bank Charges}
+      - {id: FEE-MAINT, pattern: ACCOUNT MAINTENANCE, category: Bank Charges}
+
+  - name: cash
+    rules:
+      - {id: CASH-ATM, pattern: ATM, review: "Cash withdrawal. The app can't know what the cash was spent on."}
+      - {id: CASH-WDL, pattern: CASH WITHDRAWAL, review: "Cash withdrawal. The app can't know what the cash was spent on."}
+      - {id: CASH-WDL-SHORT, pattern: CASH WDL, review: "Cash withdrawal. The app can't know what the cash was spent on."}
+
+  - name: transfer
+    rules:
+      - {id: XFER-OWN, pattern: OWN ACCOUNT, category: Transfer}
+      - {id: XFER-SAVINGS-TO, pattern: TRANSFER TO SAVINGS, category: Transfer}
+      - {id: XFER-SAVINGS-FROM, pattern: TRANSFER FROM SAVINGS, category: Transfer}
+      - {id: XFER-SELF, pattern: SELF TRANSFER, category: Transfer}
+      - {id: XFER-FX, pattern: CURRENCY CONVERSION, category: Transfer}
+      - {id: XFER-FCY, pattern: FCY CONVERSION, category: Transfer}
+      - {id: XFER-IBFT, pattern: IBFT, review: "Bank transfer. The app can't tell if it went to your own account or to someone else.", suggest: Transfer}
+      - {id: XFER-RAAST, pattern: RAAST, review: "Raast transfer. The app can't tell if it went to your own account or to someone else.", suggest: Transfer}
+      - {id: XFER-FUNDS, pattern: FUNDS TRANSFER, review: "Funds transfer. The app can't tell if it went to your own account or to someone else.", suggest: Transfer}
+
+  - name: merchants
+    rules:
+      # Money in from freelance platforms and payout services
+      - {id: INC-UPWORK, pattern: UPWORK, category: Business Income, business_use: always}
+      - {id: INC-FIVERR, pattern: FIVERR, category: Business Income, business_use: always}
+      - {id: INC-TOPTAL, pattern: TOPTAL, category: Business Income, business_use: always}
+      - {id: INC-DEEL, pattern: DEEL, category: Business Income, business_use: always}
+      - {id: INC-PAYONEER, pattern: PAYONEER, category: Business Income, business_use: always}
+      - {id: INC-WISE, pattern: WISE, category: Business Income, business_use: usually}
+      - {id: INC-REMIT-HOME, pattern: HOME REMITTANCE, review: "Money from abroad. It could be a client payment or money from family.", suggest: Business Income}
+      - {id: INC-REMIT-INWARD, pattern: INWARD REMITTANCE, review: "Money from abroad. It could be a client payment or money from family.", suggest: Business Income}
+      - {id: INC-CLIENT, pattern: CLIENT PAYMENT, review: "Says client payment, but the payer isn't one you've confirmed. Add a rule for this client to decide it next time.", suggest: Business Income}
+
+      # Fees taken by payout services (more specific than the income rules above)
+      - {id: FEE-PAYONEER, pattern: PAYONEER FEE, category: Platform & Payment Fees, business_use: always}
+      - {id: FEE-WISE, pattern: WISE FEE, category: Platform & Payment Fees, business_use: always}
+      - {id: FEE-UPWORK, pattern: UPWORK SERVICE FEE, category: Platform & Payment Fees, business_use: always}
+
+      # Developer tools
+      - {id: SW-GITHUB, pattern: GITHUB, category: Software & Subscriptions, business_use: always}
+      - {id: SW-JETBRAINS, pattern: JETBRAINS, category: Software & Subscriptions, business_use: always}
+      - {id: SW-ADOBE, pattern: ADOBE, category: Software & Subscriptions, business_use: always}
+      - {id: SW-FIGMA, pattern: FIGMA, category: Software & Subscriptions, business_use: always}
+      - {id: SW-NOTION, pattern: NOTION, category: Software & Subscriptions, business_use: always}
+      - {id: SW-SLACK, pattern: SLACK, category: Software & Subscriptions, business_use: always}
+      - {id: SW-GWORKSPACE, pattern: GOOGLE WORKSPACE, category: Software & Subscriptions, business_use: always}
+      - {id: SW-ZOOM, pattern: ZOOM, category: Software & Subscriptions, business_use: usually}
+      - {id: SW-MS365, pattern: MICROSOFT 365, category: Software & Subscriptions, business_use: usually}
+      - {id: SW-CANVA, pattern: CANVA, category: Software & Subscriptions, business_use: usually}
+
+      # Cloud, hosting and domains
+      - {id: CLOUD-AWS-LONG, pattern: AMAZON WEB SERVICES, category: Cloud & Hosting, business_use: always}
+      - {id: CLOUD-AWS, pattern: AWS, category: Cloud & Hosting, business_use: always}
+      - {id: CLOUD-DO, pattern: DIGITALOCEAN, category: Cloud & Hosting, business_use: always}
+      - {id: CLOUD-HETZNER, pattern: HETZNER, category: Cloud & Hosting, business_use: always}
+      - {id: CLOUD-VERCEL, pattern: VERCEL, category: Cloud & Hosting, business_use: always}
+      - {id: CLOUD-NETLIFY, pattern: NETLIFY, category: Cloud & Hosting, business_use: always}
+      - {id: CLOUD-CLOUDFLARE, pattern: CLOUDFLARE, category: Cloud & Hosting, business_use: always}
+      - {id: CLOUD-NAMECHEAP, pattern: NAMECHEAP, category: Cloud & Hosting, business_use: always}
+      - {id: CLOUD-GODADDY, pattern: GODADDY, category: Cloud & Hosting, business_use: always}
+
+      # Internet and phone (home connections are often shared with the family)
+      - {id: NET-PTCL, pattern: PTCL, category: Internet & Phone, business_use: usually}
+      - {id: NET-NAYATEL, pattern: NAYATEL, category: Internet & Phone, business_use: usually}
+      - {id: NET-STORMFIBER, pattern: STORMFIBER, category: Internet & Phone, business_use: usually}
+      - {id: NET-JAZZ, pattern: JAZZ, category: Internet & Phone, business_use: sometimes}
+      - {id: NET-ZONG, pattern: ZONG, category: Internet & Phone, business_use: sometimes}
+      - {id: NET-UFONE, pattern: UFONE, category: Internet & Phone, business_use: sometimes}
+      - {id: NET-TELENOR, pattern: TELENOR, category: Internet & Phone, business_use: sometimes}
+
+      # Shops that sell both work and personal things
+      - {id: SHOP-AMAZON, pattern: AMAZON, category: Office & Equipment, business_use: sometimes}
+      - {id: SHOP-DARAZ, pattern: DARAZ, category: Office & Equipment, business_use: sometimes}
+
+      # Travel and food
+      - {id: TRAVEL-CAREEM, pattern: CAREEM, category: Travel & Transport, business_use: sometimes}
+      - {id: TRAVEL-UBER, pattern: UBER, category: Travel & Transport, business_use: sometimes}
+      - {id: TRAVEL-INDRIVE, pattern: INDRIVE, category: Travel & Transport, business_use: sometimes}
+      - {id: TRAVEL-PIA, pattern: PIA, category: Travel & Transport, business_use: sometimes}
+      - {id: FOOD-FOODPANDA, pattern: FOODPANDA, category: Meals, business_use: sometimes}
+      - {id: FOOD-UBER-EATS, pattern: UBER EATS, category: Meals, business_use: sometimes}
+
+      # Utilities at home (a home office shares them)
+      - {id: UTIL-KE, pattern: K ELECTRIC, category: Utilities, business_use: sometimes}
+      - {id: UTIL-IESCO, pattern: IESCO, category: Utilities, business_use: sometimes}
+      - {id: UTIL-LESCO, pattern: LESCO, category: Utilities, business_use: sometimes}
+      - {id: UTIL-SNGPL, pattern: SNGPL, category: Utilities, business_use: sometimes}
+      - {id: UTIL-SSGC, pattern: SSGC, category: Utilities, business_use: sometimes}
+
+      # Clearly personal
+      - {id: PERS-NETFLIX, pattern: NETFLIX, category: Personal, business_use: never}
+      - {id: PERS-SPOTIFY, pattern: SPOTIFY, category: Personal, business_use: never}
+      - {id: PERS-IMTIAZ, pattern: IMTIAZ, category: Personal, business_use: never}
+      - {id: PERS-CARREFOUR, pattern: CARREFOUR, category: Personal, business_use: never}

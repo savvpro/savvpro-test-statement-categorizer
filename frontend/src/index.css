@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+
+  /* Truck-art colours, used with restraint: navy ink, lapis, marigold, rani pink, emerald. */
+  --color-ink: #14213d;
+  --color-ink-soft: #55617a;
+  --color-paper: #f3f5f9;
+  --color-line: #dde3ee;
+  --color-lapis: #2347c5;
+  --color-lapis-soft: #e8edfc;
+  --color-marigold: #f4a300;
+  --color-marigold-soft: #fff4d9;
+  --color-rani: #d6246e;
+  --color-rani-soft: #fde8f0;
+  --color-emerald: #0b8f6a;
+  --color-emerald-soft: #e3f5ee;
+  --color-brick: #c2412d;
+}
+
+body {
+  @apply bg-paper text-ink font-sans antialiased;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-lapis);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
