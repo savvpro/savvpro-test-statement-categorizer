@@ -1,83 +1,132 @@
-# Step-by-Step Guide: How to Fork, Clone, and Submit Your Assessment
+# E-commerce Statement Categorizer
 
-**Repository:** https://github.com/savvpro/savvpro-test-statement-categorizer
+A web application that helps e-commerce business owners organize financial transactions by automatically assigning categories using explicit Python rules. Users can review the results and manually change categories when needed.
 
----
+## Features
 
-## Step 1: Fork the Repository
+- Upload transaction statements in CSV format.
+- Validate required columns, dates, amounts, and file size.
+- Categorize transactions using deterministic Python rules.
+- Display an explanation for each categorization decision.
+- Flag unrecognized transactions as **Needs Review**.
+- Manually change transaction categories in the frontend.
+- View transaction counts and category totals.
+- Run automated backend tests.
 
-1. Go to the repository: https://github.com/savvpro/savvpro-test-statement-categorizer
-2. Click the **Fork** button in the top-right corner.
-3. This will create a copy of the repository in your GitHub account.
+## Technology Stack
 
----
+- **Backend:** Python, FastAPI
+- **Frontend:** React, Vite
+- **Categorization:** Explicit Python rule-based logic
+- **Testing:** pytest, FastAPI TestClient
 
-## Step 2: Clone Your Fork
+## Project Structure
 
-1. Open your forked repository in your GitHub account.
-2. Click the green **Code** button and copy the URL.
-3. Run the following commands:
-
-```bash
-git clone https://github.com/your-username/savvpro-test-statement-categorizer.git
-cd savvpro-test-statement-categorizer
+```text
+savvpro-test-statement-categorizer/
+├── backend/
+│   ├── main.py
+│   ├── categorizer.py
+│   ├── test_api.py
+│   ├── test_categorizer.py
+│   └── requirements.txt
+├── frontend/
+│   ├── src/
+│   │   ├── App.jsx
+│   │   └── App.css
+│   ├── package.json
+│   └── package-lock.json
+├── sample_data/
+│   └── sample_transactions.csv
+├── README.md
+├── DESIGN.md
+├── AI_USAGE.md
+└── .gitignore
 ```
 
----
+## Requirements
 
-## Step 3: Read the Task
+- Python 3.11 or later
+- Node.js and npm
 
-Open and read **TASK.md** carefully before writing any code.
+## Setup and Run
 
-- TASK.md URL: https://github.com/savvpro/savvpro-test-statement-categorizer/blob/main/TASK.md
+### 1. Start the backend
 
----
+Open a terminal in the project root and run:
 
-## Step 4: Create a New Branch
-
-Branch pattern: `candidate-<your-github-username>`
-
-```bash
-git checkout -b candidate-<your-github-username>
+```powershell
+cd backend
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+python -m uvicorn main:app --reload
 ```
 
-**Example:**
-```bash
-git checkout -b candidate-johndoe
+The API will be available at `http://127.0.0.1:8000`.
+
+Interactive API documentation is available at `http://127.0.0.1:8000/docs`.
+
+### 2. Start the frontend
+
+Open a second terminal in the project root:
+
+```powershell
+cd frontend
+npm install
+npm run dev
 ```
 
----
+Open the local URL printed by Vite, usually `http://localhost:5173`.
 
-## Step 5: Complete the Task
+Keep both development servers running while using the application.
 
-Build the full application on your branch.
+## Input CSV Format
 
----
+The CSV file must contain these columns:
 
-## Step 6: Push Your Branch
+| Column | Description |
+|---|---|
+| `date` | Transaction date in `YYYY-MM-DD` format |
+| `description` | Transaction description or merchant |
+| `amount` | Numeric transaction amount |
 
-```bash
-git add .
-git commit -m "feat: complete statement-categorizer assessment"
-git push origin candidate-<your-github-username>
+Example:
+
+```csv
+date,description,amount
+2026-09-01,CLOUDHOST MONTHLY,-24.99
+2026-09-02,PACKAGING SUPPLIES,-82.50
+2026-09-03,ONLINE ORDER PAYOUT,350.00
 ```
 
----
+A fictional sample statement is provided in `sample_data/sample_transactions.csv`.
 
-## Step 7: Create a Pull Request
+## Run Tests
 
-1. Go to your **forked** repository on GitHub (`https://github.com/your-username/savvpro-test-statement-categorizer`).
-2. Click **Compare & pull request** (GitHub will show this banner after you push your branch).
-3. Ensure the following settings in the PR form:
-   - **Base repository:** `savvpro/savvpro-test-statement-categorizer` ← the original repo
-   - **Base branch:** `main`
-   - **Head repository:** `your-username/savvpro-test-statement-categorizer` ← your fork
-   - **Compare branch:** `candidate-<your-github-username>`
-4. Use the title: `feat: complete statement-categorizer assessment`
-5. Submit the pull request.
+From the project root:
 
-> 💡 **Tip:** If you don't see the banner, go to the original repo (`savvpro/savvpro-test-statement-categorizer`), click the **Pull requests** tab, then click **New pull request** → **compare across forks**.
+```powershell
+cd backend
+python -m pytest -v
+```
 
----
+The tests cover categorization rules and API validation, including invalid dates, amounts, duplicate headers, missing fields, empty statements, and oversized files.
 
-> ⚠️ **Important:** No submissions will be accepted after the deadline.
+## Categorization Overview
+
+The application uses explicit Python rules rather than calling a large language model at runtime. Known transaction descriptions are matched against predefined rules. Transfers and refunds have dedicated handling, while unrecognized transactions are flagged for review.
+
+See [DESIGN.md](DESIGN.md) for the architecture, rule order, and limitations.
+
+## Limitations
+
+- CSV files only; PDF and spreadsheet formats are not supported.
+- Categorization depends on the descriptions covered by the predefined rules.
+- Manual category changes are held in frontend state and are not saved permanently.
+- Currency is not inferred from the CSV.
+- Category totals are for transaction organization only; they do not determine tax deductibility or provide tax advice.
+
+## AI Usage
+
+AI assistance was used during development. The categorization logic itself runs through explicit Python rules and does not require an external AI model. See [AI_USAGE.md](AI_USAGE.md) for details.
