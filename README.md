@@ -1,83 +1,147 @@
-# Step-by-Step Guide: How to Fork, Clone, and Submit Your Assessment
+# LedgerLens — Freelance Statement Categorizer
 
-**Repository:** https://github.com/savvpro/savvpro-test-statement-categorizer
+> **Statement Categorizer Assessment**  
+> Branch: `candidate-tooba41`  
+> Target Persona: **Freelance Creative & Consultant (IRS Schedule C Tax Preparation)**
 
----
-
-## Step 1: Fork the Repository
-
-1. Go to the repository: https://github.com/savvpro/savvpro-test-statement-categorizer
-2. Click the **Fork** button in the top-right corner.
-3. This will create a copy of the repository in your GitHub account.
+LedgerLens reads bank and credit card statement CSVs, analyzes each transaction using a **100% custom deterministic heuristic brain** (zero big AI models/LLMs), identifies eligible business tax deductions, credits refunds, filters non-expense transfers, and flags ambiguous rows for review.
 
 ---
 
-## Step 2: Clone Your Fork
+## Features
 
-1. Open your forked repository in your GitHub account.
-2. Click the green **Code** button and copy the URL.
-3. Run the following commands:
+- **Custom Deterministic Brain:** Built with pure Python rule engines and regex tokenizers. Strictly complies with **The One Big Rule** (no OpenAI, Anthropic, Gemini, or other LLMs for decisions).
+- **Tax-Centric Classification:** Categorizes transactions into Schedule C lines (Software, Travel, 50% Meals, Office Supplies, Advertising, Utilities, Fees, Contract Labor).
+- **Accurate Refund & Reversal Handling:** Refunds (e.g. `REFUND ADOBE CREATIVE CLOUD`) are matched to their parent category and credited back against gross expenses—never erroneously counted as taxable client revenue.
+- **Transfer & Debt Isolation:** Transfers to savings, checkings, and credit card payoffs (`TRANSFER TO SAVINGS`, `AUTOPAY PAYMENT`) are automatically excluded from business deductions.
+- **Safety First ("A wrong guess is worse than asking"):** Ambiguous merchants (e.g. `JOES CAFE 9921`) and unverified deposits default to **Needs Review** with human-readable explanations.
+- **Interactive React UI:**
+  - Drag-and-drop CSV upload + 1-click **"Try Demo Statement"** button for instant evaluation.
+  - Live metric cards (Gross Deductible Expenses, Refunds, Net Deductions, Client Revenue, Needs Review count).
+  - Filter tabs (`All`, `Needs Review`, `Verified`, `Expenses`, `Income & Transfers`).
+  - Search bar to find merchants instantly.
+  - Inline category dropdowns allowing the user to review and fix flagged rows on the fly with real-time recalculation of totals.
+  - One-click **Export Reconciled Statement (CSV)**.
+- **Robust CSV Parsing:** Accepts multiple header schemas (e.g. `Date`/`Transaction Date`, `Description`/`Merchant`, `Amount` or split `Debit`/`Credit` columns).
 
-```bash
-git clone https://github.com/your-username/savvpro-test-statement-categorizer.git
-cd savvpro-test-statement-categorizer
+---
+
+## Project Structure
+
+```
+savvpro-test-statement-categorizer/
+├── backend/
+│   ├── app/
+│   │   ├── __init__.py
+│   │   ├── categorizer.py    # The Brain: Heuristic decision engine
+│   │   └── main.py           # FastAPI app & endpoints
+│   ├── tests/
+│   │   ├── __init__.py
+│   │   ├── test_api.py       # API integration tests
+│   │   └── test_categorizer.py # Unit tests for the brain
+│   └── requirements.txt
+├── frontend/
+│   ├── src/
+│   │   ├── assets/
+│   │   ├── App.tsx           # React Dashboard component
+│   │   ├── main.tsx          # Root mount
+│   │   ├── index.css         # Responsive styling
+│   │   └── vite-env.d.ts
+│   ├── index.html
+│   ├── package.json
+│   ├── tsconfig.json
+│   └── vite.config.ts
+├── sample_statement.csv      # Sample freelance statement
+├── pytest.ini
+├── .gitignore
+├── DESIGN.md                 # Design & architecture documentation
+├── AI_USAGE.md               # AI tooling and token metrics report
+└── README.md                 # This file
 ```
 
 ---
 
-## Step 3: Read the Task
+## Getting Started
 
-Open and read **TASK.md** carefully before writing any code.
+### Prerequisites
 
-- TASK.md URL: https://github.com/savvpro/savvpro-test-statement-categorizer/blob/main/TASK.md
+- **Python:** 3.10+ (tested on Python 3.12)
+- **Node.js:** v18+ (tested on Node v22.15 & pnpm v10.25)
 
 ---
 
-## Step 4: Create a New Branch
+### 1. Backend Setup & Run
 
-Branch pattern: `candidate-<your-github-username>`
+Open a terminal in the project root:
 
 ```bash
-git checkout -b candidate-<your-github-username>
+# Navigate to backend (or activate virtual environment)
+cd backend
+
+# If creating a new virtual environment:
+python -m venv .venv
+
+# Activate virtual environment
+# Windows (PowerShell):
+.venv\Scripts\Activate.ps1
+# Mac/Linux:
+source .venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Start the FastAPI server
+uvicorn app.main:app --reload --port 8000
 ```
 
-**Example:**
+The API will be running at `http://localhost:8000` (Swagger docs available at `http://localhost:8000/docs`).
+
+---
+
+### 2. Frontend Setup & Run
+
+Open a separate terminal in the `frontend` folder:
+
 ```bash
-git checkout -b candidate-johndoe
+cd frontend
+
+# Install dependencies
+pnpm install
+# or: npm install
+
+# Start development server
+pnpm dev
+# or: npm run dev
 ```
 
----
-
-## Step 5: Complete the Task
-
-Build the full application on your branch.
+The application will be live at `http://localhost:5173`.
 
 ---
 
-## Step 6: Push Your Branch
+### 3. Running the Test Suite
+
+From the project root:
 
 ```bash
-git add .
-git commit -m "feat: complete statement-categorizer assessment"
-git push origin candidate-<your-github-username>
+# Run pytest (automatically uses pytest.ini configured for backend)
+pytest
 ```
 
----
-
-## Step 7: Create a Pull Request
-
-1. Go to your **forked** repository on GitHub (`https://github.com/your-username/savvpro-test-statement-categorizer`).
-2. Click **Compare & pull request** (GitHub will show this banner after you push your branch).
-3. Ensure the following settings in the PR form:
-   - **Base repository:** `savvpro/savvpro-test-statement-categorizer` ← the original repo
-   - **Base branch:** `main`
-   - **Head repository:** `your-username/savvpro-test-statement-categorizer` ← your fork
-   - **Compare branch:** `candidate-<your-github-username>`
-4. Use the title: `feat: complete statement-categorizer assessment`
-5. Submit the pull request.
-
-> 💡 **Tip:** If you don't see the banner, go to the original repo (`savvpro/savvpro-test-statement-categorizer`), click the **Pull requests** tab, then click **New pull request** → **compare across forks**.
+All 23 unit and API integration tests will run and validate the categorizer logic, edge cases, and endpoints.
 
 ---
 
-> ⚠️ **Important:** No submissions will be accepted after the deadline.
+## How to Test the App in 30 Seconds
+
+1. Open `http://localhost:5173` in your browser.
+2. Click the **"Try Demo Statement"** button.
+3. Observe how:
+   - `ADOBE CREATIVE CLOUD` is categorized as `Software & Subscriptions` ($29.99).
+   - `UBER TRIP` is categorized as `Travel & Transit` ($18.50).
+   - `TRANSFER TO SAVINGS` is marked `Transfer` and excluded from expenses.
+   - `REFUND ADOBE CREATIVE CLOUD` is credited against software expenses without counting as income.
+   - `JOES CAFE 9921` is highlighted in **Needs Review** with an amber alert.
+   - `CLIENT PAYMENT` is categorized as `Client Revenue` ($1,450.00).
+4. Select the category dropdown for `JOES CAFE 9921` and switch it to `Meals (50% Deductible)`.
+5. Notice the **Needs Review** count drops to 0 and all financial metrics recalculate automatically!
+6. Click **"Export Reconciled Statement (CSV)"** to download the clean report.
