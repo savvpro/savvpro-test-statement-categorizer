@@ -1,0 +1,25 @@
+[project]
+name = "sortedhisab"
+version = "0.1.0"
+description = "Explainable statement categorization for Pakistani freelance developers"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi>=0.115,<1",
+  "uvicorn>=0.34,<1",
+  "python-multipart>=0.0.20,<1",
+  "openpyxl>=3.1.5,<4",
+  "pdfplumber>=0.11,<1",
+]
+
+[dependency-groups]
+dev = ["pytest>=8,<10", "httpx>=0.28,<1", "ruff>=0.11,<1", "reportlab>=4,<5"]
+
+[tool.pytest.ini_options]
+testpaths = ["backend/tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 110
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I"]
