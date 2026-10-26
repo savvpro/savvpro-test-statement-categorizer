@@ -1,0 +1,36 @@
+# Environments
+.venv/
+env/
+venv/
+ENV/
+
+# Python Cache & Builds
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+
+# Databases & Runtime State (Do not commit DBs or runtime data)
+instance/
+backend/instance/
+*.db
+*.sqlite
+*.sqlite3
+
+# Node & Next.js
+node_modules/
+.next/
+out/
+
+# Environment Variables & Secrets
+.env
+.env*.local
+*.pem
+*.key
+
+# Operating System
+.DS_Store
+Thumbs.db

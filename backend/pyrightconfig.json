@@ -1,0 +1,10 @@
+{
+  "include": [
+    "app",
+    "tests"
+  ],
+  "extraPaths": [
+    ".",
+    "C:/Users/hashr/AppData/Local/Python/pythoncore-3.14-64/Lib/site-packages"
+  ]
+}

@@ -1,83 +1,163 @@
-# Step-by-Step Guide: How to Fork, Clone, and Submit Your Assessment
+# TaxSort – Statement Categorizer for US Freelancers
 
-**Repository:** https://github.com/savvpro/savvpro-test-statement-categorizer
+TaxSort is an automated, deterministic statement categorizer tailored for US freelancers, sole proprietors, and 1099 contractors filing **IRS Form 1040 Schedule C**.
 
----
+It ingests bank and credit card statements (CSV or PDF), runs them through a deterministic categorization engine, applies statutory IRS tax deduction rules (such as the 50% business meal limitation under IRC § 274(n)), filters non-spending transfers and refunds, and provides an accountant-ready dashboard with live Schedule C audit summaries and Excel/CSV export capabilities.
 
-## Step 1: Fork the Repository
-
-1. Go to the repository: https://github.com/savvpro/savvpro-test-statement-categorizer
-2. Click the **Fork** button in the top-right corner.
-3. This will create a copy of the repository in your GitHub account.
+> **Deterministic Guarantee:** TaxSort does NOT use any cloud LLM or AI model in the classification path. Categorization is 100% deterministic, private, local, and auditable.
 
 ---
 
-## Step 2: Clone Your Fork
+## Key Features
 
-1. Open your forked repository in your GitHub account.
-2. Click the green **Code** button and copy the URL.
-3. Run the following commands:
+- **IRS Schedule C Compliance:** Automatically aggregates deductions into official tax lines: Line 1 (Gross Receipts), Line 8 (Advertising), Line 9 (Vehicle), Line 11 (Contract Labor), Line 15 (Insurance), Line 17 (Legal/Professional), Line 18 (Office/Software), Line 24a (Travel), and Line 24b (Meals).
+- **Statutory 50% Meals Limit:** Applies IRC § 274(n) to automatically cut dining expenses by 50% for accurate deductible totals.
+- **Refund Netting:** Detects refund tokens and nets them against original expense categories instead of artificially inflating taxable gross income.
+- **Transfer Exclusion:** Identifies credit card payments, owner draws, and inter-account transfers to exclude them from business expenses.
+- **Smart "Needs Review" Safe Queue:** Flags ambiguous or mixed-use merchants (e.g. Amazon, local diners) for user confirmation with explanatory notes.
+- **Persistent User Rules:** One-click rule creation allows users to remember custom merchant mappings deterministically for future uploads.
+- **Accountant-Ready Exports:** One-click downloads of compliant CSV and formatted Excel worksheets (`.xlsx`).
+- **Clean SaaS Dashboard:** Mercury/Ramp-inspired UI built with Next.js 16, TypeScript, and accessible vector SVGs.
 
-```bash
-git clone https://github.com/your-username/savvpro-test-statement-categorizer.git
-cd savvpro-test-statement-categorizer
+---
+
+## Documentation Links
+
+- **[DESIGN.md](./DESIGN.md):** Detailed use case, IRS tax mapping specifications, and deterministic categorization pipeline architecture.
+- **[AI_USAGE.md](./AI_USAGE.md):** Disclosure of AI pairing tools (Google Antigravity IDE, Claude Opus 4.6, Gemini 3.8 Flash), corrections made, and token usage metrics.
+
+---
+
+## Project Structure
+
+```
+savvpro-test-statement-categorizer/
+├── backend/
+│   ├── app/
+│   │   ├── api/             # FastAPI REST routes (statements, transactions, auth, export)
+│   │   ├── brain/           # 100% deterministic categorization engine & merchant dictionary
+│   │   ├── parsers/         # CSV and PDF statement parsers
+│   │   ├── models.py        # SQLModel ORM models
+│   │   ├── schemas.py       # Pydantic request/response schemas
+│   │   └── main.py          # FastAPI application entrypoint
+│   ├── tests/               # 79 pytest unit and integration tests
+│   └── pyproject.toml       # Python dependencies and build config
+├── frontend/
+│   ├── app/
+│   │   ├── components/      # UI components (MetricCards, Table, Modals, SVGs)
+│   │   ├── context/         # AuthContext with PBKDF2 authentication
+│   │   ├── transactions/    # Full transactions table & review workflow
+│   │   ├── categories/      # Schedule C tax line breakdown
+│   │   ├── export/          # CSV & Excel report generators
+│   │   ├── upload/          # Statement upload page
+│   │   ├── login/           # Authentication login
+│   │   └── page.tsx         # Executive financial overview dashboard
+│   ├── package.json         # Next.js 16 dependencies
+│   └── next.config.ts       # Next.js configuration
+├── sample_data/             # Bundled testing statements (Amex & Checking CSVs)
+├── DESIGN.md                # System design & architecture document
+├── AI_USAGE.md              # AI pairing & token report
+└── README.md                # Setup and execution guide
 ```
 
 ---
 
-## Step 3: Read the Task
+## Getting Started
 
-Open and read **TASK.md** carefully before writing any code.
-
-- TASK.md URL: https://github.com/savvpro/savvpro-test-statement-categorizer/blob/main/TASK.md
-
----
-
-## Step 4: Create a New Branch
-
-Branch pattern: `candidate-<your-github-username>`
-
-```bash
-git checkout -b candidate-<your-github-username>
-```
-
-**Example:**
-```bash
-git checkout -b candidate-johndoe
-```
+### Prerequisites
+- **Python 3.10+** (tested on 3.10 – 3.14)
+- **Node.js 18+** & **npm**
 
 ---
 
-## Step 5: Complete the Task
+### 1. Backend Setup (FastAPI)
 
-Build the full application on your branch.
+1. Open a terminal in the `backend/` directory:
+   ```bash
+   cd backend
+   ```
+
+2. Create and activate a virtual environment:
+   ```bash
+   # Windows (PowerShell)
+   python -m venv .venv
+   .\.venv\Scripts\Activate.ps1
+
+   # macOS / Linux
+   python3 -m venv .venv
+   source .venv/bin/activate
+   ```
+
+3. Install dependencies:
+   ```bash
+   pip install -e .
+   ```
+
+4. Run the automated test suite (79 tests):
+   ```bash
+   python -m pytest
+   ```
+
+5. Start the backend development server:
+   ```bash
+   python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+   ```
+   The backend API will be live at `http://127.0.0.1:8000` with interactive Swagger docs at `http://127.0.0.1:8000/docs`.
 
 ---
 
-## Step 6: Push Your Branch
+### 2. Frontend Setup (Next.js)
 
-```bash
-git add .
-git commit -m "feat: complete statement-categorizer assessment"
-git push origin candidate-<your-github-username>
-```
+1. Open a separate terminal in the `frontend/` directory:
+   ```bash
+   cd frontend
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Build the production bundle (optional check):
+   ```bash
+   npm run build
+   ```
+
+4. Start the frontend development server:
+   ```bash
+   npm run dev
+   ```
+
+5. Open your browser and navigate to **`http://localhost:3000`**.
 
 ---
 
-## Step 7: Create a Pull Request
+## How to Test the Application
 
-1. Go to your **forked** repository on GitHub (`https://github.com/your-username/savvpro-test-statement-categorizer`).
-2. Click **Compare & pull request** (GitHub will show this banner after you push your branch).
-3. Ensure the following settings in the PR form:
-   - **Base repository:** `savvpro/savvpro-test-statement-categorizer` ← the original repo
-   - **Base branch:** `main`
-   - **Head repository:** `your-username/savvpro-test-statement-categorizer` ← your fork
-   - **Compare branch:** `candidate-<your-github-username>`
-4. Use the title: `feat: complete statement-categorizer assessment`
-5. Submit the pull request.
-
-> 💡 **Tip:** If you don't see the banner, go to the original repo (`savvpro/savvpro-test-statement-categorizer`), click the **Pull requests** tab, then click **New pull request** → **compare across forks**.
+1. **Sign In:** Use the pre-filled demo login button or create a local account.
+2. **Review Metrics:** View the top KPI metric cards and expenses breakdown for the current statement.
+3. **Resolve Review Items:**
+   - Click **Review Now** on the "Needs Review" metric card or **Resolve** in the Tax Readiness section.
+   - The app filters directly to unconfirmed statement items (such as Amazon or Joe's Cafe).
+   - Click **Assign**, select an IRS Schedule C category (e.g. `Office Supplies (Line 18)`), keep "Always categorize this way" checked, and save.
+   - Notice the status immediately updates to `User Confirmed` and the database updates.
+4. **Upload Statements:**
+   - Navigate to `/upload` or click **Upload Statement** in the top bar.
+   - Click one of the bundled one-click sample buttons (`freelancer_amex.csv` or `freelancer_checking.csv`) or drag and drop your own CSV/PDF bank statement.
+5. **Audit Categories:** Navigate to `/categories` to see IRS Schedule C lines, deductibility percentages, and compliant tax calculations.
+6. **Export Reports:** Navigate to `/export` to download accountant-ready `.csv` and `.xlsx` files.
 
 ---
 
-> ⚠️ **Important:** No submissions will be accepted after the deadline.
+## Submitting Your Work
+
+To submit for assessment:
+1. Ensure all changes are committed on your branch (`candidate-<your-github-username>`):
+   ```bash
+   git status
+   git add .
+   git commit -m "feat: complete statement-categorizer assessment"
+   git push origin candidate-<your-github-username>
+   ```
+2. Open a Pull Request from your fork to `savvpro/savvpro-test-statement-categorizer:main` with title:
+   `feat: complete statement-categorizer assessment`

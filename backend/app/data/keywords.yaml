@@ -1,0 +1,64 @@
+# Keyword → category rules for Stage 4.
+# Each entry: pattern (regex), category, confidence.
+# Applied when the merchant dictionary has no match.
+
+rules:
+  # ── Meals ───────────────────────────────────────────────────────────────
+  - pattern: "\\b(RESTAURANT|RSTRNTS?|CAFE|COFFEE|BISTRO|DINER|GRILL|PIZZERIA|SUSHI|RAMEN|POKE|TACO|BURRITO|BAKERY|DELI|BREW\\s*PUB|PUB|BAR\\s*&|GASTROPUB|EATERY|KITCHEN|CATERING)\\b"
+    category: meals
+    confidence: 0.70
+
+  # ── Travel ──────────────────────────────────────────────────────────────
+  - pattern: "\\b(AIRLINE|AIRLINES|AIRWAYS|AVIATION|HOTEL|HOTELS|MOTEL|RESORT|LODGE|INN\\b|HOSTEL|RENTAL\\s*CAR|CAR\\s*RENTAL|TAXI|CAB\\b|LIMO|SHUTTLE|TRANSIT|METRO|FERRY|CRUISE)\\b"
+    category: travel
+    confidence: 0.70
+
+  # ── Insurance ───────────────────────────────────────────────────────────
+  - pattern: "\\b(INSURANCE|INSURANC|INS\\s*CO|INS\\s*AGENCY|MUTUAL|UNDERWRITER)\\b"
+    category: insurance
+    confidence: 0.65
+
+  # ── Professional Services ───────────────────────────────────────────────
+  - pattern: "\\b(LEGAL|LAW\\s*OFFICE|LAW\\s*FIRM|ATTORNEY|LAWYER|CPA|ACCOUNTING|ACCOUNTANT|BOOKKEEP|NOTARY|CONSULTANT|CONSULTING)\\b"
+    category: professional_services
+    confidence: 0.65
+
+  # ── Rent and Utilities ─────────────────────────────────────────────────
+  - pattern: "\\b(RENT|LEASE\\s*PMT|COWORK|WEWORK|REGUS|INDUSTRIOUS|ELECTRIC|GAS\\s*BILL|WATER\\s*BILL|UTILITY|UTILITIES|INTERNET|COMCAST|XFINITY|ATT|VERIZON|T-MOBILE|SPECTRUM)\\b"
+    category: rent_utilities
+    confidence: 0.65
+
+  # ── Bank and Processing Fees ───────────────────────────────────────────
+  - pattern: "\\b(INTEREST\\s*CHARGE|FINANCE\\s*CHARGE|ANNUAL\\s*FEE|FOREIGN\\s*TRANSACTION\\s*FEE|FOREIGN\\s*TXN\\s*FEE|LATE\\s*FEE|RETURNED\\s*ITEM\\s*FEE|NSF\\s*FEE|SERVICE\\s*CHARGE|MONTHLY\\s*FEE|MAINTENANCE\\s*FEE)\\b"
+    category: bank_processing_fees
+    confidence: 0.75
+
+  # ── Advertising ────────────────────────────────────────────────────────
+  - pattern: "\\b(ADVERTISING|ADVERT|SPONSOR|PROMOTION|PROMO|BILLBOARD|PRINT\\s*AD|DIGITAL\\s*AD)\\b"
+    category: advertising
+    confidence: 0.65
+
+  # ── Education ──────────────────────────────────────────────────────────
+  - pattern: "\\b(COURSE|CLASS|WORKSHOP|SEMINAR|CONFERENCE|TRAINING|CERTIFICATION|CERT\\s*EXAM|TUTORIAL|BOOTCAMP|BOOK|TEXTBOOK)\\b"
+    category: education
+    confidence: 0.60
+
+  # ── Equipment ──────────────────────────────────────────────────────────
+  - pattern: "\\b(EQUIPMENT|MACHINERY|FURNITURE|DESK|CHAIR|MONITOR|COMPUTER|LAPTOP|PRINTER|SCANNER)\\b"
+    category: equipment
+    confidence: 0.60
+
+  # ── Taxes and Licenses ─────────────────────────────────────────────────
+  - pattern: "\\b(IRS|STATE\\s*TAX|CITY\\s*TAX|ESTIMATED\\s*TAX|TAX\\s*PAYMENT|LICENSE|PERMIT|REGISTRATION|BUSINESS\\s*LICENSE|LLC\\s*FEE)\\b"
+    category: taxes_licenses
+    confidence: 0.65
+
+  # ── Contract Labor ────────────────────────────────────────────────────
+  - pattern: "\\b(CONTRACTOR|FREELANCER|SUBCONTRACT|CONTRACT\\s*LABOR)\\b"
+    category: contract_labor
+    confidence: 0.60
+
+  # ── Vehicle ───────────────────────────────────────────────────────────
+  - pattern: "\\b(GAS\\s*STATION|FUEL|GASOLINE|DIESEL|OIL\\s*CHANGE|AUTO\\s*REPAIR|AUTO\\s*PARTS|TIRE|MECHANIC|CARWASH|CAR\\s*WASH)\\b"
+    category: vehicle
+    confidence: 0.65

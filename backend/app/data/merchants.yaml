@@ -1,0 +1,311 @@
+# Curated merchant dictionary – merchant_key → category
+# ~300 well-known merchants mapped to Schedule C categories.
+# Keys should be UPPERCASE and match the normalized merchant_key.
+
+# ── Software and Subscriptions ──────────────────────────────────────────────
+software_subscriptions:
+  - ADOBE
+  - ADOBE CREATIVE CLOUD
+  - FIGMA
+  - GITHUB
+  - NOTION
+  - SLACK
+  - ZOOM
+  - ZOOM.US
+  - DROPBOX
+  - GOOGLE WORKSPACE
+  - GOOGLE GSUITE
+  - MICROSOFT 365
+  - MICROSOFT OFFICE
+  - CANVA
+  - SKETCH
+  - INVISION
+  - MIRO
+  - ASANA
+  - TRELLO
+  - JIRA
+  - ATLASSIAN
+  - BASECAMP
+  - MONDAY.COM
+  - CLICKUP
+  - LINEAR
+  - VERCEL
+  - NETLIFY
+  - HEROKU
+  - DIGITAL OCEAN
+  - DIGITALOCEAN
+  - AWS
+  - AMAZON WEB SERVICES
+  - GOOGLE CLOUD
+  - AZURE
+  - CLOUDFLARE
+  - NAMECHEAP
+  - GODADDY
+  - HOVER
+  - SQUARESPACE
+  - WIX
+  - SHOPIFY
+  - WEBFLOW
+  - WORDPRESS
+  - WPENGINE
+  - SITEGROUND
+  - BLUEHOST
+  - MAILCHIMP
+  - CONVERTKIT
+  - SENDGRID
+  - TWILIO
+  - AIRTABLE
+  - ZAPIER
+  - MAKE
+  - IFTTT
+  - LOOM
+  - CALENDLY
+  - TYPEFORM
+  - SURVEYMONKEY
+  - GRAMMARLY
+  - LASTPASS
+  - 1PASSWORD
+  - BITWARDEN
+  - NORDVPN
+  - EXPRESSVPN
+  - CHATGPT
+  - OPENAI
+  - ANTHROPIC
+  - MIDJOURNEY
+  - SPOTIFY PREMIUM
+  - YOUTUBE PREMIUM
+  - VIMEO
+  - DESCRIPT
+  - RIVERSIDE
+  - BUZZSPROUT
+  - LIBSYN
+  - HOOTSUITE
+  - BUFFER
+  - LATER
+  - SEMRUSH
+  - AHREFS
+  - MOZ
+  - HOTJAR
+  - MIXPANEL
+  - AMPLITUDE
+  - DATADOG
+  - SENTRY
+  - NEW RELIC
+  - PAGERDUTY
+  - HUBSPOT
+  - SALESFORCE
+  - PIPEDRIVE
+  - FRESHBOOKS
+  - QUICKBOOKS
+  - XERO
+  - WAVE
+  - STRIPE ATLAS
+  - GUSTO
+  - DEEL
+  - NOTION AI
+  - COPILOT
+  - CURSOR
+
+# ── Advertising ─────────────────────────────────────────────────────────────
+advertising:
+  - GOOGLE ADS
+  - GOOGLE ADWORDS
+  - FACEBOOK ADS
+  - META ADS
+  - FB ADS
+  - INSTAGRAM ADS
+  - TWITTER ADS
+  - X ADS
+  - LINKEDIN ADS
+  - PINTEREST ADS
+  - TIKTOK ADS
+  - SNAPCHAT ADS
+  - REDDIT ADS
+  - YOUTUBE ADS
+  - BING ADS
+  - MICROSOFT ADS
+  - TABOOLA
+  - OUTBRAIN
+  - ADROLL
+  - AMAZON ADS
+
+# ── Travel ──────────────────────────────────────────────────────────────────
+travel:
+  - UBER TRIP
+  - UBER
+  - LYFT
+  - UNITED AIRLINES
+  - DELTA AIRLINES
+  - AMERICAN AIRLINES
+  - SOUTHWEST AIRLINES
+  - JETBLUE
+  - ALASKA AIRLINES
+  - SPIRIT AIRLINES
+  - FRONTIER AIRLINES
+  - BRITISH AIRWAYS
+  - AIR CANADA
+  - LUFTHANSA
+  - MARRIOTT
+  - HILTON
+  - HYATT
+  - IHG
+  - BEST WESTERN
+  - HOLIDAY INN
+  - HAMPTON INN
+  - COURTYARD
+  - AIRBNB
+  - VRBO
+  - BOOKING.COM
+  - EXPEDIA
+  - KAYAK
+  - PRICELINE
+  - HERTZ
+  - ENTERPRISE
+  - NATIONAL CAR
+  - AVIS
+  - BUDGET
+  - TURO
+  - AMTRAK
+  - GREYHOUND
+  - PARKING
+  - PARKWHIZ
+  - SPOTHERO
+  - TOLL
+  - EZPASS
+  - FASTRAK
+
+# ── Meals ───────────────────────────────────────────────────────────────────
+meals:
+  - DOORDASH
+  - GRUBHUB
+  - UBER EATS
+  - POSTMATES
+  - CAVIAR
+  - SEAMLESS
+  - INSTACART
+  - STARBUCKS
+  - DUNKIN
+  - PEETS COFFEE
+  - BLUE BOTTLE
+  - CHIPOTLE
+  - SWEETGREEN
+  - PANERA
+  - SHAKE SHACK
+  - CHICK-FIL-A
+  - MCDONALDS
+  - SUBWAY
+  - DOMINOS
+  - PIZZA HUT
+
+# ── Office Supplies ─────────────────────────────────────────────────────────
+office_supplies:
+  - STAPLES
+  - OFFICE DEPOT
+  - OFFICEMAX
+  - PAPER SOURCE
+  - ULINE
+  - USPS
+  - UPS
+  - UPS STORE
+  - FEDEX
+  - DHL
+
+# ── Professional Services ──────────────────────────────────────────────────
+professional_services:
+  - LEGALZOOM
+  - ROCKET LAWYER
+  - INCFILE
+  - REGISTERED AGENTS
+  - TURBOTAX
+  - HR BLOCK
+  - JACKSON HEWITT
+
+# ── Bank and Processing Fees ───────────────────────────────────────────────
+bank_processing_fees:
+  - STRIPE FEE
+  - STRIPE FEES
+  - PAYPAL FEE
+  - PAYPAL FEES
+  - SQUARE FEE
+  - SQUARE FEES
+  - MERCHANT FEE
+  - PROCESSING FEE
+  - WIRE FEE
+  - MONTHLY SERVICE FEE
+  - ACCOUNT FEE
+  - OVERDRAFT FEE
+
+# ── Insurance ───────────────────────────────────────────────────────────────
+insurance:
+  - STATE FARM
+  - GEICO
+  - PROGRESSIVE
+  - ALLSTATE
+  - USAA
+  - HARTFORD
+  - HISCOX
+  - NEXT INSURANCE
+
+# ── Vehicle ─────────────────────────────────────────────────────────────────
+vehicle:
+  - SHELL
+  - CHEVRON
+  - EXXON
+  - MOBIL
+  - BP
+  - TEXACO
+  - CITGO
+  - SUNOCO
+  - VALERO
+  - TESLA SUPERCHARGER
+  - CHARGEPOINT
+  - JIFFY LUBE
+  - MIDAS
+  - PЕПBOYS
+  - AUTOZONE
+  - OREILLY AUTO
+  - ADVANCE AUTO
+
+# ── Contract Labor ──────────────────────────────────────────────────────────
+contract_labor:
+  - FIVERR
+  - UPWORK
+  - TOPTAL
+  - 99DESIGNS
+
+# ── Education ───────────────────────────────────────────────────────────────
+education:
+  - UDEMY
+  - COURSERA
+  - SKILLSHARE
+  - MASTERCLASS
+  - LINKEDIN LEARNING
+  - PLURALSIGHT
+  - TREEHOUSE
+  - CODECADEMY
+  - EGGHEAD
+  - FRONTEND MASTERS
+  - OREILLY MEDIA
+  - OREILLY LEARNING
+  - AMAZON KINDLE
+  - AUDIBLE
+  - BOOKS
+
+# ── Mixed-use merchants (capped confidence) ────────────────────────────────
+# These are ambiguous – could be business or personal.
+_mixed_use:
+  - AMAZON
+  - WALMART
+  - TARGET
+  - COSTCO
+  - SAMS CLUB
+  - BEST BUY
+  - HOME DEPOT
+  - LOWES
+  - CVS
+  - WALGREENS
+  - RITE AID
+  - DOLLAR GENERAL
+  - DOLLAR TREE
+  - IKEA
+  - BED BATH
