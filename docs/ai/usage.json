@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-26",
+  "tool": "OpenAI Codex in ChatGPT Work Mode",
+  "role": "Development assistance, not runtime categorization",
+  "provider_reported_model_id": null,
+  "input_tokens": null,
+  "cached_input_tokens": null,
+  "output_tokens": null,
+  "reasoning_tokens": null,
+  "total_tokens": null,
+  "reported_cost": null,
+  "unit": "tokens",
+  "measurement_status": "not_exposed_by_session",
+  "provider_usage_evidence": null,
+  "activity_evidence": "docs/ai/session-log.jsonl",
+  "estimated_counts_used": false,
+  "runtime_model_calls": 0,
+  "note": "Null is unknown, not zero. Add authentic provider usage evidence before claiming exact development token totals."
+}

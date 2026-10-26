@@ -1,0 +1,27 @@
+# Generated environments and application state must never enter source control.
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+data/
+*.sqlite*
+*.db
+frontend/node_modules/
+frontend/dist/
+frontend/test-results/
+frontend/playwright-report/
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.log
+.DS_Store
+.vscode/
+.idea/

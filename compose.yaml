@@ -1,0 +1,18 @@
+services:
+  ledgerly:
+    build: .
+    ports:
+      # This is a local, single-user app. Do not expose it to the public internet.
+      - "127.0.0.1:8000:8000"
+    environment:
+      LEDGER_DB_PATH: /app/data/ledger.sqlite3
+    volumes:
+      - ledger-data:/app/data
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+volumes:
+  ledger-data:
