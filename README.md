@@ -81,3 +81,77 @@ git push origin candidate-<your-github-username>
 ---
 
 > ⚠️ **Important:** No submissions will be accepted after the deadline.
+ 
+---
+
+# Statement Categorizer — Application Guide
+
+## Use Case
+
+A freelance designer preparing bank and credit card transactions for tax time. The app categorizes business expenses, separates transfers and refunds, and flags uncertain transactions for review.
+
+## Tech Stack
+
+- Backend: Python and FastAPI
+- Frontend: React and Vite
+- Categorization: Custom deterministic Python rules
+- Storage: In-memory
+- Testing: pytest, ESLint, Vite
+
+## Features
+
+- Upload CSV statements
+- Automatically categorize transactions
+- Flag uncertain rows as Needs Review
+- Detect duplicates and allow overrides
+- Correct categories and reuse merchant corrections
+- View spending summaries by category and currency
+- Search and filter transactions
+- Export categorized results as CSV
+
+## Run Locally
+
+### Backend
+
+From the repository root:
+
+    python -m venv .venv
+    .\.venv\Scripts\Activate.ps1
+    pip install -r backend\requirements.txt
+    cd backend
+    python -m uvicorn app.main:app --reload --port 8000
+
+Backend API documentation: http://localhost:8000/docs
+
+### Frontend
+
+Open a second terminal in the repository root:
+
+    cd frontend
+    npm ci
+    npm run dev
+
+Open http://localhost:5173
+
+## Sample Data
+
+Upload `data/sample_statement.csv` to test categorization, duplicates, refunds, transfers, multiple currencies and invalid rows.
+
+## Tests
+
+Backend:
+
+    cd backend
+    python -m pytest -q
+
+Frontend:
+
+    cd frontend
+    npm run lint
+    npm run build
+
+## Limitations
+
+Transactions and corrections are stored in memory and are lost when the backend restarts. Currency totals are reported separately without conversion. Ambiguous transactions require manual review.
+
+See DESIGN.md and AI_USAGE.md for implementation details.
