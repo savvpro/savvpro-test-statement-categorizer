@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import {
   Transaction,
   UploadResponse,
@@ -48,6 +48,7 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [uploadSuccess, setUploadSuccess] = useState(false);
+  const fileInput = useRef<HTMLInputElement>(null);
 
   const handleUpload = useCallback(
     async (file: File) => {
@@ -111,13 +112,15 @@ export default function App() {
 
       {error && <div className="alert alert-error">{error}</div>}
 
-      <div className="upload-area">
+      <div className="upload-area" onClick={() => fileInput.current?.click()}>
         <input
+          ref={fileInput}
           type="file"
           accept=".csv"
           onChange={(e) => {
             if (e.target.files?.[0]) handleUpload(e.target.files[0]);
           }}
+          style={{ display: "none" }}
         />
         {loading ? (
           <>
