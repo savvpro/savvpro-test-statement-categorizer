@@ -1,83 +1,112 @@
-# Step-by-Step Guide: How to Fork, Clone, and Submit Your Assessment
 
-**Repository:** https://github.com/savvpro/savvpro-test-statement-categorizer
+# Statement Categorizer
 
----
+A rule-based transaction categorization application designed for freelancers reviewing financial transactions for tax preparation.
 
-## Step 1: Fork the Repository
+## Features
 
-1. Go to the repository: https://github.com/savvpro/savvpro-test-statement-categorizer
-2. Click the **Fork** button in the top-right corner.
-3. This will create a copy of the repository in your GitHub account.
+- Upload CSV transaction statements.
+- Categorize recognized merchants using explicit Python rules.
+- Identify refunds and transfers separately from ordinary expenses.
+- Mark unknown transactions as `Needs Review` instead of guessing.
+- Manually correct transaction categories in the frontend.
+- Export reviewed transactions to CSV.
+- Validate CSV headers, amounts, and upload size.
+- Run automated tests for categorization and API behavior.
 
----
+## Technology Stack
 
-## Step 2: Clone Your Fork
+- Backend: Python, FastAPI
+- CSV processing: Python standard library
+- Frontend: React, TypeScript, Vite
+- Testing: pytest, FastAPI TestClient
 
-1. Open your forked repository in your GitHub account.
-2. Click the green **Code** button and copy the URL.
-3. Run the following commands:
+No large language model is used to make categorization decisions.
 
-```bash
-git clone https://github.com/your-username/savvpro-test-statement-categorizer.git
-cd savvpro-test-statement-categorizer
+## Project Structure
+
+```text
+.
+├── backend/
+│   ├── app/
+│   │   ├── main.py
+│   │   └── categorizer.py
+│   ├── tests/
+│   │   ├── test_api.py
+│   │   └── test_categorizer.py
+│   └── requirements.txt
+├── frontend/
+│   └── src/
+├── README.md
+├── TASK.md
+├── DESIGN.md
+└── AI_USAGE.md
 ```
 
----
+## Prerequisites
 
-## Step 3: Read the Task
+- Python 3.11 or newer
+- Node.js and npm
 
-Open and read **TASK.md** carefully before writing any code.
+## Run the Backend
 
-- TASK.md URL: https://github.com/savvpro/savvpro-test-statement-categorizer/blob/main/TASK.md
+From the repository root:
 
----
-
-## Step 4: Create a New Branch
-
-Branch pattern: `candidate-<your-github-username>`
-
-```bash
-git checkout -b candidate-<your-github-username>
+```powershell
+cd backend
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+uvicorn app.main:app --reload
 ```
 
-**Example:**
-```bash
-git checkout -b candidate-johndoe
+The API runs at `http://127.0.0.1:8000`.
+
+Interactive API documentation is available at `http://127.0.0.1:8000/docs`.
+
+## Run the Frontend
+
+Open a second terminal at the repository root:
+
+```powershell
+cd frontend
+npm install
+npm run dev
 ```
 
----
+Open the local URL printed by Vite, usually `http://localhost:5173`.
 
-## Step 5: Complete the Task
+## CSV Format
 
-Build the full application on your branch.
+The initial implementation expects a CSV with these columns:
 
----
-
-## Step 6: Push Your Branch
-
-```bash
-git add .
-git commit -m "feat: complete statement-categorizer assessment"
-git push origin candidate-<your-github-username>
+```csv
+description,amount
+GitHub subscription,-10.00
+Uber trip,-18.50
+Adobe refund,25.00
+Unknown merchant 123,-42.00
 ```
 
----
+The amount should be a numeric value. This example uses negative amounts for money spent and positive amounts for money received. Actual bank statement formats vary, so users must confirm the sign convention before relying on results.
 
-## Step 7: Create a Pull Request
+## Run Tests
 
-1. Go to your **forked** repository on GitHub (`https://github.com/your-username/savvpro-test-statement-categorizer`).
-2. Click **Compare & pull request** (GitHub will show this banner after you push your branch).
-3. Ensure the following settings in the PR form:
-   - **Base repository:** `savvpro/savvpro-test-statement-categorizer` ← the original repo
-   - **Base branch:** `main`
-   - **Head repository:** `your-username/savvpro-test-statement-categorizer` ← your fork
-   - **Compare branch:** `candidate-<your-github-username>`
-4. Use the title: `feat: complete statement-categorizer assessment`
-5. Submit the pull request.
+From the repository root:
 
-> 💡 **Tip:** If you don't see the banner, go to the original repo (`savvpro/savvpro-test-statement-categorizer`), click the **Pull requests** tab, then click **New pull request** → **compare across forks**.
+```powershell
+cd backend
+python -m pytest -v
+```
 
----
+## Important Limitations
 
-> ⚠️ **Important:** No submissions will be accepted after the deadline.
+- Categorization is based on transparent keyword rules, not a tax advisor or a large AI model.
+- Unknown transactions are sent for manual review.
+- A refund is identified using description keywords; the original purchase is not automatically matched.
+- Tax deductibility is not determined by the application.
+- The current version does not persist reviewed transactions in a database.
+- CSV upload is supported; PDF statements are not currently supported.
+- Only the documented CSV schema is supported.
+
+Use synthetic sample data only. Do not upload or commit real bank statements, credentials, or personal financial information.
