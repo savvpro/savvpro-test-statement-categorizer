@@ -22,7 +22,7 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "S", "W"]
-ignore = []
+ignore = ["S101"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["app"]
