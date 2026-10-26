@@ -1,0 +1,634 @@
+# Categorization rules (data, not code).
+#
+# Sections run in this order, and the first decisive match wins:
+#   structural  fees, card payments, savings transfers, tax
+#   merchants   exact / known merchants
+#   review      always-review patterns (ambiguous merchants, cash, P2P, cheques)
+#   keywords    category words, lower confidence. ALL matching keyword rules are
+#               collected; if they disagree on the category the row goes to review.
+# Inside a section, rules are tried top to bottom.
+#
+# Every rule has:
+#   id            unique; lowercase letters, digits, "_", "-", "."
+#   match         exactly ONE of the following, tested against the NORMALIZED text
+#                 (uppercase, spaces collapsed, processor prefix such as "SQ *" removed):
+#                   starts_with: "AWS"          text begins with this
+#                   contains: "FOREIGN TXN FEE" whole-word phrase anywhere in the text
+#                   regex: "^IBFT TO .+"        regular expression, case-insensitive
+#   category      one of the categories listed in CLAUDE.md
+#   reason        shown to the user next to the result
+# and, optionally:
+#   kind          expense | income | transfer | refund | fee | tax
+#                 omitted -> money out = expense, money in = income
+#   confidence    0 to 1. Default 0.95 (keywords: 0.75). Anything below 0.8 is not
+#                 trusted: the row goes to Needs Review and this category is only a suggestion.
+#   account_type  card | bank   (rule applies to this kind of statement only)
+#   direction     in | out      (rule applies to money in / money out only)
+#
+# In the review section, `category` is the suggested category (or "Needs Review"
+# if there is no suggestion); the row always ends up in Needs Review.
+#
+# Use case: a freelance developer/designer in Pakistan, paid by foreign clients
+# through Upwork, Fiverr, Payoneer and Wise, with a local bank account and a
+# business credit card.
+#
+# Ordering notes (read before adding rules):
+#   - Specific before general: "UBER EATS" comes before "UBER", and
+#     "AMAZON WEB SERVICES" (merchants) runs before "AMAZON" (review).
+#   - Refunds and reversals are structural rules (category Refund), so money
+#     coming back from any merchant is caught before the merchant rules and is
+#     never counted as income. Merchant rules also carry `direction: out`.
+#   - A tax refund (e.g. "WHT REFUND") stays kind tax: withholding_tax has no
+#     direction and runs before the refund rules.
+#
+# Known limits:
+#   - telecom matches the word JAZZ, so "JAZZ CASH" (a mobile wallet) becomes
+#     Internet & Phone before the mobile_wallets review rule sees it.
+#   - Careem is treated as rides (Travel); a Careem Food order will be wrong.
+
+structural:
+  # --- Card bill payments: moving money, not income or spending -----------
+  - id: card_payment
+    match:
+      contains: "PAYMENT THANK YOU"
+    category: Transfer
+    kind: transfer
+    account_type: card
+    direction: in
+    reason: "Payment towards the card bill, not income"
+
+  - id: card_autopay
+    match:
+      regex: '^(AUTOPAY|AUTO PAYMENT|ONLINE PAYMENT|PAYMENT RECEIVED)\b'
+    category: Transfer
+    kind: transfer
+    account_type: card
+    direction: in
+    reason: "Payment towards the card bill, not income"
+
+  - id: card_bill_from_bank
+    match:
+      regex: '\bCREDIT CARD (PAYMENT|BILL|PMT)\b'
+    category: Transfer
+    kind: transfer
+    account_type: bank
+    direction: out
+    reason: "Paying the credit card bill. The purchases are counted on the card statement, so counting this too would double them"
+
+  # --- Own-account and savings transfers ----------------------------------
+  - id: to_savings
+    match:
+      regex: '^(TRANSFER|XFER|TFR|FUNDS TRANSFER|IBFT) TO (SAVINGS|SAV|SAVINGS ACCOUNT|OWN ACCOUNT)\b'
+    category: Transfer
+    kind: transfer
+    direction: out
+    reason: "Moving money to your own savings, not spending"
+
+  - id: from_savings
+    match:
+      regex: '^(TRANSFER|XFER|TFR|FUNDS TRANSFER|IBFT) FROM (SAVINGS|SAV|SAVINGS ACCOUNT|OWN ACCOUNT)\b'
+    category: Transfer
+    kind: transfer
+    direction: in
+    reason: "Moving money from your own savings, not income"
+
+  - id: own_account_transfer
+    match:
+      contains: "OWN ACCOUNT TRANSFER"
+    category: Transfer
+    kind: transfer
+    reason: "Transfer between your own accounts"
+
+  # --- Tax deducted by the bank -------------------------------------------
+  - id: withholding_tax
+    match:
+      regex: '\b(WHT|W/H TAX|WITHHOLDING TAX|ADVANCE TAX)\b'
+    category: Tax Withheld
+    kind: tax
+    reason: "Tax withheld by the bank. Keep it: it can be claimed against your tax"
+
+  # --- Money coming back: never income ------------------------------------
+  # After withholding_tax, so a tax refund stays kind tax.
+  - id: refund
+    match:
+      regex: '\b(REFUND|RFND|RETURN CREDIT|MERCHANDISE CREDIT)\b'
+    category: Refund
+    kind: refund
+    direction: in
+    reason: "Refund: money back from a purchase, not income"
+
+  - id: reversal
+    match:
+      regex: '\b(REVERSAL|REVERSED|CHARGEBACK|DISPUTE CREDIT)\b'
+    category: Refund
+    kind: refund
+    direction: in
+    reason: "Reversed or disputed charge: money back, not income"
+
+  # --- Bank and card fees -------------------------------------------------
+  # Payoneer's own fees go first, so the generic fee rules below don't take them.
+  - id: payoneer_fee
+    match:
+      regex: '\bPAYONEER\b.*\b(FEE|CHARGE)S?\b'
+    category: Professional Services
+    kind: fee
+    direction: out
+    reason: "Payoneer fee"
+
+  - id: bank_fed_remittance
+    match:
+      regex: '\b(FED ON CHARGES|REMITTANCE CHARGES?)\b'
+    category: Bank Fees
+    kind: fee
+    direction: out
+    reason: "Bank charge on a remittance, or federal excise duty (FED) on bank charges"
+
+  - id: fx_fee
+    match:
+      contains: "FOREIGN TXN FEE"
+    category: Bank Fees
+    kind: fee
+    direction: out
+    reason: "Foreign transaction fee charged by the card issuer"
+
+  - id: intl_txn_fee
+    match:
+      regex: '\b(INTERNATIONAL|INTL|CROSS BORDER) (TRANSACTION|TXN) (FEE|CHARGE)S?\b'
+    category: Bank Fees
+    kind: fee
+    direction: out
+    reason: "International transaction fee charged by the card issuer"
+
+  - id: card_annual_fee
+    match:
+      regex: '\b(ANNUAL|MEMBERSHIP) FEE\b'
+    category: Bank Fees
+    kind: fee
+    account_type: card
+    direction: out
+    reason: "Yearly fee for the credit card"
+
+  - id: card_interest
+    match:
+      regex: '\b(FINANCE|INTEREST|MARKUP) CHARGES?\b'
+    category: Bank Fees
+    kind: fee
+    account_type: card
+    direction: out
+    reason: "Interest or markup charged on an unpaid card balance"
+
+  - id: late_fee
+    match:
+      regex: '\bLATE (PAYMENT )?(FEE|CHARGES?)\b'
+    category: Bank Fees
+    kind: fee
+    direction: out
+    reason: "Late payment fee"
+
+  - id: sms_alert_charges
+    match:
+      regex: '\bSMS (ALERT )?(CHARGES?|FEE)\b'
+    category: Bank Fees
+    kind: fee
+    direction: out
+    reason: "SMS alert charges from the bank"
+
+  - id: bank_service_charges
+    match:
+      regex: '\b(SERVICE|MAINTENANCE|ACCOUNT|IBFT|RAAST|TRANSFER) (CHARGES?|FEE)\b'
+    category: Bank Fees
+    kind: fee
+    direction: out
+    reason: "Bank service or transfer charge"
+
+  # --- Profit paid by the bank --------------------------------------------
+  - id: bank_profit
+    match:
+      regex: '\b(PROFIT|INTEREST) (CREDIT|PAID|PAYMENT|ON DEPOSIT)\b'
+    category: Income
+    kind: income
+    account_type: bank
+    direction: in
+    reason: "Profit or interest paid by the bank on your balance"
+
+merchants:
+  # --- Freelance platform income -------------------------------------------
+  - id: upwork_income
+    match:
+      contains: "UPWORK"
+    category: Income
+    kind: income
+    account_type: bank
+    direction: in
+    reason: "Payment from Upwork clients"
+
+  - id: fiverr_income
+    match:
+      contains: "FIVERR"
+    category: Income
+    kind: income
+    account_type: bank
+    direction: in
+    reason: "Payment from Fiverr orders"
+
+  - id: payoneer_income
+    match:
+      contains: "PAYONEER"
+    category: Income
+    kind: income
+    account_type: bank
+    direction: in
+    confidence: 0.85
+    reason: "Withdrawal from Payoneer, usually client earnings. If you also upload your Payoneer statement, this is a transfer instead"
+
+  - id: wise_income
+    match:
+      regex: '^(WISE|TRANSFERWISE)\b'
+    category: Income
+    kind: income
+    account_type: bank
+    direction: in
+    confidence: 0.85
+    reason: "Money received through Wise, usually from a client"
+
+  # --- Upwork/Fiverr: platform fees vs paying other freelancers ---------------------------
+  # Money out to Upwork/Fiverr is usually paying a contractor you hired.
+  # Rows that name a fee, Connects or a membership are kind fee; the rest are
+  # contractor payments. Both are Professional Services, but the specific fee
+  # rule must come first so its kind and reason are right.
+  - id: upwork_fees
+    match:
+      regex: '\bUPWORK\b.*\b(FEES?|CONNECTS|MEMBERSHIP|PLUS|SERVICE CHARGE)\b'
+    category: Professional Services
+    kind: fee
+    direction: out
+    reason: "Upwork fee, Connects or membership"
+
+  - id: upwork_contractor
+    match:
+      contains: "UPWORK"
+    category: Professional Services
+    direction: out
+    reason: "Payment to a freelancer hired through Upwork"
+
+  - id: fiverr_fees
+    match:
+      regex: '\bFIVERR\b.*\b(FEES?|SELLER PLUS|MEMBERSHIP|SERVICE CHARGE)\b'
+    category: Professional Services
+    kind: fee
+    direction: out
+    reason: "Fiverr fee or Seller Plus"
+
+  - id: fiverr_contractor
+    match:
+      contains: "FIVERR"
+    category: Professional Services
+    direction: out
+    reason: "Payment to a freelancer hired through Fiverr"
+
+  # Before the ibft review rule: "IBFT TO KASHIF & CO CHARTERED ACCOUNTANTS"
+  # is a known payee, not an unknown person.
+  - id: chartered_accountants
+    match:
+      contains: "CHARTERED ACCOUNTANTS"
+    category: Professional Services
+    direction: out
+    reason: "Payment to a chartered accountancy firm"
+
+  # --- Software & Subscriptions --------------------------------------------
+  - id: adobe
+    match:
+      contains: "ADOBE"
+    category: Software & Subscriptions
+    direction: out
+    reason: "Adobe subscription"
+
+  - id: figma
+    match:
+      contains: "FIGMA"
+    category: Software & Subscriptions
+    direction: out
+    reason: "Figma subscription"
+
+  - id: canva
+    match:
+      contains: "CANVA"
+    category: Software & Subscriptions
+    direction: out
+    reason: "Canva subscription"
+
+  - id: github
+    match:
+      contains: "GITHUB"
+    category: Software & Subscriptions
+    direction: out
+    reason: "GitHub subscription"
+
+  - id: jetbrains
+    match:
+      contains: "JETBRAINS"
+    category: Software & Subscriptions
+    direction: out
+    reason: "JetBrains IDE licence"
+
+  - id: notion
+    match:
+      contains: "NOTION"
+    category: Software & Subscriptions
+    direction: out
+    reason: "Notion subscription"
+
+  - id: slack
+    match:
+      contains: "SLACK"
+    category: Software & Subscriptions
+    direction: out
+    reason: "Slack subscription"
+
+  - id: zoom
+    match:
+      regex: '^ZOOM(\.US| VIDEO| COMMUNICATIONS)?\b'
+    category: Software & Subscriptions
+    direction: out
+    reason: "Zoom subscription"
+
+  - id: google_workspace
+    match:
+      regex: '\bGOOGLE\b.*\b(WORKSPACE|GSUITE|G SUITE)'
+    category: Software & Subscriptions
+    direction: out
+    reason: "Google Workspace subscription"
+
+  - id: openai
+    match:
+      regex: '\b(OPENAI|CHATGPT)\b'
+    category: Software & Subscriptions
+    direction: out
+    reason: "OpenAI / ChatGPT subscription"
+
+  - id: anthropic
+    match:
+      regex: '\b(ANTHROPIC|CLAUDE\.AI)\b'
+    category: Software & Subscriptions
+    direction: out
+    reason: "Anthropic / Claude subscription"
+
+  # --- Hosting & Cloud -----------------------------------------------------
+  # Must stay in merchants: "AMAZON WEB SERVICES" would otherwise hit the
+  # Amazon review rule.
+  - id: aws_full
+    match:
+      contains: "AMAZON WEB SERVICES"
+    category: Hosting & Cloud
+    direction: out
+    reason: "Amazon Web Services cloud hosting"
+
+  - id: aws
+    match:
+      starts_with: "AWS"
+    category: Hosting & Cloud
+    direction: out
+    reason: "Amazon Web Services cloud hosting"
+
+  - id: cloud_providers
+    match:
+      regex: '\b(DIGITALOCEAN|LINODE|AKAMAI CLOUD|VULTR|HETZNER|VERCEL|NETLIFY|HEROKU|RENDER\.COM|RAILWAY\.APP|CLOUDFLARE|SUPABASE)\b'
+    category: Hosting & Cloud
+    direction: out
+    reason: "Cloud hosting provider"
+
+  - id: google_cloud
+    match:
+      regex: '\bGOOGLE\b.*\bCLOUD\b'
+    category: Hosting & Cloud
+    direction: out
+    reason: "Google Cloud hosting"
+
+  - id: domains
+    match:
+      regex: '\b(NAMECHEAP|GODADDY|HOSTINGER|PORKBUN|BLUEHOST)\b'
+    category: Hosting & Cloud
+    direction: out
+    reason: "Domain or web hosting"
+
+  # --- Internet & Phone ----------------------------------------------------
+  - id: telecom
+    match:
+      regex: '\b(PTCL|NAYATEL|STORMFIBER|STORM FIBER|ZONG|UFONE|TELENOR|JAZZ|WORLDCALL|FIBERLINK)\b'
+    category: Internet & Phone
+    direction: out
+    reason: "Internet or mobile bill"
+
+  # --- Travel --------------------------------------------------------------
+  # UBER EATS must come before UBER.
+  - id: uber_eats
+    match:
+      starts_with: "UBER EATS"
+    category: Meals
+    direction: out
+    reason: "Uber Eats food order"
+
+  - id: uber_trip
+    match:
+      starts_with: "UBER"
+    category: Travel
+    direction: out
+    reason: "Uber ride"
+
+  - id: careem
+    match:
+      contains: "CAREEM"
+    category: Travel
+    direction: out
+    reason: "Careem ride"
+
+  - id: indrive
+    match:
+      regex: '\b(INDRIVE|INDRIVER|YANGO|BYKEA)\b'
+    category: Travel
+    direction: out
+    reason: "Ride-hailing trip"
+
+  - id: airlines
+    match:
+      regex: '\b(PIA|AIRBLUE|SERENE AIR|AIRSIAL|FLY JINNAH|EMIRATES|QATAR AIRWAYS|ETIHAD|TURKISH AIRLINES)\b'
+    category: Travel
+    direction: out
+    reason: "Airline ticket"
+
+  - id: lodging
+    match:
+      regex: '\b(AIRBNB|BOOKING\.COM|AGODA|PEARL CONTINENTAL|SERENA HOTEL)\b'
+    category: Travel
+    direction: out
+    reason: "Hotel or accommodation"
+
+  # --- Personal -------------------------------------------------------------
+  - id: netflix
+    match:
+      contains: "NETFLIX"
+    category: Personal
+    direction: out
+    reason: "Netflix is a personal subscription, not a business expense"
+
+review:
+
+  # --- Marketplaces that sell everything -----------------------------------
+  - id: amazon_ambiguous
+    match:
+      contains: "AMAZON"
+    category: Needs Review
+    reason: "Amazon sells everything: business or personal, please check"
+
+  - id: daraz_ambiguous
+    match:
+      contains: "DARAZ"
+    category: Needs Review
+    reason: "Daraz sells everything: business or personal, please check"
+
+  - id: aliexpress_ambiguous
+    match:
+      regex: '\b(ALIEXPRESS|TEMU)\b'
+    category: Needs Review
+    reason: "Marketplace order: business or personal, please check"
+
+  - id: foodpanda
+    match:
+      regex: '\b(FOODPANDA|FOOD PANDA)\b'
+    category: Meals
+    direction: out
+    reason: "Food delivery: business meal or personal, please check"
+
+  # --- Cash: we cannot see what it was spent on ----------------------------
+  - id: atm_cash
+    match:
+      contains: "ATM CASH"
+    category: Needs Review
+    kind: transfer
+    reason: "Cash withdrawal: what the cash was spent on is unknown"
+
+  - id: atm_withdrawal
+    match:
+      regex: '\b(ATM|CASH) (WITHDRAWAL|WDL|W/D)\b'
+    category: Needs Review
+    kind: transfer
+    direction: out
+    reason: "Cash withdrawal: what the cash was spent on is unknown"
+
+  - id: cash_deposit
+    match:
+      contains: "CASH DEPOSIT"
+    category: Needs Review
+    direction: in
+    reason: "Cash deposit: could be a client payment or your own money, please check"
+
+  # --- Person-to-person: could be a client, a friend, or yourself ----------
+  - id: ibft
+    match:
+      regex: '^IBFT (TO|FROM) .+'
+    category: Needs Review
+    reason: "Bank transfer to or from a person: client, supplier or personal, please check"
+
+  - id: raast
+    match:
+      contains: "RAAST"
+    category: Needs Review
+    reason: "Raast transfer to or from a person: client, supplier or personal, please check"
+
+  - id: mobile_wallets
+    match:
+      regex: '\b(JAZZCASH|JAZZ CASH|EASYPAISA|EASY PAISA|SADAPAY|NAYAPAY)\b'
+    category: Needs Review
+    reason: "Mobile wallet transfer: who it went to or came from is unknown"
+
+  - id: wise_outgoing
+    match:
+      regex: '^(WISE|TRANSFERWISE)\b'
+    category: Needs Review
+    direction: out
+    reason: "Money sent through Wise: could be a supplier, a subcontractor, or personal"
+
+  - id: cheque
+    match:
+      regex: '\b(CHQ|CHEQUE|CHECK)\b'
+    category: Needs Review
+    reason: "Cheque: the statement does not say who it was for"
+
+keywords:
+  - id: kw_hosting
+    match:
+      contains: "HOSTING"
+    category: Hosting & Cloud
+    confidence: 0.85
+    reason: "Description contains the word HOSTING"
+
+  - id: kw_domain
+    match:
+      regex: '\bDOMAINS?\b'
+    category: Hosting & Cloud
+    confidence: 0.85
+    reason: "Description contains the word DOMAIN"
+
+  - id: kw_software
+    match:
+      regex: '\b(SOFTWARE|SAAS|LICENSE|LICENCE)\b'
+    category: Software & Subscriptions
+    reason: "Description mentions software or a licence"
+
+  - id: kw_subscription
+    match:
+      regex: '\b(SUBSCRIPTION|SUBSCR)\b'
+    category: Software & Subscriptions
+    reason: "Description contains the word SUBSCRIPTION"
+
+  - id: kw_internet
+    match:
+      regex: '\b(INTERNET|BROADBAND|FIBER|FIBRE)\b'
+    category: Internet & Phone
+    confidence: 0.85
+    reason: "Description mentions internet service"
+
+  - id: kw_cafe
+    match:
+      contains: "CAFE"
+    category: Meals
+    confidence: 0.85
+    reason: "Description contains the word CAFE"
+
+  - id: kw_restaurant
+    match:
+      regex: '\b(RESTAURANT|BISTRO|DHABA|BBQ|PIZZA|BURGER|GRILL|BAKERY|KITCHEN)\b'
+    category: Meals
+    reason: "Description mentions a restaurant or food place"
+
+  - id: kw_hotel
+    match:
+      regex: '\b(HOTEL|INN|RESORT|GUEST HOUSE)\b'
+    category: Travel
+    reason: "Description mentions a hotel"
+
+  - id: kw_airline
+    match:
+      regex: '\b(AIRLINES?|AIRWAYS|AIRPORT)\b'
+    category: Travel
+    reason: "Description mentions an airline or airport"
+
+  - id: kw_fuel
+    match:
+      regex: '\b(PETROL|FUEL|FILLING STATION|PSO|SHELL|TOTAL PARCO|ATTOCK PETROLEUM)\b'
+    category: Travel
+    reason: "Fuel purchase: business travel or personal, please check"
+
+  - id: kw_electronics
+    match:
+      regex: '\b(ELECTRONICS|COMPUTERS?|LAPTOP|MOBILES?)\b'
+    category: Hardware & Equipment
+    confidence: 0.85
+    reason: "Description mentions electronics or computer equipment"
+
+  - id: kw_stationery
+    match:
+      regex: '\b(STATIONERY|STATIONERS|PRINTING|BOOK SHOP)\b'
+    category: Office Supplies
+    confidence: 0.85
+    reason: "Description mentions stationery or printing"

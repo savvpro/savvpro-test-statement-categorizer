@@ -1,0 +1,72 @@
+file,row_number,expected_category,expected_kind,expected_needs_review,case_tag
+bank_a_card.csv,1,Software & Subscriptions,expense,false,exact_merchant
+bank_a_card.csv,2,Software & Subscriptions,expense,false,exact_merchant
+bank_a_card.csv,3,Hosting & Cloud,expense,false,exact_merchant_contains_amazon
+bank_a_card.csv,4,Bank Fees,fee,false,fx_fee
+bank_a_card.csv,5,Hosting & Cloud,expense,false,exact_merchant
+bank_a_card.csv,6,Hosting & Cloud,expense,false,exact_merchant
+bank_a_card.csv,7,Software & Subscriptions,expense,false,exact_merchant
+bank_a_card.csv,8,Software & Subscriptions,expense,false,exact_merchant
+bank_a_card.csv,9,Software & Subscriptions,expense,false,exact_merchant
+bank_a_card.csv,10,Software & Subscriptions,expense,false,exact_merchant
+bank_a_card.csv,11,Meals,expense,false,processor_prefix
+bank_a_card.csv,12,Professional Services,expense,false,processor_prefix
+bank_a_card.csv,13,Hosting & Cloud,expense,false,keyword
+bank_a_card.csv,14,Meals,expense,false,keyword
+bank_a_card.csv,15,Meals,expense,false,specific_beats_generic
+bank_a_card.csv,16,Needs Review,expense,true,ambiguous_merchant
+bank_a_card.csv,17,Needs Review,expense,true,ambiguous_merchant
+bank_a_card.csv,18,Needs Review,expense,true,unknown_merchant
+bank_a_card.csv,19,Travel,expense,false,exact_merchant
+bank_a_card.csv,20,Office Supplies,expense,false,pos_prefix_keyword
+bank_a_card.csv,21,Travel,expense,false,processor_prefix
+bank_a_card.csv,22,Travel,expense,false,exact_merchant
+bank_a_card.csv,23,Travel,expense,false,exact_merchant
+bank_a_card.csv,24,Refund,refund,false,refund
+bank_a_card.csv,25,Hardware & Equipment,expense,false,pos_prefix_keyword
+bank_a_card.csv,26,Refund,refund,false,partial_refund
+bank_a_card.csv,27,Personal,expense,false,personal
+bank_a_card.csv,28,Needs Review,expense,true,personal_or_business_meal
+bank_a_card.csv,29,Bank Fees,fee,false,card_annual_fee
+bank_a_card.csv,30,Bank Fees,fee,false,late_fee
+bank_a_card.csv,31,Transfer,transfer,false,card_payment
+bank_b_checking.csv,1,Income,income,false,income
+bank_b_checking.csv,2,Transfer,transfer,false,transfer_to_savings
+bank_b_checking.csv,3,Internet & Phone,expense,false,exact_merchant
+bank_b_checking.csv,4,Internet & Phone,expense,false,exact_merchant
+bank_b_checking.csv,5,Income,income,false,income
+bank_b_checking.csv,6,Bank Fees,fee,false,bank_charge
+bank_b_checking.csv,7,Bank Fees,fee,false,bank_charge
+bank_b_checking.csv,8,Bank Fees,fee,false,bank_charge
+bank_b_checking.csv,9,Internet & Phone,expense,false,exact_merchant
+bank_b_checking.csv,10,Income,income,false,income
+bank_b_checking.csv,11,Needs Review,transfer,true,cash_withdrawal
+bank_b_checking.csv,12,Internet & Phone,expense,false,keyword
+bank_b_checking.csv,13,Needs Review,expense,true,transfer_to_person
+bank_b_checking.csv,14,Refund,refund,false,reversal
+bank_b_checking.csv,15,Needs Review,income,true,unknown_credit
+bank_b_checking.csv,16,Needs Review,expense,true,utility_no_category
+bank_b_checking.csv,17,Professional Services,expense,false,keyword
+bank_b_checking.csv,18,Income,income,false,income
+bank_b_checking.csv,19,Income,income,false,income
+bank_b_checking.csv,20,Transfer,transfer,false,transfer_from_savings
+bank_b_checking.csv,21,Needs Review,expense,true,unknown_merchant
+bank_b_checking.csv,22,Tax Withheld,tax,false,withholding_tax
+bank_b_checking.csv,23,Transfer,transfer,false,card_payment
+bank_b_checking.csv,24,Bank Fees,fee,false,bank_charge
+bank_b_checking.csv,25,Bank Fees,fee,false,similar_not_duplicate
+messy_statement.csv,1,Software & Subscriptions,expense,false,whitespace_mixed_case
+messy_statement.csv,2,Software & Subscriptions,expense,false,mixed_case
+messy_statement.csv,3,SKIPPED,,,blank_line
+messy_statement.csv,4,PARSE_ERROR,,,missing_amount
+messy_statement.csv,5,PARSE_ERROR,,,invalid_date
+messy_statement.csv,6,Software & Subscriptions,expense,false,parentheses_negative
+messy_statement.csv,7,Refund,refund,false,currency_symbol
+messy_statement.csv,8,Hosting & Cloud,expense,false,currency_symbol
+messy_statement.csv,9,Travel,expense,false,extra_whitespace
+messy_statement.csv,10,Software & Subscriptions,expense,false,mixed_case
+messy_statement.csv,11,Software & Subscriptions,expense,true,duplicate
+messy_statement.csv,12,PARSE_ERROR,,,extra_column
+messy_statement.csv,13,Needs Review,expense,true,unknown_merchant_whitespace
+messy_statement.csv,14,Transfer,transfer,false,thousands_separator
+messy_statement.csv,15,PARSE_ERROR,,,wrong_date_format
