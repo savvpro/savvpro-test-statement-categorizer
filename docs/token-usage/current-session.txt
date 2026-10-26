@@ -1,0 +1,7 @@
+Source: ~/.claude/projects/<this project>/<session>.jsonl, assistant message usage, de-duplicated by message id.
+Snapshot taken 2026-10-26 11:49 UTC 
+
+Final docs and checks (this session)  [session fc8c41f0]  2026-10-26T11:40:35.773Z to 2026-10-26T11:49:09.519Z
+  responses=29 input=58 cache_write=83176 cache_read=2396493 output=22851 total=2502578
+
+Snapshot only: this session kept running after it was taken (docs writing, final summary). Run /cost before closing for the full figure.

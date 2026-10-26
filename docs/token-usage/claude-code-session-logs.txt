@@ -1,0 +1,13 @@
+Source: ~/.claude/projects/<this project>/<session>.jsonl, assistant message usage, de-duplicated by message id.
+Snapshot taken 2026-10-26 11:49 UTC 
+
+Brain tweaks and API (Phase 2)  [session fcebf729]  2026-10-26T10:47:43.939Z to 2026-10-26T10:52:02.082Z
+  responses=14 input=28 cache_write=56122 cache_read=953654 output=13471 total=1023275
+Final docs and checks (this session)  [session fc8c41f0]  2026-10-26T11:40:35.773Z to 2026-10-26T11:49:09.519Z
+  responses=29 input=58 cache_write=83176 cache_read=2396493 output=22851 total=2502578
+Frontend (Phase 3)  [session e48e7140]  2026-10-26T10:58:49.014Z to 2026-10-26T11:05:26.788Z
+  responses=17 input=34 cache_write=54265 cache_read=1127517 output=13922 total=1195738
+Setup and brain (Phase 0-1)  [session 1d4a5a6f]  2026-10-26T09:59:50.687Z to 2026-10-26T10:33:21.935Z
+  responses=13 input=26 cache_write=87716 cache_read=949907 output=33939 total=1071588
+UI restyle  [session 49224466]  2026-10-26T11:10:54.299Z to 2026-10-26T11:15:56.889Z
+  responses=20 input=40 cache_write=88444 cache_read=1819364 output=25933 total=1933781
