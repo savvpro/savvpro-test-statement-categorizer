@@ -1,83 +1,94 @@
-# Step-by-Step Guide: How to Fork, Clone, and Submit Your Assessment
+# Ledgerly — Statement Categorizer
 
-**Repository:** https://github.com/savvpro/savvpro-test-statement-categorizer
+A full-stack transaction categorization tool designed for **freelancers and independent consultants** preparing business records for tax time. Upload a bank-exported CSV, review deterministic category suggestions, correct uncertain rows, and export the result.
 
----
+## Features
+- React + Vite responsive finance dashboard.
+- Python + FastAPI backend with CSV parsing, validation, a 10 MB upload limit, and JSON API.
+- Explainable, deterministic merchant rules; no large language model makes category decisions.
+- `Needs Review` fallback for unknown transactions and ambiguous positive amounts.
+- Separate treatment for transfers, refunds, business income, and expenses.
+- Search, category review, live summary metrics, sample data, and categorized CSV export.
+- Automated tests for categorization, parsing, and accounting edge cases.
 
-## Step 1: Fork the Repository
+## Requirements
+- Python 3.12+
+- Node.js 20+
+- Windows, macOS, or Linux
 
-1. Go to the repository: https://github.com/savvpro/savvpro-test-statement-categorizer
-2. Click the **Fork** button in the top-right corner.
-3. This will create a copy of the repository in your GitHub account.
+## Run locally
 
----
-
-## Step 2: Clone Your Fork
-
-1. Open your forked repository in your GitHub account.
-2. Click the green **Code** button and copy the URL.
-3. Run the following commands:
-
-```bash
-git clone https://github.com/your-username/savvpro-test-statement-categorizer.git
-cd savvpro-test-statement-categorizer
-```
-
----
-
-## Step 3: Read the Task
-
-Open and read **TASK.md** carefully before writing any code.
-
-- TASK.md URL: https://github.com/savvpro/savvpro-test-statement-categorizer/blob/main/TASK.md
-
----
-
-## Step 4: Create a New Branch
-
-Branch pattern: `candidate-<your-github-username>`
+### 1. Backend
+From the repository root:
 
 ```bash
-git checkout -b candidate-<your-github-username>
+python -m venv .venv
+# Windows CMD:
+.venv\Scripts\activate
+# macOS/Linux:
+# source .venv/bin/activate
+python -m pip install -r backend/requirements.txt
+uvicorn main:app --app-dir backend --reload
 ```
 
-**Example:**
-```bash
-git checkout -b candidate-johndoe
-```
+API health: `http://127.0.0.1:8000/api/health`  
+Interactive API docs: `http://127.0.0.1:8000/docs`
 
----
-
-## Step 5: Complete the Task
-
-Build the full application on your branch.
-
----
-
-## Step 6: Push Your Branch
+### 2. Frontend
+Open a second terminal at the repository root:
 
 ```bash
-git add .
-git commit -m "feat: complete statement-categorizer assessment"
-git push origin candidate-<your-github-username>
+cd frontend
+npm install
+npm run dev
 ```
 
----
+Open the local address printed by Vite (usually `http://localhost:5173`).
 
-## Step 7: Create a Pull Request
+### 3. Tests
+From the repository root, with the Python environment active:
 
-1. Go to your **forked** repository on GitHub (`https://github.com/your-username/savvpro-test-statement-categorizer`).
-2. Click **Compare & pull request** (GitHub will show this banner after you push your branch).
-3. Ensure the following settings in the PR form:
-   - **Base repository:** `savvpro/savvpro-test-statement-categorizer` ← the original repo
-   - **Base branch:** `main`
-   - **Head repository:** `your-username/savvpro-test-statement-categorizer` ← your fork
-   - **Compare branch:** `candidate-<your-github-username>`
-4. Use the title: `feat: complete statement-categorizer assessment`
-5. Submit the pull request.
+```bash
+python -m pytest -q
+```
 
-> 💡 **Tip:** If you don't see the banner, go to the original repo (`savvpro/savvpro-test-statement-categorizer`), click the **Pull requests** tab, then click **New pull request** → **compare across forks**.
+## CSV format
+The parser accepts CSV files with a header row. It recognizes common columns such as `Date`, `Description`/`Merchant`, and `Amount`; or `Date`, `Description`, `Debit`, and `Credit`. Amounts may contain currency symbols, thousands separators, or parentheses for negative values. Unknown or malformed rows produce an explicit error rather than silently disappearing.
 
----
+A fake example:
 
-> ⚠️ **Important:** No submissions will be accepted after the deadline.
+```csv
+Date,Description,Amount
+2026-10-02,ADOBE CREATIVE CLOUD,-59.99
+2026-10-05,CLIENT PAYMENT - INV 104,1850.00
+2026-10-06,TRANSFER TO SAVINGS,-300.00
+2026-10-07,AMAZON REFUND,32.49
+2026-10-10,MYSTERY VENDOR 999,-21.00
+```
+
+## Categorization principles
+Rules are transparent and deterministic. Known merchant patterns map to a category with a rationale. Transfers are excluded from income/expense totals. Refunds are kept separate from income. Positive amounts are categorized as income only when their description contains a recognized income signal. Anything else goes to `Needs Review`; the tool favors asking the user over making an unsupported guess. This is a bookkeeping aid, not tax or accounting advice.
+
+## Privacy and limitations
+Use only fake or anonymized data for this assessment. Uploaded CSV data is processed in memory by the local API; this demo does not persist statements to a database. Do not upload credentials or bank login details. PDF and image statements are not supported in this version. Currency is displayed as USD in the sample interface; production use should infer or ask for the account currency.
+
+## Project layout
+```text
+backend/main.py           FastAPI endpoints, parser, rules, summaries
+backend/requirements.txt  Python dependencies
+frontend/                 React UI and styles
+tests/                    Python unit tests
+README.md                 Setup and run instructions
+DESIGN.md                 Use case and decision logic
+AI_USAGE.md               AI assistance disclosure
+```
+
+## API overview
+- `GET /api/health` — service health.
+- `GET /api/categories` — supported categories.
+- `POST /api/categorize` — multipart CSV upload and categorized transactions.
+- `POST /api/demo` — synthetic sample data.
+- `PATCH /api/transactions/{id}` — validates a requested category (client currently manages its in-session state).
+
+## Security notes
+No secrets or keys are required. CORS is restricted to local Vite origins for development. Before deployment, configure explicit production origins, authentication, upload rate limits, audit logging, and storage/retention controls.
