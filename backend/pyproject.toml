@@ -1,0 +1,15 @@
+[project]
+name = "ledgerlens"
+version = "1.0.0"
+requires-python = ">=3.12"
+dependencies = ["fastapi", "uvicorn", "python-multipart"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B"]

@@ -1,0 +1,18 @@
+[
+ {"description":"ACME RESEARCH TOOLS 5411","amount":-17425,"kind":"expense","category":"uncategorized","status":"needs_review"},
+ {"description":"ＦＩＧＭＡ / PROFESSIONAL 2026","amount":-1947,"kind":"expense","category":"software","status":"categorized"},
+ {"description":"NORTH FIGMATIC SOLUTIONS","amount":-3333,"kind":"expense","category":"uncategorized","status":"needs_review"},
+ {"description":"PAYMENT RECEIVED 888122","amount":14999,"kind":"unknown","category":"uncategorized","status":"needs_review"},
+ {"description":"GOOGLE ADS / GITHUB","amount":-8111,"kind":"expense","category":"uncategorized","status":"needs_review"},
+ {"description":"REFUND UNKNOWN TERMINAL 27","amount":4137,"kind":"refund","category":"uncategorized","status":"needs_review"},
+ {"description":"ADOBE ACROBAT REFUNDED","amount":1777,"kind":"refund","category":"software","status":"categorized"},
+ {"description":"TRANSFER FROM CHECKING 9102","amount":123456,"kind":"transfer","category":"transfers","status":"categorized"},
+ {"description":"TRANSFER","amount":-5555,"kind":"expense","category":"uncategorized","status":"needs_review"},
+ {"description":"MONTHLY ACCOUNT FEE","amount":-133,"kind":"expense","category":"fees","status":"categorized"},
+ {"description":"ACCOUNTING SERVICES 992","amount":-19999,"kind":"expense","category":"services","status":"needs_review"},
+ {"description":"UBER * EATS HELP","amount":-2301,"kind":"expense","category":"meals","status":"needs_review"},
+ {"description":"INTERNAL TRANSFER CLIENT INVOICE PAYMENT","amount":50000,"kind":"unknown","category":"uncategorized","status":"needs_review"},
+ {"description":"MICROSOFT 365","amount":2700,"kind":"unknown","category":"uncategorized","status":"needs_review"},
+ {"description":"VERCEL","amount":0,"kind":"unknown","category":"uncategorized","status":"needs_review"},
+ {"description":"REFUND GITHUB","amount":-478,"kind":"unknown","category":"uncategorized","status":"needs_review"}
+]

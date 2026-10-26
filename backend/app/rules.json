@@ -1,0 +1,13 @@
+[
+  {"id":"software.adobe","category":"software","phrases":["adobe creative cloud","adobe acrobat"]},
+  {"id":"software.figma","category":"software","phrases":["figma"]},
+  {"id":"software.github","category":"software","phrases":["github"]},
+  {"id":"software.hosting","category":"software","phrases":["vercel","digitalocean","aws cloud","amazon web services"]},
+  {"id":"software.productivity","category":"software","phrases":["notion labs","google workspace","microsoft 365","zoom subscription"]},
+  {"id":"marketing.ads","category":"marketing","phrases":["google ads","meta ads","linkedin ads"]},
+  {"id":"fees.bank","category":"fees","phrases":["monthly account fee","bank service fee","wire transfer fee","foreign transaction fee"]},
+  {"id":"travel.rides","category":"travel","phrases":["uber trip","lyft ride","careem ride"],"requires_context":true},
+  {"id":"meals.delivery","category":"meals","phrases":["uber eats","foodpanda"],"requires_context":true},
+  {"id":"office.supplies","category":"office","phrases":["office supplies","stationery"],"strength":70,"requires_context":true},
+  {"id":"services.accounting","category":"services","phrases":["accounting services","bookkeeping services"],"strength":70,"requires_context":true}
+]
