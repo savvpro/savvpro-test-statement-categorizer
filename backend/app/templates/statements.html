@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Statements{% endblock %}
+{% block meta_description %}All imported CSV statements in LedgerLens{% endblock %}
+
+{% block content %}
+<div class="ll-page">
+
+  <div class="ll-page-header" style="display:flex;justify-content:space-between;align-items:center;">
+    <div>
+      <h1><i class="bi bi-file-earmark-text" style="color:var(--ll-accent)"></i> Statements</h1>
+      <p class="subtitle">All imported CSV bank and credit card statements</p>
+    </div>
+    <a href="/statements/upload" class="ll-btn ll-btn-primary">
+      <i class="bi bi-upload"></i> Upload New
+    </a>
+  </div>
+
+  {% if statements %}
+  <div class="ll-table-wrap">
+    <table class="ll-table" id="statements-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>File</th>
+          <th>Status</th>
+          <th>Transactions</th>
+          <th>Currency</th>
+          <th>Imported</th>
+          <th style="text-align:right;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in statements %}
+        <tr>
+          <td><span style="color:var(--ll-text-muted);">#{{ s.id }}</span></td>
+          <td>
+            <span style="font-weight:500;">{{ s.original_filename }}</span>
+          </td>
+          <td>
+            {% if s.status == 'COMPLETED' %}
+              <span class="ll-badge badge-ok">Completed</span>
+            {% elif s.status == 'COMPLETED_WITH_ERRORS' %}
+              <span class="ll-badge badge-errors">Partial</span>
+            {% elif s.status == 'FAILED' %}
+              <span class="ll-badge badge-failed">Failed</span>
+            {% else %}
+              <span class="ll-badge badge-pending">{{ s.status }}</span>
+            {% endif %}
+          </td>
+          <td>{{ s.transaction_count }}</td>
+          <td><span style="color:var(--ll-text-muted);">{{ s.currency or 'USD' }}</span></td>
+          <td style="color:var(--ll-text-muted);font-size:0.8rem;">
+            {{ s.created_at.strftime('%Y-%m-%d %H:%M') if s.created_at else '—' }}
+          </td>
+          <td style="text-align:right;">
+            <a href="/statements/{{ s.id }}" class="ll-btn ll-btn-secondary ll-btn-sm">
+              <i class="bi bi-eye"></i> View
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <!-- Pagination -->
+    {% if page > 1 or has_next %}
+    <div class="ll-pagination">
+      {% if page > 1 %}
+      <a href="?page={{ page - 1 }}" class="ll-btn ll-btn-secondary ll-btn-sm">
+        <i class="bi bi-chevron-left"></i> Previous
+      </a>
+      {% endif %}
+      <span style="color:var(--ll-text-muted);font-size:0.82rem;">Page {{ page }}</span>
+      {% if has_next %}
+      <a href="?page={{ page + 1 }}" class="ll-btn ll-btn-secondary ll-btn-sm">
+        Next <i class="bi bi-chevron-right"></i>
+      </a>
+      {% endif %}
+    </div>
+    {% endif %}
+
+  </div>
+  {% else %}
+  <div class="ll-table-wrap">
+    <div class="ll-empty">
+      <div class="empty-icon">📂</div>
+      <h3>No statements imported yet</h3>
+      <p>Upload a CSV bank or credit card statement to get started.</p>
+      <a href="/statements/upload" class="ll-btn ll-btn-primary" style="margin-top:0.75rem;">
+        <i class="bi bi-upload"></i> Upload Statement
+      </a>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

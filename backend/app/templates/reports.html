@@ -1,0 +1,440 @@
+{% extends "base.html" %}
+{% block title %}Financial Reports{% endblock %}
+{% block meta_description %}Comprehensive financial reporting, category expense breakdown, and monthly trend analytics{% endblock %}
+
+{% block content %}
+<div class="ll-page">
+
+  <!-- Page Header -->
+  <div class="ll-page-header" style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:1rem;">
+    <div>
+      <h1><i class="bi bi-graph-up" style="color:var(--ll-accent)"></i> Financial Reports</h1>
+      <p class="subtitle">Comprehensive income, expense, category distributions, and monthly performance analysis</p>
+    </div>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+      <a href="/export/transactions?start_date={{ start_date }}&end_date={{ end_date }}&category_id={{ category_id or '' }}&tx_type={{ tx_type }}&statement_id={{ statement_id or '' }}"
+         class="ll-btn ll-btn-primary ll-btn-sm"
+         id="btn-export-csv"
+         title="Export matching transactions to CSV with formula injection protection">
+        <i class="bi bi-download"></i> Export Filtered CSV
+      </a>
+      <a href="/reports" class="ll-btn ll-btn-secondary ll-btn-sm">
+        <i class="bi bi-arrow-clockwise"></i> Reset Filters
+      </a>
+    </div>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="ll-card" style="margin-bottom:1.5rem;padding:1.25rem;">
+    <form method="get" action="/reports" id="report-filter-form" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;align-items:flex-end;">
+      <div>
+        <label for="start_date" style="font-size:0.75rem;color:var(--ll-text-muted);font-weight:600;display:block;margin-bottom:0.3rem;">From Date</label>
+        <input type="date" id="start_date" name="start_date" value="{{ start_date }}"
+               style="width:100%;background:var(--ll-surface-2);border:1px solid var(--ll-border);border-radius:var(--radius-sm);padding:0.45rem 0.65rem;color:var(--ll-text);font-size:0.85rem;">
+      </div>
+      <div>
+        <label for="end_date" style="font-size:0.75rem;color:var(--ll-text-muted);font-weight:600;display:block;margin-bottom:0.3rem;">To Date</label>
+        <input type="date" id="end_date" name="end_date" value="{{ end_date }}"
+               style="width:100%;background:var(--ll-surface-2);border:1px solid var(--ll-border);border-radius:var(--radius-sm);padding:0.45rem 0.65rem;color:var(--ll-text);font-size:0.85rem;">
+      </div>
+      <div>
+        <label for="category_id" style="font-size:0.75rem;color:var(--ll-text-muted);font-weight:600;display:block;margin-bottom:0.3rem;">Category</label>
+        <select id="category_id" name="category_id"
+                style="width:100%;background:var(--ll-surface-2);border:1px solid var(--ll-border);border-radius:var(--radius-sm);padding:0.45rem 0.65rem;color:var(--ll-text);font-size:0.85rem;">
+          <option value="">All Categories</option>
+          <option value="0" {% if category_id == 0 %}selected{% endif %}>Needs Review / Uncategorized</option>
+          {% for cat in all_categories %}
+          <option value="{{ cat.id }}" {% if category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label for="tx_type" style="font-size:0.75rem;color:var(--ll-text-muted);font-weight:600;display:block;margin-bottom:0.3rem;">Type</label>
+        <select id="tx_type" name="tx_type"
+                style="width:100%;background:var(--ll-surface-2);border:1px solid var(--ll-border);border-radius:var(--radius-sm);padding:0.45rem 0.65rem;color:var(--ll-text);font-size:0.85rem;">
+          <option value="" {% if not tx_type %}selected{% endif %}>All Types</option>
+          <option value="income" {% if tx_type == 'income' %}selected{% endif %}>Income Only (&gt;0)</option>
+          <option value="expense" {% if tx_type == 'expense' %}selected{% endif %}>Expenses Only (&lt;0)</option>
+        </select>
+      </div>
+      <div>
+        <label for="statement_id" style="font-size:0.75rem;color:var(--ll-text-muted);font-weight:600;display:block;margin-bottom:0.3rem;">Import Statement</label>
+        <select id="statement_id" name="statement_id"
+                style="width:100%;background:var(--ll-surface-2);border:1px solid var(--ll-border);border-radius:var(--radius-sm);padding:0.45rem 0.65rem;color:var(--ll-text);font-size:0.85rem;">
+          <option value="">All Statements</option>
+          {% for stmt in all_statements %}
+          <option value="{{ stmt.id }}" {% if statement_id == stmt.id %}selected{% endif %}>
+            #{{ stmt.id }} — {{ stmt.original_filename }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <button type="submit" class="ll-btn ll-btn-primary" style="width:100%;">
+          <i class="bi bi-funnel"></i> Apply Filter
+        </button>
+      </div>
+    </form>
+    {% if date_error %}
+    <div style="font-size:0.8rem;color:var(--ll-red);margin-top:0.65rem;">
+      <i class="bi bi-exclamation-triangle"></i> {{ date_error }}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Summary Cards -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:1rem;margin-bottom:2rem;">
+    <!-- Income -->
+    <div class="ll-card" style="padding:1.25rem;">
+      <div style="font-size:0.75rem;color:var(--ll-text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:0.4rem;">
+        Total Income
+      </div>
+      <div style="font-size:1.8rem;font-weight:700;color:var(--ll-green);font-family:'JetBrains Mono',monospace;">
+        ${{ "%.2f"|format(summary.total_income) }}
+      </div>
+      <div style="font-size:0.75rem;color:var(--ll-text-subtle);margin-top:0.3rem;">
+        Excludes transfers and refunds
+      </div>
+    </div>
+
+    <!-- Expenses -->
+    <div class="ll-card" style="padding:1.25rem;">
+      <div style="font-size:0.75rem;color:var(--ll-text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:0.4rem;">
+        Total Expenses
+      </div>
+      <div style="font-size:1.8rem;font-weight:700;color:var(--ll-red);font-family:'JetBrains Mono',monospace;">
+        ${{ "%.2f"|format(summary.total_expenses) }}
+      </div>
+      <div style="font-size:0.75rem;color:var(--ll-text-subtle);margin-top:0.3rem;">
+        Excludes internal transfers
+      </div>
+    </div>
+
+    <!-- Net Cash Flow -->
+    <div class="ll-card" style="padding:1.25rem;">
+      <div style="font-size:0.75rem;color:var(--ll-text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:0.4rem;">
+        Net Movement
+      </div>
+      <div style="font-size:1.8rem;font-weight:700;font-family:'JetBrains Mono',monospace;{% if summary.net_movement >= 0 %}color:var(--ll-green);{% else %}color:var(--ll-red);{% endif %}">
+        {% if summary.net_movement >= 0 %}+{% endif %}${{ "%.2f"|format(summary.net_movement) }}
+      </div>
+      <div style="font-size:0.75rem;color:var(--ll-text-subtle);margin-top:0.3rem;">
+        Net business cash position
+      </div>
+    </div>
+
+    <!-- Total Transactions -->
+    <div class="ll-card" style="padding:1.25rem;">
+      <div style="font-size:0.75rem;color:var(--ll-text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:0.4rem;">
+        Transactions
+      </div>
+      <div style="font-size:1.8rem;font-weight:700;color:var(--ll-text);font-family:'JetBrains Mono',monospace;">
+        {{ summary.total_transactions }}
+      </div>
+      <div style="font-size:0.75rem;color:var(--ll-text-subtle);margin-top:0.3rem;">
+        {{ summary.categorized_count }} categorized ({{ "%.1f"|format(summary.categorized_count / summary.total_transactions * 100) if summary.total_transactions > 0 else 0 }}%)
+      </div>
+    </div>
+
+    <!-- Review Queue -->
+    <div class="ll-card" style="padding:1.25rem;">
+      <div style="font-size:0.75rem;color:var(--ll-text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:0.4rem;">
+        Needs Review
+      </div>
+      <div style="font-size:1.8rem;font-weight:700;color:var(--ll-yellow);font-family:'JetBrains Mono',monospace;">
+        {{ summary.review_required_count }}
+      </div>
+      <div style="font-size:0.75rem;color:var(--ll-text-subtle);margin-top:0.3rem;">
+        <a href="/review" style="color:var(--ll-yellow);">Go to Review Queue &rarr;</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Row -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:1.5rem;margin-bottom:2rem;">
+    <!-- Monthly Income vs Expense Trend -->
+    <div class="ll-card">
+      <div class="ll-card-title"><i class="bi bi-bar-chart" style="color:var(--ll-accent);"></i> Monthly Performance Trend</div>
+      <div style="position:relative;height:280px;margin-top:1rem;">
+        <canvas id="monthly-trend-chart"
+                data-labels='{{ trend_labels | tojson }}'
+                data-income='{{ trend_income | tojson }}'
+                data-expenses='{{ trend_expenses | tojson }}'
+                data-net='{{ trend_net | tojson }}'></canvas>
+      </div>
+    </div>
+
+    <!-- Category Expense Distribution -->
+    <div class="ll-card">
+      <div class="ll-card-title"><i class="bi bi-pie-chart" style="color:var(--ll-purple);"></i> Expense Distribution by Category</div>
+      <div style="position:relative;height:280px;margin-top:1rem;">
+        <canvas id="category-report-chart"
+                data-labels='{{ cat_labels | tojson }}'
+                data-values='{{ cat_values | tojson }}'></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category Summary Table -->
+  <div class="ll-card" style="margin-bottom:2rem;padding:0;">
+    <div style="padding:1.25rem;border-bottom:1px solid var(--ll-border);display:flex;justify-content:space-between;align-items:center;">
+      <h3 style="margin:0;font-size:1.05rem;font-weight:600;">
+        <i class="bi bi-tags" style="color:var(--ll-accent);"></i> Category Financial Summary
+      </h3>
+      <span style="font-size:0.8rem;color:var(--ll-text-muted);">
+        {{ categories_breakdown|length }} categories with activity
+      </span>
+    </div>
+
+    <div class="table-responsive">
+      <table class="ll-table" style="margin:0;">
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th style="text-align:right;">Transactions</th>
+            <th style="text-align:right;">Total Expenses</th>
+            <th style="text-align:right;">Total Income</th>
+            <th style="text-align:right;">Net Amount</th>
+            <th style="text-align:right;">Share of Expenses</th>
+            <th style="text-align:right;">Review Needed</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% set badge_map = {
+            'Software': 'badge-software', 'Cloud Hosting': 'badge-cloud-hosting',
+            'Hardware and Equipment': 'badge-hardware',
+            'Internet and Telecommunications': 'badge-internet',
+            'Office Supplies': 'badge-office', 'Advertising and Marketing': 'badge-advertising',
+            'Professional Services': 'badge-professional', 'Travel': 'badge-travel',
+            'Meals': 'badge-meals', 'Bank Fees': 'badge-bank-fees',
+            'Business Income': 'badge-income', 'Refund': 'badge-refund',
+            'Reversal': 'badge-reversal', 'Internal Transfer': 'badge-transfer',
+            'Personal Expense': 'badge-personal', 'Needs Review': 'badge-review',
+          } %}
+          {% for cat in categories_breakdown %}
+          <tr>
+            <td>
+              <a href="/transactions?category_id={{ cat.category_id or 0 }}" style="display:inline-flex;align-items:center;gap:0.45rem;">
+                <span class="ll-badge {{ badge_map.get(cat.category_name, 'badge-review') }}">
+                  {{ cat.category_name }}
+                </span>
+              </a>
+            </td>
+            <td style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:0.85rem;">
+              {{ cat.transaction_count }}
+            </td>
+            <td style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:0.85rem;color:var(--ll-red);">
+              {% if cat.total_expenses > 0 %}${{ "%.2f"|format(cat.total_expenses) }}{% else %}—{% endif %}
+            </td>
+            <td style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:0.85rem;color:var(--ll-green);">
+              {% if cat.total_income > 0 %}${{ "%.2f"|format(cat.total_income) }}{% else %}—{% endif %}
+            </td>
+            <td style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:0.85rem;{% if cat.net_amount >= 0 %}color:var(--ll-green);{% else %}color:var(--ll-red);{% endif %}">
+              {% if cat.net_amount >= 0 %}+{% endif %}${{ "%.2f"|format(cat.net_amount) }}
+            </td>
+            <td style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:0.85rem;color:var(--ll-text-muted);">
+              {{ cat.percentage_of_expenses }}%
+            </td>
+            <td style="text-align:right;">
+              {% if cat.review_required_count > 0 %}
+                <a href="/transactions?category_id={{ cat.category_id or 0 }}&status=PENDING"
+                   class="ll-badge badge-pending" style="font-size:0.75rem;">
+                  {{ cat.review_required_count }} pending
+                </a>
+              {% else %}
+                <span style="color:var(--ll-text-subtle);font-size:0.8rem;">0</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if not categories_breakdown %}
+    <div class="ll-empty" style="padding:3rem;">
+      <div class="empty-icon">📊</div>
+      <h3>No financial data found</h3>
+      <p>Try adjusting your date range or filters above.</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Monthly Trend Breakdown Table -->
+  <div class="ll-card" style="padding:0;">
+    <div style="padding:1.25rem;border-bottom:1px solid var(--ll-border);">
+      <h3 style="margin:0;font-size:1.05rem;font-weight:600;">
+        <i class="bi bi-calendar3" style="color:var(--ll-accent);"></i> Monthly Performance Breakdown
+      </h3>
+    </div>
+
+    <div class="table-responsive">
+      <table class="ll-table" style="margin:0;">
+        <thead>
+          <tr>
+            <th>Month</th>
+            <th style="text-align:right;">Transactions</th>
+            <th style="text-align:right;">Income</th>
+            <th style="text-align:right;">Expenses</th>
+            <th style="text-align:right;">Net Cash Flow</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in monthly_trends %}
+          <tr>
+            <td style="font-weight:600;">{{ m.month_label }}</td>
+            <td style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:0.85rem;">
+              {{ m.transaction_count }}
+            </td>
+            <td style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:0.85rem;color:var(--ll-green);">
+              ${{ "%.2f"|format(m.income) }}
+            </td>
+            <td style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:0.85rem;color:var(--ll-red);">
+              ${{ "%.2f"|format(m.expenses) }}
+            </td>
+            <td style="text-align:right;font-family:'JetBrains Mono',monospace;font-size:0.85rem;{% if m.net >= 0 %}color:var(--ll-green);{% else %}color:var(--ll-red);{% endif %}">
+              {% if m.net >= 0 %}+{% endif %}${{ "%.2f"|format(m.net) }}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if not monthly_trends %}
+    <div class="ll-empty" style="padding:3rem;">
+      <div class="empty-icon">📅</div>
+      <h3>No monthly data found</h3>
+      <p>Transactions need dates to be summarized into monthly trends.</p>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+'use strict';
+
+document.addEventListener('DOMContentLoaded', () => {
+  // 1. Monthly Trend Bar/Line Chart
+  const trendCanvas = document.getElementById('monthly-trend-chart');
+  if (trendCanvas && typeof Chart !== 'undefined') {
+    const labels = JSON.parse(trendCanvas.dataset.labels || '[]');
+    const income = JSON.parse(trendCanvas.dataset.income || '[]');
+    const expenses = JSON.parse(trendCanvas.dataset.expenses || '[]');
+    const net = JSON.parse(trendCanvas.dataset.net || '[]');
+
+    new Chart(trendCanvas, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Income ($)',
+            data: income,
+            backgroundColor: 'rgba(63, 185, 80, 0.75)',
+            borderColor: '#3fb950',
+            borderWidth: 1,
+            borderRadius: 4,
+          },
+          {
+            label: 'Expenses ($)',
+            data: expenses,
+            backgroundColor: 'rgba(248, 81, 73, 0.75)',
+            borderColor: '#f85149',
+            borderWidth: 1,
+            borderRadius: 4,
+          },
+          {
+            type: 'line',
+            label: 'Net Cash Flow ($)',
+            data: net,
+            borderColor: '#58a6ff',
+            backgroundColor: 'rgba(88, 166, 255, 0.15)',
+            borderWidth: 2,
+            tension: 0.25,
+            fill: false,
+            pointRadius: 4,
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: { color: '#8b949e', font: { family: 'Inter', size: 11 } }
+          },
+          tooltip: {
+            callbacks: {
+              label: ctx => ` ${ctx.dataset.label}: $${parseFloat(ctx.raw).toFixed(2)}`
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: '#21262d' },
+            ticks: { color: '#8b949e', font: { family: 'Inter', size: 11 } }
+          },
+          y: {
+            grid: { color: '#21262d' },
+            ticks: {
+              color: '#8b949e',
+              font: { family: 'JetBrains Mono', size: 10 },
+              callback: val => '$' + val
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // 2. Category Distribution Donut Chart
+  const catCanvas = document.getElementById('category-report-chart');
+  if (catCanvas && typeof Chart !== 'undefined') {
+    const labels = JSON.parse(catCanvas.dataset.labels || '[]');
+    const values = JSON.parse(catCanvas.dataset.values || '[]');
+
+    const PALETTE = [
+      '#58a6ff', '#3fb950', '#f0883e', '#a371f7',
+      '#e3b341', '#79c0ff', '#ffa657', '#d2a8ff',
+      '#56d364', '#f85149', '#8b949e', '#d29922',
+      '#39d353', '#f778ba', '#db6d28', '#2ea043'
+    ];
+    const colors = values.map((_, i) => PALETTE[i % PALETTE.length]);
+
+    new Chart(catCanvas, {
+      type: 'doughnut',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: values,
+          backgroundColor: colors,
+          borderColor: '#161b22',
+          borderWidth: 2,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '65%',
+        plugins: {
+          legend: {
+            position: 'right',
+            labels: { color: '#8b949e', font: { family: 'Inter', size: 11 }, boxWidth: 12 }
+          },
+          tooltip: {
+            callbacks: {
+              label: ctx => ` $${parseFloat(ctx.raw).toFixed(2)}`
+            }
+          }
+        }
+      }
+    });
+  }
+});
+</script>
+{% endblock %}

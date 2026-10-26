@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Upload Statement{% endblock %}
+{% block meta_description %}Upload a CSV bank or credit card statement to categorize your transactions{% endblock %}
+
+{% block content %}
+<div class="ll-page-sm">
+
+  <div class="ll-page-header">
+    <h1><i class="bi bi-upload" style="color:var(--ll-accent)"></i> Upload Statement</h1>
+    <p class="subtitle">Import a CSV bank or credit card statement for automatic categorization</p>
+  </div>
+
+  {% if error %}
+  <div class="ll-alert ll-alert-error">
+    <strong>Upload failed:</strong> {{ error }}
+  </div>
+  {% endif %}
+
+  <form id="upload-form" method="post" action="/statements/upload" enctype="multipart/form-data">
+
+    <!-- File drop zone -->
+    <div class="ll-form-group">
+      <label class="ll-label">Statement file (CSV)</label>
+      <div class="ll-file-zone" id="upload-zone" role="button" tabindex="0"
+           aria-label="Click or drag and drop a CSV file here">
+        <div class="upload-icon">📊</div>
+        <div style="font-weight:600;font-size:0.95rem;margin-bottom:0.35rem;">
+          Drop your CSV here or <span style="color:var(--ll-accent);">click to browse</span>
+        </div>
+        <div id="file-label" style="color:var(--ll-text-muted);font-size:0.82rem;">
+          No file selected
+        </div>
+        <input type="file" name="file" id="file-input" accept=".csv" required>
+      </div>
+    </div>
+
+    <!-- Guidelines -->
+    <div class="format-hint">
+      <strong style="font-size:0.8rem;color:var(--ll-text-muted);">Supported format</strong>
+      <code>
+date,description,amount<br>
+2026-08-01,IDE SOFTWARE SUBSCRIPTION,-15.00<br>
+2026-08-03,CLIENT PAYMENT,850.00<br>
+2026-08-05,INTERNET BILL,-30.00
+      </code>
+      <div style="margin-top:0.75rem;font-size:0.8rem;color:var(--ll-text-muted);">
+        <strong>Rules:</strong>
+        Negative amounts = money out &nbsp;·&nbsp;
+        Positive amounts = money in &nbsp;·&nbsp;
+        Max file size: <strong>{{ max_upload_size_mb }} MB</strong> &nbsp;·&nbsp;
+        Encodings: UTF-8, UTF-8 BOM, Windows-1252
+      </div>
+    </div>
+
+    <div style="margin-top:1.5rem;display:flex;gap:0.75rem;flex-wrap:wrap;">
+      <button type="submit" class="ll-btn ll-btn-primary ll-btn-lg" id="submit-btn">
+        <i class="bi bi-cloud-upload"></i> Import &amp; Categorize
+      </button>
+      <a href="/statements" class="ll-btn ll-btn-secondary ll-btn-lg">
+        <i class="bi bi-arrow-left"></i> Back
+      </a>
+    </div>
+
+  </form>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Show spinner on submit
+  document.getElementById('upload-form').addEventListener('submit', function () {
+    const btn = document.getElementById('submit-btn');
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Processing…';
+    btn.disabled = true;
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,327 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block meta_description %}LedgerLens dashboard — overview of your categorized financial statements{% endblock %}
+
+{% macro category_badge(name) %}
+  {% set cls_map = {
+    'Software': 'badge-software', 'Cloud Hosting': 'badge-cloud-hosting',
+    'Hardware and Equipment': 'badge-hardware',
+    'Internet and Telecommunications': 'badge-internet',
+    'Office Supplies': 'badge-office', 'Advertising and Marketing': 'badge-advertising',
+    'Professional Services': 'badge-professional', 'Travel': 'badge-travel',
+    'Meals': 'badge-meals', 'Bank Fees': 'badge-bank-fees',
+    'Business Income': 'badge-income', 'Refund': 'badge-refund',
+    'Reversal': 'badge-reversal', 'Internal Transfer': 'badge-transfer',
+    'Personal Expense': 'badge-personal', 'Needs Review': 'badge-review',
+  } %}
+  <span class="ll-badge {{ cls_map.get(name, 'badge-review') }}">{{ name or 'Needs Review' }}</span>
+{% endmacro %}
+
+{% block content %}
+<div class="ll-page">
+
+  <!-- Header & Date Filter Toolbar -->
+  <div class="ll-page-header" style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:1rem;">
+    <div>
+      <h1><i class="bi bi-speedometer2" style="color:var(--ll-accent)"></i> Dashboard</h1>
+      <p class="subtitle">Overview of your business transactions and financial health</p>
+    </div>
+
+    <!-- Date Range Filter Form -->
+    <form method="get" action="/" class="d-flex align-items-center gap-2 flex-wrap" style="background:var(--ll-surface);padding:0.5rem 0.85rem;border:1px solid var(--ll-border);border-radius:var(--radius);">
+      <div class="d-flex align-items-center gap-1">
+        <label for="start_date" style="font-size:0.75rem;color:var(--ll-text-muted);font-weight:600;text-transform:uppercase;">From</label>
+        <input type="date" id="start_date" name="start_date" value="{{ start_date }}"
+               class="form-control form-control-sm" style="background:var(--ll-surface-2);color:var(--ll-text);border-color:var(--ll-border);width:135px;font-size:0.8rem;">
+      </div>
+      <div class="d-flex align-items-center gap-1">
+        <label for="end_date" style="font-size:0.75rem;color:var(--ll-text-muted);font-weight:600;text-transform:uppercase;">To</label>
+        <input type="date" id="end_date" name="end_date" value="{{ end_date }}"
+               class="form-control form-control-sm" style="background:var(--ll-surface-2);color:var(--ll-text);border-color:var(--ll-border);width:135px;font-size:0.8rem;">
+      </div>
+      <button type="submit" class="ll-btn ll-btn-primary ll-btn-sm">
+        <i class="bi bi-funnel"></i> Filter
+      </button>
+      {% if start_date or end_date %}
+      <a href="/" class="ll-btn ll-btn-secondary ll-btn-sm" title="Clear date filter">
+        <i class="bi bi-x-circle"></i> Reset
+      </a>
+      {% endif %}
+    </form>
+  </div>
+
+  {% if date_error %}
+  <div class="ll-alert ll-alert-warning" role="alert">
+    <i class="bi bi-exclamation-triangle"></i> {{ date_error }}
+  </div>
+  {% endif %}
+
+  <!-- Summary Cards Grid -->
+  <div class="stat-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));margin-bottom:1.75rem;">
+    <!-- Total Transactions -->
+    <div class="stat-card total">
+      <div class="stat-icon">📑</div>
+      <div class="stat-label">Total Transactions</div>
+      <div class="stat-value">{{ stats.total_transactions }}</div>
+      <div class="stat-sub">Across {{ stats.total_statements }} statement{% if stats.total_statements != 1 %}s{% endif %}</div>
+    </div>
+
+    <!-- Categorized -->
+    <div class="stat-card" style="--accent-color: var(--ll-accent);">
+      <div class="stat-icon">🏷️</div>
+      <div class="stat-label">Categorized</div>
+      <div class="stat-value">{{ stats.categorized_count }}</div>
+      <div class="stat-sub">{{ stats.unknown_count }} uncategorized / review</div>
+    </div>
+
+    <!-- Needs Review -->
+    <div class="stat-card review">
+      <div class="stat-icon">🚩</div>
+      <div class="stat-label">Needs Review</div>
+      <div class="stat-value">{{ stats.review_count }}</div>
+      <div class="stat-sub">
+        {% if stats.review_count > 0 %}
+          <a href="/transactions?status=PENDING" style="color:var(--ll-yellow)">View review items →</a>
+        {% else %}
+          <span style="color:var(--ll-green)">All clear!</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Income -->
+    <div class="stat-card income">
+      <div class="stat-icon">💚</div>
+      <div class="stat-label">Business Income</div>
+      <div class="stat-value">${{ "%.2f"|format(stats.total_income) }}</div>
+      <div class="stat-sub">Excludes transfers & refunds</div>
+    </div>
+
+    <!-- Expenses -->
+    <div class="stat-card expense">
+      <div class="stat-icon">🔴</div>
+      <div class="stat-label">Total Expenses</div>
+      <div class="stat-value">${{ "%.2f"|format(stats.total_expenses) }}</div>
+      <div class="stat-sub">Excludes internal transfers</div>
+    </div>
+
+    <!-- Net Cash Flow -->
+    <div class="stat-card" style="--accent-color: {% if stats.net_cash_flow >= 0 %}var(--ll-green){% else %}var(--ll-red){% endif %};">
+      <div class="stat-icon">⚖️</div>
+      <div class="stat-label">Net Cash Flow</div>
+      <div class="stat-value" style="color:{% if stats.net_cash_flow >= 0 %}var(--ll-green){% else %}var(--ll-red){% endif %};">
+        {% if stats.net_cash_flow >= 0 %}+{% endif %}${{ "%.2f"|format(stats.net_cash_flow) }}
+      </div>
+      <div class="stat-sub">Income minus expenses</div>
+    </div>
+  </div>
+
+  <!-- Main Grid: Chart + Recent Statements -->
+  <div style="display:grid;grid-template-columns:1fr 360px;gap:1.5rem;align-items:start;margin-bottom:2rem;">
+
+    <!-- Category Breakdown Chart & Progress Bars -->
+    <div class="ll-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <div class="ll-card-title" style="margin:0;">Spending by Category</div>
+        <span style="font-size:0.75rem;color:var(--ll-text-muted);">
+          {% if start_date or end_date %}Filtered period{% else %}All time{% endif %}
+        </span>
+      </div>
+
+      {% if category_totals %}
+        <div style="position:relative;height:240px;margin-bottom:1.5rem;">
+          <canvas id="category-chart"
+            data-labels='{{ category_totals.keys()|list|tojson }}'
+            data-values='{{ category_totals.values()|list|map("float")|list|tojson }}'>
+          </canvas>
+        </div>
+
+        <!-- Breakdown List -->
+        <div style="display:flex;flex-direction:column;gap:0.65rem;">
+          {% for item in breakdown %}
+            {% if item.total_spending > 0 and item.category_name != 'Internal Transfer' %}
+            <div class="category-bar">
+              <div class="category-bar-label">
+                <span>
+                  {{ category_badge(item.category_name) }}
+                  <span style="font-size:0.75rem;color:var(--ll-text-muted);margin-left:0.35rem;">{{ item.transaction_count }} txs</span>
+                </span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:0.82rem;font-weight:600;">
+                  ${{ "%.2f"|format(item.total_spending) }}
+                  <span style="font-size:0.72rem;color:var(--ll-text-muted);font-weight:400;">({{ item.percentage_of_spending }}%)</span>
+                </span>
+              </div>
+              <div class="category-bar-track">
+                <div class="category-bar-fill" style="width:{{ item.percentage_of_spending }}%;"></div>
+              </div>
+            </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="ll-empty" style="padding:3rem 1rem;">
+          <div class="empty-icon">📊</div>
+          <h3>No spending data found</h3>
+          {% if start_date or end_date %}
+            <p>No transactions match the selected date range.</p>
+            <a href="/" class="ll-btn ll-btn-secondary ll-btn-sm" style="margin-top:0.5rem;">Clear Date Filter</a>
+          {% else %}
+            <p><a href="/statements/upload">Upload a CSV statement</a> to see your spending breakdown.</p>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Recent Statements Card -->
+    <div class="ll-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
+        <div class="ll-card-title" style="margin:0;">Recent Statements</div>
+        <a href="/statements" style="font-size:0.75rem;">View all →</a>
+      </div>
+
+      {% if statements %}
+        <div style="display:flex;flex-direction:column;gap:0.75rem;">
+          {% for s in statements %}
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:0.65rem 0.75rem;background:var(--ll-surface-2);border:1px solid var(--ll-border);border-radius:var(--radius);">
+            <div style="min-width:0;">
+              <div style="font-weight:600;font-size:0.84rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;"
+                   title="{{ s.original_filename }}">
+                {{ s.original_filename }}
+              </div>
+              <div style="font-size:0.72rem;color:var(--ll-text-muted);">
+                {{ s.transaction_count }} transactions &nbsp;·&nbsp;
+                {{ s.created_at.strftime('%b %d, %Y') if s.created_at else 'Unknown date' }}
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.3rem;">
+              {% if s.status == 'COMPLETED' %}
+                <span class="ll-badge badge-ok">Completed</span>
+              {% elif s.status == 'COMPLETED_WITH_ERRORS' %}
+                <span class="ll-badge badge-errors">Partial</span>
+              {% else %}
+                <span class="ll-badge badge-failed">{{ s.status }}</span>
+              {% endif %}
+              <a href="/statements/{{ s.id }}" class="ll-btn ll-btn-secondary ll-btn-sm" style="padding:0.15rem 0.5rem;font-size:0.75rem;">View</a>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="ll-empty" style="padding:2rem 1rem;">
+          <div class="empty-icon" style="font-size:2rem;">📄</div>
+          <h3>No statements yet</h3>
+          <p><a href="/statements/upload">Upload your first CSV</a> to get started.</p>
+        </div>
+      {% endif %}
+    </div>
+
+  </div><!-- /main grid -->
+
+  <!-- Recent Transactions Section -->
+  <div class="ll-card" style="margin-bottom:2rem;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;">
+      <div>
+        <div class="ll-card-title" style="margin:0;">Recent Transactions</div>
+        <p class="subtitle" style="font-size:0.78rem;margin:0;">Latest financial records processed by LedgerLens</p>
+      </div>
+      <a href="/transactions{% if start_date or end_date %}?start_date={{ start_date }}&end_date={{ end_date }}{% endif %}" class="ll-btn ll-btn-secondary ll-btn-sm">
+        View all transactions →
+      </a>
+    </div>
+
+    {% if recent_transactions %}
+    <div class="table-responsive">
+      <table class="ll-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Description</th>
+            <th style="text-align:right;">Amount</th>
+            <th>Category</th>
+            <th>Confidence</th>
+            <th>Status</th>
+            <th>Source</th>
+            <th style="text-align:right;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in recent_transactions %}
+          <tr>
+            <td style="color:var(--ll-text-muted);white-space:nowrap;font-size:0.8rem;">
+              {{ t.transaction_date.isoformat() if t.transaction_date else '—' }}
+            </td>
+            <td style="max-width:280px;">
+              <a href="/transactions/{{ t.id }}" style="font-weight:500;color:var(--ll-text);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"
+                 title="{{ t.original_description }}">
+                {{ t.original_description }}
+              </a>
+              {% if t.statement %}
+              <div style="font-size:0.7rem;color:var(--ll-text-subtle);">
+                <a href="/statements/{{ t.statement_id }}" style="color:var(--ll-text-subtle);">
+                  Stmt #{{ t.statement_id }}: {{ t.statement.original_filename }}
+                </a>
+              </div>
+              {% endif %}
+            </td>
+            <td style="text-align:right;white-space:nowrap;">
+              {% if t.amount > 0 %}
+                <span class="amount-positive">+${{ "%.2f"|format(t.amount) }}</span>
+              {% elif t.amount < 0 %}
+                <span class="amount-negative">-${{ "%.2f"|format(t.amount|abs) }}</span>
+              {% else %}
+                <span class="amount-zero">$0.00</span>
+              {% endif %}
+            </td>
+            <td>{{ category_badge(t.category.name if t.category else 'Needs Review') }}</td>
+            <td><div data-confidence="{{ t.confidence_score }}"></div></td>
+            <td>
+              {% if t.review_status == 'PENDING' %}
+                <span class="ll-badge badge-pending">Needs Review</span>
+              {% elif t.review_status == 'REVIEWED' %}
+                <span class="ll-badge badge-reviewed">Reviewed</span>
+              {% else %}
+                <span class="ll-badge badge-auto">Auto</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if t.was_manually_categorized %}
+                <span class="ll-badge badge-manual">Manual</span>
+              {% else %}
+                <span class="ll-badge badge-auto" style="opacity:0.6;">Auto</span>
+              {% endif %}
+            </td>
+            <td style="text-align:right;">
+              <a href="/transactions/{{ t.id }}" class="ll-btn ll-btn-secondary ll-btn-sm" style="padding:0.2rem 0.55rem;font-size:0.75rem;">
+                Details
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      <div class="ll-empty" style="padding:2.5rem 1rem;">
+        <div class="empty-icon" style="font-size:2rem;">💳</div>
+        <h3>No recent transactions</h3>
+        <p><a href="/statements/upload">Upload a statement</a> to populate your dashboard.</p>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Quick Action Footer Links -->
+  <div style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;">
+    <a href="/statements/upload" class="ll-btn ll-btn-primary">
+      <i class="bi bi-upload"></i> Upload Statement
+    </a>
+    <a href="/transactions" class="ll-btn ll-btn-secondary">
+      <i class="bi bi-list-ul"></i> All Transactions
+    </a>
+    {% if stats.review_count > 0 %}
+    <a href="/review" class="ll-btn ll-btn-secondary" style="color:var(--ll-yellow);border-color:var(--ll-yellow);">
+      <i class="bi bi-flag"></i> Review Queue ({{ stats.review_count }})
+    </a>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}
