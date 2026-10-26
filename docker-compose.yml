@@ -1,0 +1,20 @@
+services:
+  backend:
+    build: ./backend
+    environment:
+      # Only the frontend container can reach the API, so its X-Forwarded-For is trustworthy.
+      SC_TRUST_PROXY_HEADERS: "true"
+    volumes:
+      - rules:/data
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  rules:

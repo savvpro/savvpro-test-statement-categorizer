@@ -1,0 +1,121 @@
+{
+  "brands": [
+    {"category": "software", "confidence": 0.96, "match": [
+      "ADOBE", "FIGMA", "CANVA", "SKETCH", "NOTION", "SLACK", "ZOOM", "DROPBOX", "GOOGLE WORKSPACE",
+      "GSUITE", "G SUITE", "MICROSOFT 365", "OFFICE 365", "MICROSOFT OFFICE", "GITHUB", "GITLAB",
+      "JETBRAINS", "OPENAI", "CHATGPT", "ANTHROPIC", "MIDJOURNEY", "ENVATO", "SHUTTERSTOCK",
+      "ISTOCK", "UNSPLASH", "MONOTYPE", "FONTS", "LINEAR", "ASANA", "TRELLO", "ATLASSIAN", "JIRA",
+      "1PASSWORD", "LASTPASS", "DASHLANE", "GRAMMARLY", "QUICKBOOKS", "XERO", "FRESHBOOKS", "HARVEST",
+      "TOGGL", "CALENDLY", "LOOM", "FRAME IO", "FRAMER", "PROCREATE", "AFFINITY", "MAXON", "INVISION",
+      "MIRO", "AIRTABLE", "ZAPIER", "SETAPP", "TYPEFORM", "DOCUSIGN", "PANDADOC", "SPLINE", "ZOHO", "PIPEDRIVE", "HUBSPOT", "SQUARE ONLINE", "STRIPE ATLAS", "TWILIO", "SENDGRID", "BASECAMP", "CLICKUP", "MONDAY COM", "WEBEX", "ADOBE STOCK"
+    ]},
+    {"category": "hosting", "confidence": 0.95, "match": [
+      "GODADDY", "NAMECHEAP", "CLOUDFLARE", "DIGITALOCEAN", "AWS", "AMAZON WEB SERVICES", "VERCEL",
+      "NETLIFY", "HEROKU", "SQUARESPACE", "WEBFLOW", "WIX", "BLUEHOST", "HOSTINGER", "GOOGLE DOMAINS",
+      "SITEGROUND", "LINODE", "VULTR", "RENDER"
+    ]},
+    {"category": "travel", "confidence": 0.93, "match": [
+      "UBER", "UBER TRIP", "LYFT", "DELTA AIR", "UNITED AIRLINES", "AMERICAN AIRLINES", "SOUTHWEST AIR",
+      "JETBLUE", "EMIRATES", "QATAR AIRWAYS", "BRITISH AIRWAYS", "RYANAIR", "EASYJET", "LUFTHANSA",
+      "MARRIOTT", "HILTON", "HYATT", "BOOKING", "EXPEDIA", "AMTRAK", "GREYHOUND", "HERTZ", "AVIS",
+      "DB BAHN", "DEUTSCHE BAHN", "SNCF", "TRENITALIA", "ENTERPRISE RENT", "ZIPCAR", "SPOTHERO", "PARKING", "TAXI", "MTA", "BART", "CLIPPER", "E-ZPASS",
+      "EZPASS", "FASTRAK", "TRANSIT", "METRO", "TRAINLINE", "PREMIER INN", "TRAVELODGE", "NATIONAL RAIL", "NATIONAL EXPRESS", "TFL", "TRANSPORT FOR LONDON", "STAGECOACH", "FIRST GROUP", "AIR CANADA", "WESTJET", "QANTAS", "SINGAPORE AIRLINES", "CATHAY PACIFIC", "KLM", "AIR FRANCE", "GOJEK", "VIA RAIL"
+    ]},
+    {"category": "meals", "confidence": 0.85, "match": [
+      "STARBUCKS", "DUNKIN", "PANERA", "CHIPOTLE", "MCDONALDS", "SUBWAY", "DOORDASH", "GRUBHUB",
+      "UBER EATS", "UBEREATS", "POSTMATES", "DELIVEROO", "JUST EAT", "BLUE BOTTLE", "PEETS", "PRET A MANGER",
+      "SWEETGREEN", "SHAKE SHACK", "CHICK FIL A", "TACO BELL", "WENDYS", "KFC", "PIZZA HUT", "DOMINOS", "GREGGS", "COSTA COFFEE", "NANDOS", "WAGAMAMA", "TIM HORTONS", "SECOND CUP"
+    ]},
+    {"category": "office", "confidence": 0.9, "match": [
+      "STAPLES", "OFFICE DEPOT", "OFFICEMAX", "B&H", "B&H PHOTO", "WACOM", "LOGITECH", "BLICK",
+      "BLICK ART", "JACKSONS ART", "USPS", "UPS STORE", "FEDEX", "DHL", "NEWEGG", "MICRO CENTER"
+    ]},
+    {"category": "marketing", "confidence": 0.93, "match": [
+      "GOOGLE ADS", "GOOGLE ADWORDS", "FACEBK", "FACEBOOK ADS", "META ADS", "LINKEDIN ADS", "PINTEREST ADS",
+      "MAILCHIMP", "VISTAPRINT", "MOO", "CONSTANT CONTACT", "CONVERTKIT", "BUFFER", "HOOTSUITE", "SEMRUSH",
+      "DRIBBBLE", "BEHANCE PRO"
+    ]},
+    {"category": "professional", "confidence": 0.9, "match": [
+      "LEGALZOOM", "UPWORK", "FIVERR", "TOPTAL", "BENCH ACCOUNTING", "TURBOTAX", "HR BLOCK", "H&R BLOCK",
+      "CPA", "LAW OFFICE", "LAW OFFICES", "ATTORNEY"
+    ]},
+    {"category": "telecom", "confidence": 0.92, "match": [
+      "VERIZON", "AT&T", "ATT", "T-MOBILE", "TMOBILE", "COMCAST", "XFINITY", "SPECTRUM", "GOOGLE FI",
+      "MINT MOBILE", "VODAFONE", "TELUS", "ROGERS", "FRONTIER COMMUNICATIONS"
+    ]},
+    {"category": "education", "confidence": 0.93, "match": [
+      "UDEMY", "SKILLSHARE", "COURSERA", "LINKEDIN LEARNING", "MASTERCLASS", "DOMESTIKA",
+      "SCHOOL OF MOTION", "FRONTEND MASTERS", "EGGHEAD", "INTERACTION DESIGN FOUNDATION", "NIELSEN NORMAN"
+    ]},
+    {"category": "rent", "confidence": 0.93, "match": [
+      "WEWORK", "REGUS", "INDUSTRIOUS", "COWORKING", "COWORK", "DESKPASS", "SPACES"
+    ]},
+    {"category": "insurance", "confidence": 0.92, "match": [
+      "HISCOX", "NEXT INSURANCE", "HARTFORD", "THIMBLE", "PROFESSIONAL LIABILITY"
+    ]},
+    {"category": "taxes", "confidence": 0.9, "match": [
+      "SECRETARY OF STATE", "BUSINESS LICENSE", "BUSINESS LICENCE", "COMPANIES HOUSE", "REGISTERED AGENT",
+      "NORTHWEST REGISTERED AGENT", "ZENBUSINESS"
+    ]},
+    {"category": "personal", "confidence": 0.9, "match": [
+      "NETFLIX", "SPOTIFY", "HULU", "DISNEY PLUS", "DISNEYPLUS", "HBO", "APPLE MUSIC", "AMAZON PRIME VIDEO",
+      "STEAM", "STEAMGAMES", "PLAYSTATION", "NINTENDO", "XBOX", "PELOTON", "PLANET FITNESS", "TINDER",
+      "BUMBLE", "KROGER", "SAFEWAY", "WHOLE FOODS", "TRADER JOES", "ALDI", "PUBLIX", "CVS", "WALGREENS",
+      "SEPHORA", "ZARA", "H&M", "NORDSTROM", "LULULEMON", "NIKE", "DOLLAR TREE", "TESCO", "ASDA", "SAINSBURYS", "MORRISONS", "LIDL", "WAITROSE", "MARKS SPENCER", "PRIMARK", "SUPERDRUG", "LOBLAWS", "SHOPPERS DRUG MART", "WOOLWORTHS", "COLES", "ALBERT HEIJN", "DM DROGERIE"
+    ]}
+  ],
+  "ambiguous": [
+    {"match": ["AMAZON", "AMZN", "AMZN MKTP", "AMAZON MKTPLACE", "AMAZON MARKETPLACE"],
+     "candidates": ["office", "personal", "software"],
+     "note": "Amazon sells everything, so the category depends on what was bought"},
+    {"match": ["AMAZON PRIME"], "candidates": ["personal", "software", "office"],
+     "note": "Prime can be a personal or a business membership"},
+    {"match": ["WALMART", "TARGET", "COSTCO", "HOME DEPOT", "LOWES", "IKEA", "BEST BUY", "MICHAELS"],
+     "candidates": ["office", "personal"], "note": "General retailer, could be business or personal"},
+    {"match": ["APPLE", "APPLE STORE"], "candidates": ["software", "office", "personal"],
+     "note": "Apple charges cover apps, iCloud and hardware"},
+    {"match": ["GOOGLE"], "candidates": ["software", "marketing", "personal"],
+     "note": "Google bills for ads, storage and apps under one name"},
+    {"match": ["MICROSOFT"], "candidates": ["software", "personal"],
+     "note": "Microsoft charges can be business software or personal Xbox/OneDrive"},
+    {"match": ["LINKEDIN"], "candidates": ["software", "marketing"],
+     "note": "LinkedIn bills for subscriptions and for advertising"},
+    {"match": ["AIRBNB", "VRBO"], "candidates": ["travel", "personal"],
+     "note": "Lodging is only deductible for business trips"},
+    {"match": ["PAYPAL", "VENMO", "ZELLE", "CASH APP", "WISE", "REMITLY"],
+     "candidates": ["professional", "transfer", "personal"],
+     "note": "Person-to-person payment, the purpose is not in the statement"},
+    {"match": ["SHELL", "CHEVRON", "EXXON", "EXXONMOBIL", "MOBIL", "BP", "SUNOCO", "CIRCLE K", "ARCO"],
+     "candidates": ["travel", "personal"], "note": "Fuel is only deductible for business driving"},
+    {"match": ["ATM", "CASH WITHDRAWAL", "ATM WITHDRAWAL", "CASH ADVANCE"],
+     "candidates": ["personal", "transfer"], "note": "Cash withdrawals have no merchant to categorize"},
+    {"match": ["IRS", "USATAXPYMT", "IRS TREAS", "DEPT OF REVENUE", "FRANCHISE TAX", "STATE TAX"],
+     "candidates": ["taxes", "personal"],
+     "note": "Income tax payments are not a business expense, licence fees are"},
+    {"match": ["STATE FARM", "GEICO", "PROGRESSIVE", "LEMONADE", "ALLSTATE"],
+     "candidates": ["insurance", "personal"], "note": "Could be business or personal insurance"},
+    {"match": ["UBER ONE"], "candidates": ["travel", "meals", "personal"],
+     "note": "Uber One membership covers rides and food delivery"}
+  ],
+  "keywords": [
+    {"category": "meals", "confidence": 0.55,
+     "match": ["CAFE", "COFFEE", "RESTAURANT", "BISTRO", "PIZZA", "GRILL", "DINER", "PUB", "BAR",
+               "KITCHEN", "BAKERY", "TAVERN", "SUSHI", "BURGER", "TAQUERIA", "DELI"]},
+    {"category": "travel", "confidence": 0.6,
+     "match": ["HOTEL", "INN", "MOTEL", "AIRLINES", "AIRWAYS", "AIRLINE", "TOLL", "CAR RENTAL", "RAILWAY"]},
+    {"category": "hosting", "confidence": 0.55, "match": ["HOSTING", "DOMAIN", "DOMAINS", "SERVER"]},
+    {"category": "software", "confidence": 0.55, "match": ["SOFTWARE", "SAAS", "SUBSCRIPTION", "APP STORE"]},
+    {"category": "marketing", "confidence": 0.5, "match": ["PRINTING", "PRINT", "ADVERTISING", "PROMO"]},
+    {"category": "insurance", "confidence": 0.6, "match": ["INSURANCE", "ASSURANCE"]},
+    {"category": "education", "confidence": 0.55,
+     "match": ["TRAINING", "COURSE", "ACADEMY", "UNIVERSITY", "SCHOOL", "WORKSHOP", "CONFERENCE"]},
+    {"category": "professional", "confidence": 0.6,
+     "match": ["ACCOUNTING", "LEGAL", "LAW", "CONSULTING", "CONSULTANT", "BOOKKEEPING", "NOTARY"]},
+    {"category": "telecom", "confidence": 0.6,
+     "match": ["WIRELESS", "MOBILE", "TELECOM", "INTERNET", "BROADBAND", "FIBER"]},
+    {"category": "office", "confidence": 0.6, "match": ["SUPPLIES", "STATIONERY", "OFFICE", "HARDWARE"]},
+    {"category": "personal", "confidence": 0.6,
+     "match": ["GROCERY", "GROCERIES", "SUPERMARKET", "MARKET", "GYM", "FITNESS", "PHARMACY", "SALON", "BARBER"]},
+    {"category": "rent", "confidence": 0.5, "match": ["RENT", "LEASE"]}
+  ]
+}
