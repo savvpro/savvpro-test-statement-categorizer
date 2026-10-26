@@ -1,0 +1,20 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Environment secrets
+.env
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Generated files
+uploads/
+exports/
+
+# Model weights
+model/*.onnx

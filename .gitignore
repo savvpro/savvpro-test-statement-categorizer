@@ -1,0 +1,24 @@
+﻿# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.env
+
+# Databases and local data
+*.db
+*.sqlite
+*.sqlite3
+
+# Frontend
+node_modules/
+frontend/dist/
+frontend/.env.local
+
+# Logs
+*.log
+
+# Large model weights
+model_quantized.onnx
+backend/model/*.onnx
