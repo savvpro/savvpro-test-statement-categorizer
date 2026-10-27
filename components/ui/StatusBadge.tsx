@@ -1,0 +1,2 @@
+import {CheckCircle2,AlertTriangle,PencilLine} from "lucide-react";import type {Status} from "@/types/transaction";
+export function StatusBadge({s,c}:{s:Status;c:number}){const m={automatic:[CheckCircle2,c>=80?"Auto · high confidence":"Auto · low confidence"],needs_review:[AlertTriangle,"Needs review"],corrected:[PencilLine,"Corrected by you"]} as const;const [I,l]=m[s];return <span className="inline-flex items-center gap-1 text-xs"><I size={14} aria-hidden/>{l}</span>}
