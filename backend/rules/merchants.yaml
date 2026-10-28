@@ -1,0 +1,69 @@
+# Stage 4: known merchants. Aliases match whole tokens inside the cleaned merchant key.
+# Company names marked (fictional) are invented for the demo data.
+
+# Mortgage: the statement cannot show the interest/principal split, so it always asks.
+- id: m.mortgage.granite
+  aliases: ["GRANITE HOME LENDING", "GRANITE HOME LOAN", "GRANITE MTG"]  # fictional
+  category: MORTGAGE_INTEREST
+  score: 0.95
+  flags: [MORTGAGE_SPLIT_REQUIRED]
+
+- id: m.insurance.hearthstone
+  aliases: ["HEARTHSTONE MUTUAL", "HEARTHSTONE INS"]  # fictional
+  category: INSURANCE
+  score: 0.95
+
+- id: m.insurance.public
+  aliases: ["STATE FARM", "ALLSTATE", "GEICO", "PROGRESSIVE INS", "FARMERS INS", "LIBERTY MUTUAL"]
+  category: INSURANCE
+  score: 0.93
+
+- id: m.repairs.hardware
+  aliases: ["HOME DEPOT", "LOWES", "ACE HARDWARE", "TRUE VALUE", "MENARDS"]
+  category: REPAIRS
+  score: 0.88
+
+- id: m.supplies.office
+  aliases: ["STAPLES", "OFFICE DEPOT", "OFFICEMAX"]
+  category: SUPPLIES
+  score: 0.88
+
+- id: m.advertising.listing
+  aliases: ["ZILLOW", "APARTMENTS COM", "TRULIA", "HOTPADS", "CRAIGSLIST", "RENT COM"]
+  category: ADVERTISING
+  score: 0.93
+
+- id: m.other.landlord_software
+  aliases: ["AVAIL", "TURBOTENANT", "BUILDIUM", "APPFOLIO", "RENTREDI", "COZY"]
+  category: OTHER_EXPENSE
+  score: 0.90
+
+- id: m.legal.tax_prep
+  aliases: ["H AND R BLOCK", "JACKSON HEWITT", "TURBOTAX", "INTUIT TURBOTAX"]
+  category: LEGAL_PROFESSIONAL
+  score: 0.92
+
+- id: m.auto.gas
+  aliases: ["SHELL", "CHEVRON", "EXXON", "EXXONMOBIL", "BP", "ARCO", "76", "MARATHON", "SUNOCO", "VALERO"]
+  category: AUTO_TRAVEL
+  score: 0.60
+
+- id: m.auto.parking
+  aliases: ["PARKMOBILE", "SPOTHERO"]
+  category: AUTO_TRAVEL
+  score: 0.88
+
+- id: m.cleaning.services
+  aliases: ["MOLLY MAID", "MERRY MAIDS", "STANLEY STEEMER", "CHEMDRY"]
+  category: CLEANING_MAINTENANCE
+  score: 0.92
+
+- id: m.repairs.pest
+  aliases: ["TERMINIX", "ORKIN"]
+  category: REPAIRS
+  score: 0.90
+
+- id: m.utilities.public
+  aliases: ["COMCAST", "XFINITY", "PG AND E", "DUKE ENERGY", "CON EDISON", "WASTE MANAGEMENT", "REPUBLIC SERVICES"]
+  category: UTILITIES
+  score: 0.93

@@ -1,0 +1,50 @@
+# Production stack from GHCR images. Self-contained (no build section), so use it alone:
+#   LEDGERLY_VERSION=1.0.0 docker compose -f docker-compose.prod.yml up -d --wait
+name: ledgerly
+
+services:
+  api:
+    image: ghcr.io/syedashhermajid/ledgerly-api:${LEDGERLY_VERSION:-latest}
+    pull_policy: always
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      APP_ENV: production
+    expose:
+      - "8000"
+    volumes:
+      - appdata:/app/data
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+
+  web:
+    image: ghcr.io/syedashhermajid/ledgerly-web:${LEDGERLY_VERSION:-latest}
+    pull_policy: always
+    restart: unless-stopped
+    environment:
+      API_INTERNAL_URL: http://api:8000
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      api:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+
+volumes:
+  appdata:

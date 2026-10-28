@@ -1,0 +1,9 @@
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+# Fixtures that deliberately test CRLF / encodings must keep their exact bytes
+samples/**/*crlf* -text
+samples/**/*cp1252* -text
+samples/**/*bom* -text
+frontend/public/samples/*crlf* -text
+frontend/public/samples/*bom* -text

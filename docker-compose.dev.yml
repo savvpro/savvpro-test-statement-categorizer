@@ -1,0 +1,8 @@
+# Dev override: publish the API on localhost for Swagger and direct calls.
+# Usage: docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
+name: ledgerly
+
+services:
+  api:
+    ports:
+      - "127.0.0.1:8000:8000"

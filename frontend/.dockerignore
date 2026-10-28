@@ -1,0 +1,31 @@
+# VCS, editors, OS
+.git
+.gitignore
+.DS_Store
+.idea
+.vscode
+
+# Dependencies and build output are rebuilt inside the image
+node_modules
+.next
+out
+*.tsbuildinfo
+next-env.d.ts
+
+# Tests and tooling reports
+coverage
+playwright-report
+test-results
+blob-report
+e2e
+tests
+*.log
+
+# Local env files
+.env
+.env.*
+!.env.example
+
+# Container files
+Dockerfile
+.dockerignore

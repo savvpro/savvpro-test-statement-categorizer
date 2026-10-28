@@ -1,0 +1,46 @@
+default_stages: [pre-commit]
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: ["--maxkb=500"]
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.4
+    hooks:
+      - id: ruff
+        args: ["--fix"]
+        files: ^backend/
+      - id: ruff-format
+        files: ^backend/
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.21.2
+    hooks:
+      - id: gitleaks
+
+  - repo: local
+    hooks:
+      - id: mypy
+        name: mypy (backend)
+        entry: uv run --project backend mypy --config-file backend/pyproject.toml backend/app
+        language: system
+        pass_filenames: false
+        files: ^backend/.*\.py$
+      - id: prettier
+        name: prettier (frontend)
+        entry: npm --prefix frontend exec -- prettier --check
+        language: system
+        files: ^frontend/src/.*\.(ts|tsx|css|json)$
+      - id: eslint
+        name: eslint (frontend)
+        entry: npm --prefix frontend run lint --
+        language: system
+        pass_filenames: false
+        files: ^frontend/src/.*\.(ts|tsx)$

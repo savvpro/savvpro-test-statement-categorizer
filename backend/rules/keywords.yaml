@@ -1,0 +1,26 @@
+# Stage 5: keyword rules, matched against merchant key + memo. Hits for the same category
+# combine by noisy-OR. Patterns are anchored on word boundaries and have no nested quantifiers.
+- {id: kw.plumbing, pattern: '\bPLUMB(ING|ER|ERS)?\b', category: REPAIRS, weight: 0.88, directions: [outflow]}
+- {id: kw.hvac, pattern: '\b(HVAC|HEATING|AIR CONDITIONING|FURNACE)\b', category: REPAIRS, weight: 0.88, directions: [outflow]}
+- {id: kw.roofing, pattern: '\bROOF(ING|ERS?)?\b', category: REPAIRS, weight: 0.85, directions: [outflow]}
+- {id: kw.electrician, pattern: '\bELECTRICIAN|ELECTRICAL (SERVICES?|CONTRACTORS?)\b', category: REPAIRS, weight: 0.88, directions: [outflow]}
+- {id: kw.handyman, pattern: '\b(HANDYMAN|REPAIRS?|LOCKSMITH|APPLIANCE|PAINTING|GLASS)\b', category: REPAIRS, weight: 0.86, directions: [outflow]}
+- {id: kw.pest, pattern: '\bPEST\b', category: REPAIRS, weight: 0.86, directions: [outflow]}
+- {id: kw.cleaning, pattern: '\b(CLEANING|CLEANERS|MAID|JANITORIAL|CARPET CARE)\b', category: CLEANING_MAINTENANCE, weight: 0.88, directions: [outflow]}
+- {id: kw.landscaping, pattern: '\b(LANDSCAP(E|ING)|LAWN|GARDENING|SNOW REMOVAL)\b', category: CLEANING_MAINTENANCE, weight: 0.88, directions: [outflow]}
+- {id: kw.hoa, pattern: '\b(HOA|HOMEOWNERS? ASSOC(IATION)?|CONDO ASSOC(IATION)?|OWNERS ASSOC(IATION)?)\b', category: OTHER_EXPENSE, weight: 0.92, directions: [outflow]}
+- {id: kw.property_tax, pattern: '\b(TREASURER|TAX COLLECTOR|PROPERTY TAX|ASSESSOR)\b', category: TAXES, weight: 0.95, directions: [outflow]}
+- {id: kw.insurance, pattern: '\b(INSURANCE|INS CO|MUTUAL INS|LANDLORD POLICY)\b', category: INSURANCE, weight: 0.90, directions: [outflow]}
+- {id: kw.mortgage, pattern: '\b(MORTGAGE|MTG PMT|HOME MTG|HOME LOAN|LOAN SERVICING|LOANS? (PMT|PYMT|PAYMENT))\b', category: MORTGAGE_INTEREST, weight: 0.85, directions: [outflow], flags: [MORTGAGE_SPLIT_REQUIRED]}
+- {id: kw.water, pattern: '\b(WATER (CO|COMPANY|DEPT|DEPARTMENT|BILL|UTIL(ITY|ITIES)?|AND SEWER|SEWER|SERVICES?|DISTRICT|AUTHORITY)|SEWER|STORMWATER|WASTE|REFUSE|RECYCLING|TRASH (SERVICE|PICKUP|COLLECTION|HAULING))\b', category: UTILITIES, weight: 0.92, directions: [outflow]}
+- {id: kw.water_generic, pattern: '\b(WATER|TRASH)\b', category: UTILITIES, weight: 0.55, directions: [outflow]}
+- {id: kw.energy, pattern: '\b(ELECTRIC CO|ELECTRIC UTILITY|POWER (AND|CO)|GAS CO|NATURAL GAS|ENERGY|UTILIT(Y|IES))\b', category: UTILITIES, weight: 0.90, directions: [outflow]}
+- {id: kw.internet, pattern: '\b(INTERNET|BROADBAND)\b', category: UTILITIES, weight: 0.80, directions: [outflow]}
+- {id: kw.legal, pattern: '\b(ATTORNEY|LAW (OFFICE|GROUP|FIRM)|LEGAL|EVICTION)\b', category: LEGAL_PROFESSIONAL, weight: 0.90, directions: [outflow]}
+- {id: kw.accounting, pattern: '\b(CPA|CPAS|ACCOUNTING|BOOKKEEPING|TAX PREP(ARATION)?)\b', category: LEGAL_PROFESSIONAL, weight: 0.90, directions: [outflow]}
+- {id: kw.advertising, pattern: '\b(ADVERTIS(ING|EMENT)|ADS|LISTING FEE|RENTAL LISTING|CLASSIFIEDS?)\b', category: ADVERTISING, weight: 0.90, directions: [outflow]}
+- {id: kw.management, pattern: '\b(PROPERTY MGMT|PROPERTY MANAGEMENT|MGMT FEE|MANAGEMENT FEE|REALTY MGMT)\b', category: MANAGEMENT_FEES, weight: 0.93, directions: [outflow]}
+- {id: kw.commission, pattern: '\b(COMMISSION|LEASING FEE|TENANT PLACEMENT|FINDERS FEE)\b', category: COMMISSIONS, weight: 0.90, directions: [outflow]}
+- {id: kw.parking, pattern: '\b(PARKING|TOLLS?|TOLLWAY)\b', category: AUTO_TRAVEL, weight: 0.80, directions: [outflow]}
+- {id: kw.screening, pattern: '\b(TENANT SCREENING|BACKGROUND CHECK|CREDIT REPORT)\b', category: LEGAL_PROFESSIONAL, weight: 0.85, directions: [outflow]}
+- {id: kw.electric_utility, pattern: '\b(ELECTRIC|POWER|LIGHT AND POWER)( (COMPANY|CO|UTILITY|SERVICE))?$', category: UTILITIES, weight: 0.88, directions: [outflow]}

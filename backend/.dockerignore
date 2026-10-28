@@ -1,0 +1,34 @@
+# VCS, editors, OS
+.git
+.gitignore
+.DS_Store
+.idea
+.vscode
+
+# Python build/test artefacts and local envs
+.venv
+**/__pycache__
+**/*.py[cod]
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.coverage
+coverage.xml
+junit.xml
+htmlcov
+*.egg-info
+
+# Tests and dev-only material are not shipped
+tests
+scripts
+
+# Local data, secrets, databases
+data
+*.db
+*.sqlite3
+.env
+.env.*
+!.env.example
+
+Dockerfile
+.dockerignore
