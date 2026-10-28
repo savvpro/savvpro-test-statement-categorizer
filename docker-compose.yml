@@ -1,0 +1,17 @@
+services:
+  api:
+    build: ./backend
+    ports: ["8000:8000"]
+    environment:
+      CATEGORIZER_DB: /data/app.db
+      CORS_ORIGINS: http://localhost:3000
+    volumes: [api-data:/data]
+  web:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000
+    ports: ["3000:3000"]
+    depends_on: [api]
+volumes:
+  api-data:

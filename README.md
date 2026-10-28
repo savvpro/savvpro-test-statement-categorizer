@@ -1,83 +1,130 @@
-# Step-by-Step Guide: How to Fork, Clone, and Submit Your Assessment
+# LedgerLane: Statement Categorizer for gig drivers
 
-**Repository:** https://github.com/savvpro/savvpro-test-statement-categorizer
+Upload a bank or credit card statement (CSV). LedgerLane sorts every transaction into tax categories for a
+rideshare / delivery driver, explains each decision, flags the ones it is not sure about for review, and gives totals
+and a CSV export.
 
----
+The decision-making "brain" is plain, readable Python rules. **No AI model decides any category.**
+See [DESIGN.md](DESIGN.md) for how it decides and [AI_USAGE.md](AI_USAGE.md) for how AI tools were used to write it.
+The assessment brief is in [TASK.md](TASK.md).
 
-## Step 1: Fork the Repository
+## Screenshots
 
-1. Go to the repository: https://github.com/savvpro/savvpro-test-statement-categorizer
-2. Click the **Fork** button in the top-right corner.
-3. This will create a copy of the repository in your GitHub account.
+**Landing page: header and hero**
 
----
+![Landing page header and hero](docs/screenshots/01-landing-header-hero.png)
 
-## Step 2: Clone Your Fork
+**The app: rows that need review.** A sample bank statement after upload: totals at the top, the unsure rows with the
+reason and a suggested category, and totals by category on the right.
 
-1. Open your forked repository in your GitHub account.
-2. Click the green **Code** button and copy the URL.
-3. Run the following commands:
+![Needs review tab](docs/screenshots/02-app-needs-review.png)
 
-```bash
-git clone https://github.com/your-username/savvpro-test-statement-categorizer.git
-cd savvpro-test-statement-categorizer
+**The app: all transactions**, each with its category, the rule that decided it and how sure it is.
+
+![All transactions tab](docs/screenshots/03-app-all-transactions.png)
+
+**How it works**
+
+![How it works](docs/screenshots/04-how-it-works.png)
+
+**The brain: six rule layers**
+
+![The brain's six rule layers](docs/screenshots/05-the-brain.png)
+
+**Features**
+
+![Features and tricky rows](docs/screenshots/06-features.png)
+
+**CSV guide**
+
+![How to prepare your CSV](docs/screenshots/07-csv-guide.png)
+
+**Footer**
+
+![Footer](docs/screenshots/08-footer.png)
+
+## Project structure
+
+```
+backend/                    Python 3.12, FastAPI, SQLite
+  app/
+    main.py                 FastAPI app, CORS
+    api/routes.py           HTTP endpoints
+    brain/engine.py         the decision engine (six rule layers)
+    brain/rules.py          patterns, merchants and thresholds (data)
+    domain/categories.py    category list: kind and deductible flag
+    ingest/parsing.py       CSV reader: columns, signs, amounts, dates, junk rows
+    ingest/normalize.py     merchant-name cleaning
+    services/statements.py  duplicates, pending, refunds, totals
+    storage/db.py           SQLite: statements, transactions, learned rules
+  tests/                    pytest: parser, normalizer, brain, service, API
+frontend/                   Next.js 15, TypeScript, Tailwind
+  src/app/page.tsx          landing page
+  src/app/categorize/       the app: upload, review, fix, export
+  src/components/           landing/, categorize/, layout/, ui/
+  src/lib/                  API client, types, formatting
+samples/                    fake statements in three bank layouts
 ```
 
----
+## Run locally
 
-## Step 3: Read the Task
+Requirements: Python 3.12+, Node 20+.
 
-Open and read **TASK.md** carefully before writing any code.
-
-- TASK.md URL: https://github.com/savvpro/savvpro-test-statement-categorizer/blob/main/TASK.md
-
----
-
-## Step 4: Create a New Branch
-
-Branch pattern: `candidate-<your-github-username>`
+**Backend** (http://localhost:8000, API docs at `/docs`):
 
 ```bash
-git checkout -b candidate-<your-github-username>
+cd backend
+python -m venv .venv
+# Windows: .venv\Scripts\activate    macOS/Linux: source .venv/bin/activate
+pip install -r requirements-dev.txt
+uvicorn app.main:app --reload --port 8000
 ```
 
-**Example:**
-```bash
-git checkout -b candidate-johndoe
-```
-
----
-
-## Step 5: Complete the Task
-
-Build the full application on your branch.
-
----
-
-## Step 6: Push Your Branch
+**Frontend** (http://localhost:3000):
 
 ```bash
-git add .
-git commit -m "feat: complete statement-categorizer assessment"
-git push origin candidate-<your-github-username>
+cd frontend
+cp .env.example .env.local   # NEXT_PUBLIC_API_URL=http://localhost:8000
+npm install
+npm run dev
 ```
 
----
+Open http://localhost:3000, click **Sort a statement**, and upload a file from `samples/` (or click one of the sample
+buttons).
 
-## Step 7: Create a Pull Request
+**Or with Docker:**
 
-1. Go to your **forked** repository on GitHub (`https://github.com/your-username/savvpro-test-statement-categorizer`).
-2. Click **Compare & pull request** (GitHub will show this banner after you push your branch).
-3. Ensure the following settings in the PR form:
-   - **Base repository:** `savvpro/savvpro-test-statement-categorizer` ← the original repo
-   - **Base branch:** `main`
-   - **Head repository:** `your-username/savvpro-test-statement-categorizer` ← your fork
-   - **Compare branch:** `candidate-<your-github-username>`
-4. Use the title: `feat: complete statement-categorizer assessment`
-5. Submit the pull request.
+```bash
+docker compose up --build
+```
 
-> 💡 **Tip:** If you don't see the banner, go to the original repo (`savvpro/savvpro-test-statement-categorizer`), click the **Pull requests** tab, then click **New pull request** → **compare across forks**.
+## Tests
 
----
+```bash
+cd backend && pytest          # 67 tests
+cd frontend && npm run lint && npm run build
+```
 
-> ⚠️ **Important:** No submissions will be accepted after the deadline.
+CI runs both on every push (`.github/workflows/ci.yml`).
+
+## API
+
+| Method | Path | Purpose |
+|---|---|---|
+| `POST` | `/api/statements?sign=auto\|bank\|card` | Upload a CSV; returns rows, decisions and totals |
+| `GET` | `/api/statements` | List uploaded statements |
+| `GET` | `/api/statements/{id}` | One statement with rows and totals |
+| `PATCH` | `/api/transactions/{id}` | Fix a row `{category, apply_to_similar, remember}` |
+| `GET` | `/api/statements/{id}/export.csv` | Categorized CSV export |
+| `DELETE` | `/api/statements/{id}` | Delete a statement |
+| `GET` | `/api/categories` | Category list |
+
+## Configuration
+
+| Variable | Default | Used by |
+|---|---|---|
+| `CATEGORIZER_DB` | `backend/data/app.db` | backend SQLite path |
+| `CORS_ORIGINS` | `http://localhost:3000` | backend, comma-separated |
+| `NEXT_PUBLIC_API_URL` | `http://localhost:8000` | frontend |
+
+No keys or secrets are needed. All data in `samples/` is fake.
