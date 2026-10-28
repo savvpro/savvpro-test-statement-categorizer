@@ -1,83 +1,60 @@
-# Step-by-Step Guide: How to Fork, Clone, and Submit Your Assessment
+# Freelance Ledger
 
-**Repository:** https://github.com/savvpro/savvpro-test-statement-categorizer
+A statement categorizer for independent designers. Upload a bank or business-card **CSV** to get a rule-based first pass, review uncertain merchants, correct categories, and export the reviewed transactions. The categorizer is local application code; it does not send transactions to an AI model or an external service.
 
----
+## Features
 
-## Step 1: Fork the Repository
+- Reads CSV exports with date and description/merchant columns and either a signed amount column or debit and credit columns.
+- Recognizes common bank CSV formats: comma, semicolon, and tab delimiters; UTF-8 and Windows-1252; currency symbols, thousands separators, parentheses for negatives, and `CR`/`DR` suffixes.
+- Applies specific merchant/transaction phrase rules. Unknowns remain **Needs review** rather than being guessed.
+- Distinguishes known transfers, refunds, client income, and expense categories.
+- Lets the user edit categories, filter review items, see expense totals, and download a categorized CSV.
+- Processes uploaded rows in memory only; the application has no database and does not save statements.
 
-1. Go to the repository: https://github.com/savvpro/savvpro-test-statement-categorizer
-2. Click the **Fork** button in the top-right corner.
-3. This will create a copy of the repository in your GitHub account.
+## Run locally
 
----
+### Backend (Python 3.10+)
 
-## Step 2: Clone Your Fork
+From the repository root, in PowerShell:
 
-1. Open your forked repository in your GitHub account.
-2. Click the green **Code** button and copy the URL.
-3. Run the following commands:
-
-```bash
-git clone https://github.com/your-username/savvpro-test-statement-categorizer.git
-cd savvpro-test-statement-categorizer
+```powershell
+cd backend
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements-dev.txt
+uvicorn app.main:app --reload
 ```
 
----
+The API is available at `http://localhost:8000`. Set `CORS_ORIGINS` to a comma-separated list of trusted frontend origins when running the API from another origin.
 
-## Step 3: Read the Task
+### Frontend (Node.js 20.9+)
 
-Open and read **TASK.md** carefully before writing any code.
+In a second terminal:
 
-- TASK.md URL: https://github.com/savvpro/savvpro-test-statement-categorizer/blob/main/TASK.md
-
----
-
-## Step 4: Create a New Branch
-
-Branch pattern: `candidate-<your-github-username>`
-
-```bash
-git checkout -b candidate-<your-github-username>
+```powershell
+cd frontend
+npm ci
+npm run dev
 ```
 
-**Example:**
-```bash
-git checkout -b candidate-johndoe
+Open `http://localhost:3000`. By default, the frontend calls `http://localhost:8000`. Set `NEXT_PUBLIC_API_URL` before starting Next.js if the API runs elsewhere.
+
+## Tests and checks
+
+```powershell
+cd backend
+python -m pytest
 ```
 
----
-
-## Step 5: Complete the Task
-
-Build the full application on your branch.
-
----
-
-## Step 6: Push Your Branch
-
-```bash
-git add .
-git commit -m "feat: complete statement-categorizer assessment"
-git push origin candidate-<your-github-username>
+```powershell
+cd frontend
+npm run lint
+npx tsc --noEmit
+npm run build
 ```
 
----
+## CSV format
 
-## Step 7: Create a Pull Request
+The CSV must have a header row and one transaction per row. Accepted date headers include `Date`, `Transaction Date`, and `Posted Date`; description headers include `Description`, `Merchant`, `Details`, and `Payee`. Supply either `Amount` or both `Debit` and `Credit`. Amounts are treated as USD for display; the CSV must not mix currencies. Rows with unknown merchants are returned and marked for review. A malformed row rejects the upload with its line number so the user can fix the source file.
 
-1. Go to your **forked** repository on GitHub (`https://github.com/your-username/savvpro-test-statement-categorizer`).
-2. Click **Compare & pull request** (GitHub will show this banner after you push your branch).
-3. Ensure the following settings in the PR form:
-   - **Base repository:** `savvpro/savvpro-test-statement-categorizer` ← the original repo
-   - **Base branch:** `main`
-   - **Head repository:** `your-username/savvpro-test-statement-categorizer` ← your fork
-   - **Compare branch:** `candidate-<your-github-username>`
-4. Use the title: `feat: complete statement-categorizer assessment`
-5. Submit the pull request.
-
-> 💡 **Tip:** If you don't see the banner, go to the original repo (`savvpro/savvpro-test-statement-categorizer`), click the **Pull requests** tab, then click **New pull request** → **compare across forks**.
-
----
-
-> ⚠️ **Important:** No submissions will be accepted after the deadline.
+Scanned PDFs and image statements are not supported. Export a CSV from the bank or card provider before uploading. Never upload real statements to a public demo.
